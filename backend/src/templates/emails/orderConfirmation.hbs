@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmación de Pedido</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f0;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #8A9A5B 0%, #6B7B4C 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 300;
+        }
+        .content {
+            padding: 30px 20px;
+        }
+        .greeting {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .order-info {
+            background-color: #f9f9f5;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        .order-info p {
+            margin: 8px 0;
+            color: #555;
+        }
+        .order-info strong {
+            color: #333;
+        }
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .items-table th {
+            background-color: #8A9A5B;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 500;
+        }
+        .items-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .items-table tr:last-child td {
+            border-bottom: none;
+        }
+        .total-section {
+            background-color: #f9f9f5;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            font-size: 15px;
+        }
+        .total-row.final {
+            font-size: 20px;
+            font-weight: bold;
+            color: #8A9A5B;
+            border-top: 2px solid #8A9A5B;
+            padding-top: 10px;
+            margin-top: 10px;
+        }
+        .footer {
+            background-color: #f5f5f0;
+            padding: 20px;
+            text-align: center;
+            color: #777;
+            font-size: 14px;
+        }
+        .button {
+            display: inline-block;
+            background-color: #8A9A5B;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✨ Tienda Holística</h1>
+            <p style="margin: 10px 0 0 0; opacity: 0.9;">Confirmación de Pedido</p>
+        </div>
+        
+        <div class="content">
+            <p class="greeting">¡Hola {{customerName}}! 🙏</p>
+            
+            <p>Gracias por tu compra. Hemos recibido tu pedido y lo estamos procesando con mucho amor y dedicación.</p>
+            
+            <div class="order-info">
+                <p><strong>Número de Pedido:</strong> #{{orderId}}</p>
+                <p><strong>Fecha:</strong> {{orderDate}}</p>
+                <p><strong>Método de Pago:</strong> {{paymentMethod}}</p>
+                <p><strong>Método de Envío:</strong> {{shippingMethod}}</p>
+                {{#if address}}
+                <p><strong>Dirección de Envío:</strong> {{address}}, {{city}} ({{postalCode}})</p>
+                {{/if}}
+            </div>
+            
+            <h3 style="color: #8A9A5B; margin-top: 30px;">Detalle del Pedido</h3>
+            
+            <table class="items-table">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Precio</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each items}}
+                    <tr>
+                        <td>{{this.name}}</td>
+                        <td>{{this.quantity}}</td>
+                        <td>${{this.price}}</td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+            
+            <div class="total-section">
+                <div class="total-row">
+                    <span>Subtotal:</span>
+                    <span>${{subtotal}}</span>
+                </div>
+                {{#if discount}}
+                <div class="total-row" style="color: #d9534f;">
+                    <span>Descuento:</span>
+                    <span>-${{discount}}</span>
+                </div>
+                {{/if}}
+                <div class="total-row">
+                    <span>Envío:</span>
+                    <span>${{shippingCost}}</span>
+                </div>
+                <div class="total-row final">
+                    <span>TOTAL:</span>
+                    <span>${{total}}</span>
+                </div>
+            </div>
+            
+            <p style="margin-top: 30px; color: #555;">
+                Te mantendremos informado sobre el estado de tu pedido. Si tienes alguna pregunta, no dudes en contactarnos.
+            </p>
+            
+            <p style="margin-top: 20px; font-style: italic; color: #8A9A5B;">
+                "Que la energía positiva te acompañe en este camino de bienestar" 🌿
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p>© 2026 Tienda Holística - Conecta con tu esencia natural</p>
+            <p>Este es un email automático, por favor no responder.</p>
+        </div>
+    </div>
+</body>
+</html>

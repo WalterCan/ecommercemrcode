@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actualización de Pedido</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f0;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #8A9A5B 0%, #6B7B4C 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 300;
+        }
+
+        .content {
+            padding: 30px 20px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            background-color: #8A9A5B;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: 500;
+            margin: 20px 0;
+        }
+
+        .message-box {
+            background-color: #f9f9f5;
+            padding: 20px;
+            border-left: 4px solid #8A9A5B;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+
+        .footer {
+            background-color: #f5f5f0;
+            padding: 20px;
+            text-align: center;
+            color: #777;
+            font-size: 14px;
+        }
+
+        .button {
+            display: inline-block;
+            background-color: #8A9A5B;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✨ Tienda Holística</h1>
+            <p style="margin: 10px 0 0 0; opacity: 0.9;">Actualización de Pedido</p>
+        </div>
+
+        <div class="content">
+            <p style="font-size: 18px; color: #333;">¡Hola {{customerName}}! 🙏</p>
+
+            <p>Tenemos novedades sobre tu pedido <strong>#{{orderId}}</strong></p>
+
+            <div style="text-align: center;">
+                <span class="status-badge">{{status}}</span>
+            </div>
+
+            <div class="message-box">
+                <p style="margin: 0; color: #555; font-size: 16px;">
+                    {{statusMessage}}
+                </p>
+            </div>
+
+            {{#if trackingUrl}}
+            <p style="text-align: center;">
+                <a href="{{trackingUrl}}" class="button">Rastrear mi pedido</a>
+            </p>
+            {{/if}}
+
+            <p style="margin-top: 30px; color: #555;">
+                Si tienes alguna pregunta sobre tu pedido, no dudes en contactarnos.
+            </p>
+
+            <p style="margin-top: 20px; font-style: italic; color: #8A9A5B;">
+                "Gracias por confiar en nosotros para tu camino de bienestar" 🌿
+            </p>
+        </div>
+
+        <div class="footer">
+            <p>© 2026 Tienda Holística - Conecta con tu esencia natural</p>
+            <p>Este es un email automático, por favor no responder.</p>
+        </div>
+    </div>
+</body>
+
+</html>

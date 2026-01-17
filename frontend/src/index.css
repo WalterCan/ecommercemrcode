@@ -1,0 +1,42 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/**
+ * Estilos globales para la perfumería
+ */
+body {
+  @apply bg-paper text-slate-800 font-sans;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  @apply font-serif;
+}
+
+/* Transiciones suaves para botones y tarjetas */
+button,
+.card {
+  @apply transition-all duration-300 ease-in-out;
+}
+
+/* Scrollbar personalizada minimalista */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-champagne-light;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-rose-light/30 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-rose-light/50;
+}

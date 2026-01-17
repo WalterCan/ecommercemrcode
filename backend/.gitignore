@@ -1,0 +1,7 @@
+node_modules/
+.env
+.wwebjs_cache/
+whatsapp_sessions/
+sessions/
+uploads/
+npm-debug.log

@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # Base de Datos MySQL
+  db_ecommerce:
+    image: mysql:8.0
+    container_name: ecommerce-perfumes-db
+    restart: always
+    environment:
+      MYSQL_DATABASE: ecommercemrcode
+      MYSQL_ROOT_PASSWORD: root_password # Cambiar por algo más seguro si es necesario
+    ports:
+      - "3309:3306" # Mapeo de puerto externo 3309 a interno 3306 para evitar conflictos
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  # Backend (Node.js)
+  backend:
+    build: ./backend
+    container_name: ecommerce-perfumes-api
+    restart: always
+    ports:
+      - "3002:3000" # Mapeo de puerto externo 3002 a interno 3000
+    env_file:
+      - ./backend/.env
+    environment:
+      - PORT=3000
+      - DB_HOST=db_ecommerce
+      - DB_USER=root
+      - DB_PASSWORD=root_password
+      - DB_NAME=ecommercemrcode
+    volumes:
+      - ./backend:/app
+      - /app/node_modules # Evita sobreescribir node_modules del contenedor
+    depends_on:
+      - db_ecommerce
+
+  # Frontend (React + Vite)
+  frontend:
+    build: ./frontend
+    container_name: ecommerce-perfumes-web
+    restart: always
+    ports:
+      - "5176:5173" # Mapeo de puerto externo 5176 a interno 5173
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules # Evita sobreescribir node_modules del contenedor
+    environment:
+      - VITE_API_URL=http://localhost:3002/api # URL para que el navegador llame al backend
+    depends_on:
+      - backend
+
+volumes:
+  mysql_data:
