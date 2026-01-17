@@ -34,7 +34,8 @@ const AdminSettings = () => {
         social_instagram: '',
         social_facebook: '',
         site_logo_url: '',
-        site_name: ''
+        site_name: '',
+        site_tagline: ''
     });
     const [heroImageFile, setHeroImageFile] = useState(null);
     const [heroImagePreview, setHeroImagePreview] = useState(null);
@@ -289,9 +290,22 @@ const AdminSettings = () => {
                                             value={settings.site_name || ''}
                                             onChange={handleChange}
                                             className="w-full bg-white border border-beige-dark/20 rounded-xl p-3 focus:outline-none focus:border-earth font-serif font-bold text-lg text-earth"
-                                            placeholder="TIENDA HOLÍSTICA"
+                                            placeholder="Perfumería E-commerce"
                                         />
                                         <p className="text-[10px] text-slate-400 mt-1">Este texto se mostrará si no hay un logo subido.</p>
+                                    </div>
+
+                                    <div className="mb-6">
+                                        <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Eslogan / Tagline</label>
+                                        <input
+                                            type="text"
+                                            name="site_tagline"
+                                            value={settings.site_tagline || ''}
+                                            onChange={handleChange}
+                                            className="w-full bg-white border border-beige-dark/20 rounded-xl p-3 focus:outline-none focus:border-earth text-sm"
+                                            placeholder="Fragancias de Alta Calidad"
+                                        />
+                                        <p className="text-[10px] text-slate-400 mt-1">Aparecerá en el título de la pestaña del navegador.</p>
                                     </div>
 
                                     <div className="h-px bg-beige-dark/10 my-6"></div>

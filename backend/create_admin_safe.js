@@ -6,9 +6,9 @@ const sequelize = require('./src/config/db');
 // Force connection settings for local check against Docker mapped port
 // Similar to check_admin.js
 sequelize.connectionManager.config.host = 'localhost';
-sequelize.connectionManager.config.port = 3308;
+sequelize.connectionManager.config.port = 3309;
 sequelize.options.host = 'localhost';
-sequelize.options.port = 3308;
+sequelize.options.port = 3309;
 
 async function createAdmin() {
     try {
@@ -16,7 +16,7 @@ async function createAdmin() {
         await sequelize.authenticate();
         console.log('Database connected.');
 
-        const email = 'admin@tienda.com';
+        const email = 'admin@perfumeria.com';
         const password = 'admin123';
 
         const user = await User.findOne({ where: { email } });

@@ -3,8 +3,10 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { CartProvider } from './context/CartContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
+import { SettingsProvider, useSettings } from './context/SettingsContext';
 import ToastContainer from './components/layout/ToastContainer';
 import ErrorBoundary from './components/common/ErrorBoundary';
+import usePageTitle from './utils/usePageTitle';
 
 // Pages
 import Home from './pages/Home';
@@ -70,155 +72,165 @@ const AdminRoute = ({ children }) => {
     return children;
 };
 
+// Component to handle page title updates
+const PageTitleHandler = () => {
+    const { settings } = useSettings();
+    usePageTitle(settings);
+    return null;
+};
+
 function App() {
     return (
         <AuthProvider>
-            <ToastProvider>
-                <CartProvider>
-                    <ErrorBoundary>
-                        <Router>
-                            <div className="App flex flex-col min-h-screen">
-                                <ToastContainer />
-                                <Routes>
-                                    {/* Public Routes */}
-                                    <Route path="/" element={<Home />} />
-                                    <Route path="/product/:id" element={<ProductDetail />} />
-                                    <Route path="/productos" element={<Products />} />
-                                    <Route path="/nosotros" element={<About />} />
-                                    <Route path="/checkout" element={<Checkout />} />
-                                    <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />
-                                    <Route path="/login" element={<Login />} />
-                                    <Route path="/registro" element={<Register />} />
-                                    <Route path="/forgot-password" element={<ForgotPassword />} />
-                                    <Route path="/reset-password/:token" element={<ResetPassword />} />
-                                    <Route path="/perfil" element={<PrivateRoute><Profile /></PrivateRoute>} />
+            <SettingsProvider>
+                <ToastProvider>
+                    <CartProvider>
+                        <ErrorBoundary>
+                            <Router>
+                                <PageTitleHandler />
+                                <div className="App flex flex-col min-h-screen">
+                                    <ToastContainer />
+                                    <Routes>
+                                        {/* Public Routes */}
+                                        <Route path="/" element={<Home />} />
+                                        <Route path="/product/:id" element={<ProductDetail />} />
+                                        <Route path="/productos" element={<Products />} />
+                                        <Route path="/nosotros" element={<About />} />
+                                        <Route path="/checkout" element={<Checkout />} />
+                                        <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />
+                                        <Route path="/login" element={<Login />} />
+                                        <Route path="/registro" element={<Register />} />
+                                        <Route path="/forgot-password" element={<ForgotPassword />} />
+                                        <Route path="/reset-password/:token" element={<ResetPassword />} />
+                                        <Route path="/perfil" element={<PrivateRoute><Profile /></PrivateRoute>} />
 
-                                    {/* Admin Protected Routes */}
-                                    <Route
-                                        path="/admin"
-                                        element={
-                                            <AdminRoute>
-                                                <AdminDashboard />
-                                            </AdminRoute>
-                                        }
-                                    />
-                                    <Route
-                                        path="/admin/products"
-                                        element={
-                                            <AdminRoute>
-                                                <AdminProducts />
-                                            </AdminRoute>
-                                        }
-                                    />
-                                    <Route
-                                        path="/admin/orders"
-                                        element={
-                                            <AdminRoute>
-                                                <AdminOrders />
-                                            </AdminRoute>
-                                        }
-                                    />
-                                    <Route
-                                        path="/admin/categories"
-                                        element={
-                                            <AdminRoute>
-                                                <AdminCategories />
-                                            </AdminRoute>
-                                        }
-                                    />
-                                    <Route
-                                        path="/admin/categories/new"
-                                        element={
-                                            <AdminRoute>
-                                                <AdminCategoryForm />
-                                            </AdminRoute>
-                                        }
-                                    />
-                                    <Route
-                                        path="/admin/categories/edit/:id"
-                                        element={
-                                            <AdminRoute>
-                                                <AdminCategoryForm />
-                                            </AdminRoute>
-                                        }
-                                    />
-                                    <Route
-                                        path="/admin/products/new"
-                                        element={
-                                            <AdminRoute>
-                                                <AdminProductForm />
-                                            </AdminRoute>
-                                        }
-                                    />
-                                    <Route
-                                        path="/admin/products/edit/:id"
-                                        element={
-                                            <AdminRoute>
-                                                <AdminProductForm />
-                                            </AdminRoute>
-                                        }
-                                    />
-                                    <Route
-                                        path="/admin/whatsapp"
-                                        element={
-                                            <AdminRoute>
-                                                <AdminWhatsApp />
-                                            </AdminRoute>
-                                        }
-                                    />
-                                    <Route
-                                        path="/admin/settings"
-                                        element={
-                                            <AdminRoute>
-                                                <AdminSettings />
-                                            </AdminRoute>
-                                        }
-                                    />
-                                    <Route
-                                        path="/admin/coupons"
-                                        element={
-                                            <AdminRoute>
-                                                <AdminCoupons />
-                                            </AdminRoute>
-                                        }
-                                    />
-                                    <Route
-                                        path="/admin/reviews"
-                                        element={
-                                            <AdminRoute>
-                                                <AdminReviews />
-                                            </AdminRoute>
-                                        }
-                                    />
-                                    <Route
-                                        path="/admin/stock-alerts"
-                                        element={
-                                            <AdminRoute>
-                                                <AdminStockAlerts />
-                                            </AdminRoute>
-                                        }
+                                        {/* Admin Protected Routes */}
+                                        <Route
+                                            path="/admin"
+                                            element={
+                                                <AdminRoute>
+                                                    <AdminDashboard />
+                                                </AdminRoute>
+                                            }
+                                        />
+                                        <Route
+                                            path="/admin/products"
+                                            element={
+                                                <AdminRoute>
+                                                    <AdminProducts />
+                                                </AdminRoute>
+                                            }
+                                        />
+                                        <Route
+                                            path="/admin/orders"
+                                            element={
+                                                <AdminRoute>
+                                                    <AdminOrders />
+                                                </AdminRoute>
+                                            }
+                                        />
+                                        <Route
+                                            path="/admin/categories"
+                                            element={
+                                                <AdminRoute>
+                                                    <AdminCategories />
+                                                </AdminRoute>
+                                            }
+                                        />
+                                        <Route
+                                            path="/admin/categories/new"
+                                            element={
+                                                <AdminRoute>
+                                                    <AdminCategoryForm />
+                                                </AdminRoute>
+                                            }
+                                        />
+                                        <Route
+                                            path="/admin/categories/edit/:id"
+                                            element={
+                                                <AdminRoute>
+                                                    <AdminCategoryForm />
+                                                </AdminRoute>
+                                            }
+                                        />
+                                        <Route
+                                            path="/admin/products/new"
+                                            element={
+                                                <AdminRoute>
+                                                    <AdminProductForm />
+                                                </AdminRoute>
+                                            }
+                                        />
+                                        <Route
+                                            path="/admin/products/edit/:id"
+                                            element={
+                                                <AdminRoute>
+                                                    <AdminProductForm />
+                                                </AdminRoute>
+                                            }
+                                        />
+                                        <Route
+                                            path="/admin/whatsapp"
+                                            element={
+                                                <AdminRoute>
+                                                    <AdminWhatsApp />
+                                                </AdminRoute>
+                                            }
+                                        />
+                                        <Route
+                                            path="/admin/settings"
+                                            element={
+                                                <AdminRoute>
+                                                    <AdminSettings />
+                                                </AdminRoute>
+                                            }
+                                        />
+                                        <Route
+                                            path="/admin/coupons"
+                                            element={
+                                                <AdminRoute>
+                                                    <AdminCoupons />
+                                                </AdminRoute>
+                                            }
+                                        />
+                                        <Route
+                                            path="/admin/reviews"
+                                            element={
+                                                <AdminRoute>
+                                                    <AdminReviews />
+                                                </AdminRoute>
+                                            }
+                                        />
+                                        <Route
+                                            path="/admin/stock-alerts"
+                                            element={
+                                                <AdminRoute>
+                                                    <AdminStockAlerts />
+                                                </AdminRoute>
+                                            }
 
-                                    />
-                                    <Route
-                                        path="/admin/reports"
-                                        element={
-                                            <AdminRoute>
-                                                <AdminReports />
-                                            </AdminRoute>
-                                        }
-                                    />
+                                        />
+                                        <Route
+                                            path="/admin/reports"
+                                            element={
+                                                <AdminRoute>
+                                                    <AdminReports />
+                                                </AdminRoute>
+                                            }
+                                        />
 
-                                    {/* 404 Not Found */}
-                                    <Route path="*" element={<NotFound />} />
-                                </Routes>
-                                <Footer />
-                                <FloatingWhatsApp />
-                            </div>
-                        </Router>
-                    </ErrorBoundary>
-                </CartProvider>
-            </ToastProvider>
-        </AuthProvider >
+                                        {/* 404 Not Found */}
+                                        <Route path="*" element={<NotFound />} />
+                                    </Routes>
+                                    <Footer />
+                                    <FloatingWhatsApp />
+                                </div>
+                            </Router>
+                        </ErrorBoundary>
+                    </CartProvider>
+                </ToastProvider>
+            </SettingsProvider>
+        </AuthProvider>
     );
 }
 

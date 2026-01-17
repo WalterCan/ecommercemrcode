@@ -160,12 +160,19 @@ async function startServer() {
         // SEEDING DE CONFIGURACIONES POR DEFECTO
         // ============================================
         const defaultSettings = [
+            // Información General del Sitio
+            { key: 'site_name', value: 'Perfumería E-commerce', description: 'Nombre del sitio' },
+            { key: 'site_tagline', value: 'Fragancias de Alta Calidad', description: 'Eslogan o tagline del sitio' },
+            { key: 'site_logo_url', value: '', description: 'URL del logo de la tienda' },
+            // Datos Bancarios
             { key: 'bank_name', value: '', description: 'Nombre del Banco' },
             { key: 'bank_account_holder', value: '', description: 'Titular de la cuenta' },
             { key: 'bank_cbu', value: '', description: 'CBU / CVU' },
             { key: 'bank_alias', value: '', description: 'Alias de la cuenta' },
+            // WhatsApp
             { key: 'whatsapp_number', value: '', description: 'Número de WhatsApp para pedidos' },
             { key: 'whatsapp_message', value: '¡Hola! Quiero coordinar el pago de mi pedido.', description: 'Mensaje predeterminado de WhatsApp' },
+            // Hero Section
             { key: 'hero_title', value: 'Descubre tu fragancia perfecta', description: 'Título principal del Hero' },
             { key: 'hero_subtitle', value: 'Explora nuestra exclusiva colección de perfumes y fragancias de alta calidad para cada ocasión.', description: 'Subtítulo del Hero' },
             { key: 'hero_image_url', value: 'https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&q=80&w=2000', description: 'URL de la imagen de fondo del Hero' },
@@ -174,13 +181,12 @@ async function startServer() {
             { key: 'hero_cta2_text', value: 'Sobre Nosotros', description: 'Texto del botón secundario del Hero' },
             { key: 'hero_cta2_text', value: 'Sobre Nosotros', description: 'Texto del botón secundario del Hero' },
             { key: 'hero_cta2_link', value: '/nosotros', description: 'Enlace del botón secundario del Hero' },
-            // Nuevos ajustes editables
+            // Anuncios y Redes Sociales
             { key: 'announcement_active', value: 'false', description: 'Activar barra de anuncios superior' },
             { key: 'announcement_text', value: '¡Envío gratis en compras superiores a $50.000!', description: 'Texto del anuncio' },
             { key: 'announcement_link', value: '/productos', description: 'Enlace del anuncio' },
             { key: 'social_instagram', value: '', description: 'URL de Instagram' },
-            { key: 'social_facebook', value: '', description: 'URL de Facebook' },
-            { key: 'site_logo_url', value: '', description: 'URL del logo de la tienda' }
+            { key: 'social_facebook', value: '', description: 'URL de Facebook' }
         ];
 
         for (const setting of defaultSettings) {
