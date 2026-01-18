@@ -3,6 +3,7 @@ const { Client, LocalAuth } = require('whatsapp-web.js');
 const qrcode = require('qrcode');
 const path = require('path');
 const fs = require('fs');
+const Setting = require('../models/Setting');
 
 // Variables de estado global
 let qrCodeData = null;
@@ -478,6 +479,45 @@ const disconnectWhatsApp = async () => {
     }
 };
 
+const getSiteName = async () => {
+    try {
+        const setting = await Setting.findOne({ where: { key: 'site_name' } });
+        return setting ? setting.value : 'Tienda Holística';
+    } catch (error) {
+        return 'Tienda Holística';
+    }
+};
+
+const getPaymentMethodName = (method) => {
+    const methods = {
+        'mercadopago': 'Mercado Pago',
+        'transfer': 'Transferencia Bancaria',
+        'whatsapp': 'Coordinar por WhatsApp',
+        'cash': 'Efectivo'
+    };
+    return methods[method] || method;
+};
+
+const getStatusName = (status) => {
+    const statuses = {
+        'pending': 'Pendiente',
+        'processing': 'En Proceso',
+        'shipped': 'Enviado',
+        'delivered': 'Entregado',
+        'cancelled': 'Cancelado'
+    };
+    return statuses[status] || status;
+};
+
+const getShippingMethodName = (method) => {
+    const methods = {
+        'pickup': 'Retiro en sucursal',
+        'shipping': 'Envío a domicilio',
+        'delivery': 'Envío local'
+    };
+    return methods[method] || method;
+};
+
 const sendTestMessage = async (phoneNumber) => {
     if (!client || connectionStatus !== 'connected') {
         return {
@@ -488,6 +528,7 @@ const sendTestMessage = async (phoneNumber) => {
     }
 
     try {
+        const siteName = await getSiteName();
         // Limpiar número
         let cleanNumber = phoneNumber.replace(/\D/g, '');
         console.log(`🔍 Intentando enviar prueba a: ${cleanNumber}`);
@@ -506,7 +547,7 @@ const sendTestMessage = async (phoneNumber) => {
             console.log(`⚠️ Error resolviendo ID: ${idErr.message}`);
         }
 
-        await client.sendMessage(targetId, '¡Hola! Este es un mensaje de prueba desde tu Tienda Holística. 👋');
+        await client.sendMessage(targetId, `¡Hola! Este es un mensaje de prueba desde tu *${siteName}*. 👋`, { sendSeen: false });
 
         return {
             success: true,
@@ -528,6 +569,7 @@ const sendOrderMessage = async (order, type = 'new') => {
     }
 
     try {
+        const siteName = await getSiteName();
         let phoneNumber = order.customer_phone.replace(/\D/g, '');
 
         // Intentar obtener el ID oficial
@@ -542,20 +584,20 @@ const sendOrderMessage = async (order, type = 'new') => {
         let message = '';
         if (type === 'new') {
             message = `*¡Hola ${order.customer_name}!* 👋\n\n` +
-                `Gracias por tu compra en *Tienda Holística*.\n` +
+                `Gracias por tu compra en *${siteName}*.\n` +
                 `Hemos recibido tu pedido *#${order.id}*.\n\n` +
                 `*Resumen:* \n` +
                 `- Total: $${order.total}\n` +
-                `- Pago: ${order.payment_method}\n` +
-                `- Envío: ${order.shipping_method}\n\n` +
+                `- Pago: ${getPaymentMethodName(order.payment_method)}\n` +
+                `- Envío: ${getShippingMethodName(order.shipping_method)}\n\n` +
                 `Te avisaremos cuando haya novedades. ¡Gracias! ✨`;
         } else if (type === 'status_update' || type === 'update') {
             message = `*Hola ${order.customer_name}* 👋\n\n` +
-                `Tu pedido *#${order.id}* ha cambiado de estado a: *${order.order_status}*.\n\n` +
+                `Tu pedido *#${order.id}* ha cambiado de estado a: *${getStatusName(order.order_status)}*.\n\n` +
                 `¡Gracias por tu paciencia! ✨`;
         }
 
-        await client.sendMessage(targetId, message);
+        await client.sendMessage(targetId, message, { sendSeen: false });
         console.log(`✅ WhatsApp enviado para pedido #${order.id}`);
         return true;
     } catch (error) {
