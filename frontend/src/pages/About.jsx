@@ -1,67 +1,131 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/layout/Header';
 import CartDrawer from '../components/cart/CartDrawer';
+import { formatImageUrl } from '../utils/imageConfig';
 
 /**
- * Página "Nosotros".
- * Comparte la misión, visión y filosofía de la tienda holística.
+ * Página "Nosotros" Dinámica.
  */
 const About = () => {
+    const [settings, setSettings] = useState({
+        about_hero_tagline: 'Nuestra Esencia',
+        about_hero_title: 'Honramos el equilibrio entre cuerpo y espíritu.',
+        about_mission_image_url: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=80&w=800',
+        about_mission_title: 'Nacimos del Silencio',
+        about_mission_text: 'Tienda Holística surgió como una respuesta a la necesidad de reconectar con lo esencial.',
+        about_prop_1_title: 'Propósito',
+        about_prop_1_text: 'Facilitar herramientas sagradas para la meditación y el autoconocimiento.',
+        about_prop_2_title: 'Pureza',
+        about_prop_2_text: 'Seleccionamos cada objeto bajo criterios de comercio ético y origen natural.',
+        about_values_title: 'Nuestros Pilares',
+        about_values_subtitle: '"Lo que es adentro, es afuera. Lo que es arriba, es abajo."',
+        about_value_1_title: 'Respeto a la Tierra',
+        about_value_1_text: 'Honramos los ciclos de la naturaleza en cada producto.',
+        about_value_1_icon: '🌱',
+        about_value_2_title: 'Intención Sagrada',
+        about_value_2_text: 'Cada envío es preparado como un ritual de agradecimiento.',
+        about_value_2_icon: '✨',
+        about_value_3_title: 'Comunidad',
+        about_value_3_text: 'Creemos en el crecimiento colectivo y la sanación grupal.',
+        about_value_3_icon: '🧘',
+        about_cta_title: '¿Listo para comenzar tu ritual?',
+        about_cta_button_text: 'Ver Colección',
+        about_cta_button_link: '/productos'
+    });
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchSettings = async () => {
+            try {
+                const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+                const res = await fetch(`${baseUrl}/settings`);
+                const data = await res.json();
+                setSettings(prev => ({ ...prev, ...data }));
+            } catch (error) {
+                console.error('Error loading about settings:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchSettings();
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-paper flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-earth"></div>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-paper font-sans">
             <Header />
             <CartDrawer />
 
             <main>
-                {/* Hero Section - Nosotros */}
+                {/* Hero Section */}
                 <section className="relative py-24 bg-beige-light/50 overflow-hidden">
                     <div className="container mx-auto px-4 text-center relative z-10">
-                        <span className="text-terracotta font-bold uppercase tracking-[0.3em] text-xs mb-4 block animate-fade-in">Nuestra Esencia</span>
-                        <h1 className="text-4xl md:text-6xl font-serif text-slate-800 mb-8 leading-tight">
-                            Honramos el equilibrio <br /> <span className="italic text-earth">entre cuerpo y espíritu.</span>
+                        <span
+                            className="text-terracotta font-bold uppercase tracking-[0.3em] text-xs mb-4 block animate-fade-in"
+                            style={{ color: settings.about_hero_tagline_color || 'var(--color-terracotta)' }}
+                        >
+                            {settings.about_hero_tagline}
+                        </span>
+                        <h1
+                            className="text-4xl md:text-6xl font-serif text-slate-800 mb-8 leading-tight max-w-4xl mx-auto"
+                            style={{ color: settings.about_hero_title_color || 'var(--color-text-primary)' }}
+                        >
+                            {settings.about_hero_title}
                         </h1>
-                    </div>
-                    {/* Elementos decorativos abstractos */}
-                    <div className="absolute top-0 right-0 opacity-10 -translate-y-1/2 translate-x-1/2">
-                        <svg width="600" height="600" viewBox="0 0 200 200">
-                            <circle cx="100" cy="100" r="80" stroke="#8B5E3C" strokeWidth="0.5" fill="none" />
-                        </svg>
                     </div>
                 </section>
 
                 {/* Misión y Visión */}
-                <section className="py-20">
+                <section className="py-20 text-text-primary">
                     <div className="container mx-auto px-4">
                         <div className="grid md:grid-cols-2 gap-16 items-center">
                             <div>
                                 <div className="aspect-[4/5] bg-beige rounded-3xl overflow-hidden shadow-2xl rotate-1">
                                     <img
-                                        src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=80&w=800"
-                                        alt="Espacio sagrado"
+                                        src={formatImageUrl(settings.about_mission_image_url)}
+                                        alt={settings.about_mission_title}
                                         className="w-full h-full object-cover"
                                     />
                                 </div>
                             </div>
                             <div className="space-y-8">
                                 <div>
-                                    <h2 className="text-3xl font-serif text-slate-800 mb-4">Nacimos del Silencio</h2>
-                                    <p className="text-slate-600 leading-relaxed text-lg">
-                                        Tienda Holística surgió como una respuesta a la necesidad de reconectar con lo esencial.
-                                        En un mundo acelerado, creemos que cada rincón de nuestro hogar puede convertirse en un altar de bienestar.
+                                    <h2
+                                        className="text-3xl font-serif text-slate-800 mb-4"
+                                        style={{ color: settings.about_mission_title_color || 'var(--color-text-primary)' }}
+                                    >
+                                        {settings.about_mission_title}
+                                    </h2>
+                                    <p
+                                        className="text-slate-600 leading-relaxed text-lg italic whitespace-pre-wrap"
+                                        style={{ color: settings.about_mission_text_color || 'var(--color-text-secondary)' }}
+                                    >
+                                        {settings.about_mission_text}
                                     </p>
                                 </div>
                                 <div className="grid grid-cols-2 gap-8 pt-8">
                                     <div>
-                                        <h4 className="text-xs font-bold uppercase tracking-widest text-earth mb-3 underline underline-offset-8 decoration-terracotta/30">Propósito</h4>
+                                        <h4 className="text-xs font-bold uppercase tracking-widest text-earth mb-3 underline underline-offset-8 decoration-terracotta/30">
+                                            {settings.about_prop_1_title}
+                                        </h4>
                                         <p className="text-slate-500 text-sm leading-relaxed">
-                                            Facilitar herramientas sagradas para la meditación y el autoconocimiento.
+                                            {settings.about_prop_1_text}
                                         </p>
                                     </div>
                                     <div>
-                                        <h4 className="text-xs font-bold uppercase tracking-widest text-earth mb-3 underline underline-offset-8 decoration-terracotta/30">Pureza</h4>
+                                        <h4 className="text-xs font-bold uppercase tracking-widest text-earth mb-3 underline underline-offset-8 decoration-terracotta/30">
+                                            {settings.about_prop_2_title}
+                                        </h4>
                                         <p className="text-slate-500 text-sm leading-relaxed">
-                                            Seleccionamos cada objeto bajo criterios de comercio ético y origen natural.
+                                            {settings.about_prop_2_text}
                                         </p>
                                     </div>
                                 </div>
@@ -70,22 +134,42 @@ const About = () => {
                     </div>
                 </section>
 
-                {/* Sección de Valores / Filosofía */}
+                {/* Pilares */}
                 <section className="bg-white py-24">
                     <div className="container mx-auto px-4">
                         <div className="max-w-3xl mx-auto text-center mb-16">
-                            <h2 className="text-3xl font-serif text-slate-800 mb-6">Nuestros Pilares</h2>
-                            <p className="text-slate-500 italic">"Lo que es adentro, es afuera. Lo que es arriba, es abajo."</p>
+                            <h2
+                                className="text-3xl font-serif text-slate-800 mb-6"
+                                style={{ color: settings.about_values_title_color || 'var(--color-text-primary)' }}
+                            >
+                                {settings.about_values_title}
+                            </h2>
+                            <p
+                                className="text-slate-500 italic"
+                                style={{ color: settings.about_values_subtitle_color || 'var(--color-text-secondary)' }}
+                            >
+                                {settings.about_values_subtitle}
+                            </p>
                         </div>
 
                         <div className="grid md:grid-cols-3 gap-12">
                             {[
-                                { title: "Respeto a la Tierra", desc: "Honramos los ciclos de la naturaleza en cada producto.", icon: "🌱" },
-                                { title: "Intención Sagrada", desc: "Cada envío es preparado como un ritual de agradecimiento.", icon: "✨" },
-                                { title: "Comunidad", desc: "Creemos en el crecimiento colectivo y la sanación grupal.", icon: "🧘" }
+                                { title: settings.about_value_1_title, desc: settings.about_value_1_text, icon: settings.about_value_1_icon, imageUrl: settings.about_value_1_image_url },
+                                { title: settings.about_value_2_title, desc: settings.about_value_2_text, icon: settings.about_value_2_icon, imageUrl: settings.about_value_2_image_url },
+                                { title: settings.about_value_3_title, desc: settings.about_value_3_text, icon: settings.about_value_3_icon, imageUrl: settings.about_value_3_image_url }
                             ].map((item, i) => (
                                 <div key={i} className="text-center p-8 rounded-3xl bg-paper border border-beige-dark/10 hover:shadow-lg transition-all duration-500">
-                                    <span className="text-4xl mb-6 block">{item.icon}</span>
+                                    <div className="h-16 mb-6 flex items-center justify-center">
+                                        {item.imageUrl ? (
+                                            <img
+                                                src={formatImageUrl(item.imageUrl)}
+                                                alt={item.title}
+                                                className="h-full object-contain"
+                                            />
+                                        ) : (
+                                            <span className="text-4xl block">{item.icon}</span>
+                                        )}
+                                    </div>
                                     <h3 className="text-lg font-bold text-slate-700 mb-3 tracking-wide uppercase text-sm">{item.title}</h3>
                                     <p className="text-slate-500 text-sm leading-relaxed">{item.desc}</p>
                                 </div>
@@ -94,33 +178,24 @@ const About = () => {
                     </div>
                 </section>
 
-                {/* CTA Intermedio */}
+                {/* CTA Final */}
                 <section className="bg-earth py-20 relative overflow-hidden">
                     <div className="container mx-auto px-4 text-center relative z-10">
-                        <h2 className="text-3xl font-serif text-white mb-8">¿Listo para comenzar tu ritual?</h2>
+                        <h2
+                            className="text-3xl font-serif text-white mb-8"
+                            style={{ color: settings.about_cta_title_color || '#ffffff' }}
+                        >
+                            {settings.about_cta_title}
+                        </h2>
                         <Link
-                            to="/productos"
+                            to={settings.about_cta_button_link}
                             className="inline-block bg-white text-earth px-10 py-4 rounded-full font-bold hover:bg-paper transition-all shadow-xl"
                         >
-                            Ver Colección
+                            {settings.about_cta_button_text}
                         </Link>
-                    </div>
-                    {/* Mandala decorativo de fondo */}
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-5 pointer-events-none scale-150">
-                        <svg width="400" height="400" viewBox="0 0 200 200">
-                            <path fill="white" d="M100 0 L110 90 L200 100 L110 110 L100 200 L90 110 L0 100 L90 90 Z" />
-                        </svg>
                     </div>
                 </section>
             </main>
-
-            {/* Footer Minimalista */}
-            <footer className="bg-white py-12 border-t border-beige-dark/20 text-center">
-                <div className="container mx-auto px-4">
-                    <p className="font-serif text-earth text-xl mb-4">TIENDA HOLÍSTICA</p>
-                    <p className="text-slate-400 text-sm uppercase tracking-widest text-[10px]">Paz · Equilibrio · Naturaleza</p>
-                </div>
-            </footer>
         </div>
     );
 };

@@ -8,6 +8,7 @@ import { formatImageUrl } from '../../utils/imageConfig';
  */
 const Hero = () => {
     const [heroSettings, setHeroSettings] = useState({
+        hero_tagline: 'Bienvenido a tu Espacio Sagrado',
         hero_title: 'Conecta con tu esencia natural y bienestar',
         hero_subtitle: 'Descubre nuestra selección artesanal de productos para la meditación, limpieza energética y aromaterapia.',
         hero_image_url: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&q=80&w=2000',
@@ -46,7 +47,7 @@ const Hero = () => {
         fetchHeroSettings();
     }, []);
 
-    if (loading) return <div className="h-[80vh] bg-paper flex items-center justify-center animate-pulse">Cargando vibraciones...</div>;
+    if (loading) return <div className="h-[80vh] bg-paper flex items-center justify-center animate-pulse text-earth">Cargando vibraciones...</div>;
 
     return (
         <section className="relative h-[80vh] overflow-hidden">
@@ -63,26 +64,43 @@ const Hero = () => {
             {/* Content Overlay */}
             <div className="relative z-10 container mx-auto px-4 h-full flex flex-col justify-center items-start">
                 <div className="max-w-2xl bg-white/20 backdrop-blur-sm p-8 md:p-12 rounded-2xl border border-white/30 animate-fade-in">
-                    <span className="text-moss font-medium tracking-widest uppercase text-sm mb-4 block">
-                        Bienvenido a tu Espacio Sagrado
+                    <span
+                        className="font-medium tracking-widest uppercase text-sm mb-4 block"
+                        style={{ color: heroSettings.hero_tagline_color || 'var(--color-primary)' }}
+                    >
+                        {heroSettings.hero_tagline}
                     </span>
-                    <h2 className="text-4xl md:text-6xl text-slate-900 font-serif leading-tight mb-6">
+                    <h2
+                        className="text-4xl md:text-6xl font-serif leading-tight mb-6"
+                        style={{ color: heroSettings.hero_title_color || 'var(--color-text-primary)' }}
+                    >
                         {heroSettings.hero_title}
                     </h2>
-                    <p className="text-lg text-slate-700 mb-8 max-w-md">
+                    <p
+                        className="text-lg mb-8 max-w-md"
+                        style={{ color: heroSettings.hero_subtitle_color || 'var(--color-text-secondary)' }}
+                    >
                         {heroSettings.hero_subtitle}
                     </p>
                     <div className="flex flex-wrap gap-4">
                         <Link
                             to={heroSettings.hero_cta1_link || '/productos'}
-                            className="bg-earth hover:bg-earth-dark text-white px-8 py-3 rounded-full shadow-lg shadow-earth/20 font-medium transition-all hover:scale-105 active:scale-95"
+                            className="px-8 py-3 rounded-full shadow-lg font-medium transition-all hover:scale-105 active:scale-95 text-white"
+                            style={{
+                                backgroundColor: 'var(--color-primary)',
+                                boxShadow: '0 10px 25px -5px var(--color-primary)33'
+                            }}
                         >
                             {heroSettings.hero_cta_text}
                         </Link>
                         {heroSettings.hero_cta2_text && (
                             <Link
                                 to={heroSettings.hero_cta2_link || '/nosotros'}
-                                className="bg-white/80 hover:bg-white text-earth border border-earth/20 px-8 py-3 rounded-full font-medium transition-all hover:scale-105"
+                                className="bg-white/80 hover:bg-white px-8 py-3 rounded-full font-medium transition-all hover:scale-105 border"
+                                style={{
+                                    color: 'var(--color-primary)',
+                                    borderColor: 'var(--color-primary)33'
+                                }}
                             >
                                 {heroSettings.hero_cta2_text}
                             </Link>

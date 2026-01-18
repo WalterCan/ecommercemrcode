@@ -15,17 +15,22 @@ const Home = () => {
     const [activeCategory, setActiveCategory] = useState(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [loading, setLoading] = useState(true);
+    const [settings, setSettings] = useState({
+        home_decorative_title: '"El bienestar comienza con la intención"',
+        home_decorative_text: 'En nuestra tienda cada objeto ha sido seleccionado por su vibración y pureza. Te acompañamos en tu camino de regreso a la naturaleza.'
+    });
 
-    // Efecto para cargar datos iniciales (Productos y Categorías)
+    // Efecto para cargar datos iniciales (Productos, Categorías y Ajustes)
     useEffect(() => {
         const fetchData = async () => {
             try {
                 // Usar variable de entorno para la API o fallback a localhost
                 const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
-                const [productsRes, categoriesRes] = await Promise.all([
+                const [productsRes, categoriesRes, settingsRes] = await Promise.all([
                     fetch(`${baseUrl}/products`),
-                    fetch(`${baseUrl}/products/categories`) // Necesitaremos crear este endpoint o simularlo
+                    fetch(`${baseUrl}/products/categories`), // Necesitaremos crear este endpoint o simularlo
+                    fetch(`${baseUrl}/settings`)
                 ]);
 
                 const rawProducts = await productsRes.json();
@@ -41,6 +46,11 @@ const Home = () => {
                         .filter(Boolean)
                         .map(id => rawProducts.find(p => p.category?.id === id).category);
                     setCategories(uniqueCats);
+                }
+
+                if (settingsRes.ok) {
+                    const settingsData = await settingsRes.json();
+                    setSettings(prev => ({ ...prev, ...settingsData }));
                 }
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -92,8 +102,10 @@ const Home = () => {
                                 {filteredProducts.length > 0 ? (
                                     <ProductGrid
                                         products={filteredProducts}
-                                        title={activeCategory ? categories.find(c => c.id === activeCategory)?.name : 'Productos Destacados'}
-                                        subtitle="Seleccionados especialmente para ti"
+                                        title={activeCategory ? categories.find(c => c.id === activeCategory)?.name : (settings.products_title || 'Productos Destacados')}
+                                        subtitle={settings.products_subtitle || 'Seleccionados especialmente para ti'}
+                                        titleColor={settings.products_title_color}
+                                        subtitleColor={settings.products_subtitle_color}
                                     />
                                 ) : (
                                     <div className="text-center py-20">
@@ -110,10 +122,17 @@ const Home = () => {
                 {/* Sección decorativa intermedia */}
                 <section className="bg-beige-light py-24 overflow-hidden relative">
                     <div className="container mx-auto px-4 text-center relative z-10">
-                        <h3 className="text-3xl font-serif text-earth-dark mb-6">"El bienestar comienza con la intención"</h3>
-                        <p className="max-w-xl mx-auto text-slate-600 leading-relaxed italic">
-                            En nuestra tienda cada objeto ha sido seleccionado por su vibración y pureza.
-                            Te acompañamos en tu camino de regreso a la naturaleza.
+                        <h3
+                            className="text-3xl font-serif mb-6"
+                            style={{ color: settings.home_decorative_title_color || '#3d4a3d' }}
+                        >
+                            {settings.home_decorative_title || '"El bienestar comienza con la intención"'}
+                        </h3>
+                        <p
+                            className="max-w-xl mx-auto leading-relaxed italic"
+                            style={{ color: settings.home_decorative_text_color || '#475569' }}
+                        >
+                            {settings.home_decorative_text || 'En nuestra tienda cada objeto ha sido seleccionado por su vibración y pureza. Te acompañamos en tu camino de regreso a la naturaleza.'}
                         </p>
                     </div>
                     <div className="absolute -bottom-10 -right-10 opacity-10 pointer-events-none">

@@ -9,47 +9,47 @@ export default {
             colors: {
                 // Paleta Elegante para Perfumería
                 rose: {
-                    DEFAULT: '#D4A5A5', // Rosa suave para acentos primarios
-                    dark: '#B88B8B',
-                    light: '#E8C5C5'
+                    DEFAULT: 'var(--color-primary)',
+                    dark: 'var(--color-primary)', // Simplification: using same for dark/light variations
+                    light: 'var(--color-primary)'
                 },
                 champagne: {
-                    DEFAULT: '#F7E7CE', // Fondo general elegante
-                    dark: '#E8D4B5',
-                    light: '#FFF5E6'
+                    DEFAULT: 'var(--color-bg-secondary)',
+                    dark: 'var(--color-bg-secondary)',
+                    light: 'var(--color-bg-secondary)'
                 },
                 gold: {
-                    DEFAULT: '#C9A961', // Oro/dorado para destacados
-                    dark: '#B08F4D',
-                    light: '#DFC285'
+                    DEFAULT: 'var(--color-secondary)',
+                    dark: 'var(--color-secondary)',
+                    light: 'var(--color-secondary)'
                 },
                 lavender: {
-                    DEFAULT: '#B8A9C9', // Lavanda suave
-                    dark: '#9A8AAB',
-                    light: '#D4C8E0'
+                    DEFAULT: 'var(--color-secondary)',
+                    dark: 'var(--color-secondary)',
+                    light: 'var(--color-secondary)'
                 },
                 // Alias para compatibilidad con código existente
                 earth: {
-                    DEFAULT: '#D4A5A5', // = rose
-                    dark: '#B88B8B',
-                    light: '#E8C5C5'
+                    DEFAULT: 'var(--color-primary)',
+                    dark: 'var(--color-primary)',
+                    light: 'var(--color-primary)'
                 },
                 beige: {
-                    DEFAULT: '#F7E7CE', // = champagne
-                    dark: '#E8D4B5',
-                    light: '#FFF5E6'
+                    DEFAULT: 'var(--color-bg-secondary)',
+                    dark: 'var(--color-bg-secondary)',
+                    light: 'var(--color-bg-secondary)'
                 },
                 terracotta: {
-                    DEFAULT: '#C9A961', // = gold
-                    dark: '#B08F4D',
-                    light: '#DFC285'
+                    DEFAULT: 'var(--color-secondary)',
+                    dark: 'var(--color-secondary)',
+                    light: 'var(--color-secondary)'
                 },
                 moss: {
-                    DEFAULT: '#B8A9C9', // = lavender
-                    dark: '#9A8AAB',
-                    light: '#D4C8E0'
+                    DEFAULT: 'var(--color-secondary)',
+                    dark: 'var(--color-secondary)',
+                    light: 'var(--color-secondary)'
                 },
-                paper: '#FFFBF5', // Color de fondo principal muy suave
+                paper: 'var(--color-bg-primary)', // Color de fondo principal dinámico
             },
             fontFamily: {
                 // Tipografía Elegante

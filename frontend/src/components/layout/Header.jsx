@@ -70,9 +70,14 @@ const Header = ({ onSearch }) => {
     return (
         <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-beige-dark/20">
             {/* Barra superior de anuncios */}
-            {/* Barra superior de anuncios */}
             {(settings.announcement_active === 'true' || settings.announcement_active === true) && (
-                <div className="bg-moss text-white text-[10px] py-1 text-center tracking-widest uppercase">
+                <div
+                    className="text-[10px] py-1 text-center tracking-widest uppercase"
+                    style={{
+                        backgroundColor: settings.announcement_bg_color || '#8A9A5B',
+                        color: settings.announcement_text_color || '#ffffff'
+                    }}
+                >
                     {settings.announcement_link ? (
                         <Link to={settings.announcement_link} className="hover:underline">
                             {settings.announcement_text}
@@ -103,15 +108,27 @@ const Header = ({ onSearch }) => {
                 </nav>
 
                 <div className="flex-1 flex justify-center">
-                    <Link to="/" className="text-2xl font-serif text-earth-dark tracking-tighter font-bold flex items-center justify-center">
-                        {(settings.site_logo_url && settings.site_logo_url !== 'null') ? (
+                    <Link to="/" className="text-2xl font-serif tracking-tighter font-bold flex items-center justify-center">
+                        {(settings.site_logo_url && settings.site_logo_url !== 'null' && settings.site_logo_url !== '') ? (
                             <img
                                 src={formatImageUrl(settings.site_logo_url)}
                                 alt="Logo"
                                 className="h-10 md:h-12 w-auto object-contain"
                             />
                         ) : (
-                            <>{settings.site_name || <>TIENDA<span className="text-earth">HOLÍSTICA</span></>}</>
+                            <div className="flex flex-col items-center leading-none">
+                                <span style={{ color: settings.site_name_color || '#1e293b' }}>
+                                    {settings.site_name || 'TIENDA HOLÍSTICA'}
+                                </span>
+                                {settings.site_tagline && (
+                                    <span
+                                        className="text-[10px] uppercase tracking-[0.2em] mt-1 font-sans"
+                                        style={{ color: settings.site_tagline_color || '#64748b' }}
+                                    >
+                                        {settings.site_tagline}
+                                    </span>
+                                )}
+                            </div>
                         )}
                     </Link>
                 </div>

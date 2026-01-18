@@ -1,14 +1,26 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap');
 
+:root {
+  /* Colores del tema - Valores por defecto (Perfumería) */
+  --color-primary: #D4A5A5;
+  --color-secondary: #C9A961;
+  --color-bg-primary: #FFFBF5;
+  --color-bg-secondary: #F7E7CE;
+  --color-text-primary: #1e293b;
+  --color-text-secondary: #64748b;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/**
- * Estilos globales para la perfumería
- */
-body {
-  @apply bg-paper text-slate-800 font-sans;
+/* Aplicar colores del tema al body */
+@layer base {
+  body {
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    font-family: 'Montserrat', sans-serif;
+  }
 }
 
 h1,
@@ -24,19 +36,20 @@ button,
   @apply transition-all duration-300 ease-in-out;
 }
 
-/* Scrollbar personalizada minimalista */
+/* Scrollbar personalizada */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-champagne-light;
+  background: var(--color-bg-secondary);
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-rose-light/30 rounded-full;
+  background: var(--color-primary);
+  border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-rose-light/50;
+  background: var(--color-secondary);
 }

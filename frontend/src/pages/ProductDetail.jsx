@@ -20,31 +20,48 @@ const ProductDetail = () => {
     const [reviews, setReviews] = useState([]);
     const [newReview, setNewReview] = useState({ customer_name: '', rating: 5, comment: '' });
     const [submittingReview, setSubmittingReview] = useState(false);
+    const [settings, setSettings] = useState({
+        products_detail_title_color: '#0f172a',
+        products_detail_price_color: '#8A9A5B',
+        products_detail_stock_color: '#8A9A5B',
+        products_detail_description_color: '#475569',
+        products_detail_button_bg_color: '#8A9A5B',
+        products_detail_button_text_color: '#ffffff',
+        products_detail_badge_bg_color: '#F7E7CE',
+        products_detail_badge_text_color: '#8A9A5B',
+    });
 
     useEffect(() => {
         const fetchProductData = async () => {
             try {
                 const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
-                // Fetch producto actual
-                const response = await fetch(`${baseUrl}/products/${id}`);
-                const data = await response.json();
-                setProduct(data);
+                // Fetch producto, relacionados, reseñas y ajustes
+                const [productRes, allProductsRes, reviewsRes, settingsRes] = await Promise.all([
+                    fetch(`${baseUrl}/products/${id}`),
+                    fetch(`${baseUrl}/products`),
+                    fetch(`${baseUrl}/reviews/product/${id}`),
+                    fetch(`${baseUrl}/settings`)
+                ]);
 
-                // Fetch productos relacionados (misma categoría, excluyendo el actual)
-                if (data.category_id) {
-                    const allRes = await fetch(`${baseUrl}/products`);
-                    const allProducts = await allRes.json();
+                const productData = await productRes.json();
+                setProduct(productData);
+
+                const allProducts = await allProductsRes.json();
+                if (productData.category_id) {
                     const related = allProducts
-                        .filter(p => p.category_id === data.category_id && p.id !== data.id)
+                        .filter(p => p.category_id === productData.category_id && p.id !== productData.id)
                         .slice(0, 4);
                     setRelatedProducts(related);
                 }
 
-                // Fetch reseñas
-                const reviewsRes = await fetch(`${baseUrl}/reviews/product/${id}`);
                 const reviewsData = await reviewsRes.json();
                 setReviews(reviewsData);
+
+                if (settingsRes.ok) {
+                    const settingsData = await settingsRes.json();
+                    setSettings(prev => ({ ...prev, ...settingsData }));
+                }
             } catch (error) {
                 console.error('Error fetching product:', error);
             } finally {
@@ -147,22 +164,31 @@ const ProductDetail = () => {
 
                     {/* Info */}
                     <div className="flex flex-col pt-4">
-                        <h1 className="text-4xl lg:text-6xl font-serif text-slate-900 mb-6 leading-tight">
+                        <h1
+                            className="text-4xl lg:text-6xl font-serif mb-6 leading-tight"
+                            style={{ color: settings.products_detail_title_color || '#0f172a' }}
+                        >
                             {product.name}
                         </h1>
 
                         <div className="flex items-center gap-6 mb-10">
-                            <span className="text-4xl font-serif font-bold text-earth">
+                            <span
+                                className="text-4xl font-serif font-bold"
+                                style={{ color: settings.products_detail_price_color || '#8A9A5B' }}
+                            >
                                 ${parseFloat(product.price).toLocaleString('es-AR')}
                             </span>
                             <div className="w-px h-8 bg-beige-dark/20"></div>
                             <div className="flex flex-col">
-                                <span className={`text-xs font-bold uppercase tracking-widest ${product.stock > 0 ? 'text-moss' : 'text-terracotta'}`}>
+                                <span
+                                    className="text-xs font-bold uppercase tracking-widest"
+                                    style={{ color: product.stock > 0 ? (settings.products_detail_stock_color || '#3d4a3d') : '#ef4444' }}
+                                >
                                     {product.stock > 0 ? `${product.stock} en stock` : 'Sin existencias'}
                                 </span>
                                 {averageRating && (
                                     <div className="flex items-center gap-1 mt-1">
-                                        <div className="flex text-earth text-[10px]">
+                                        <div className="flex text-earth text-[10px]" style={{ color: settings.products_detail_price_color || '#8A9A5B' }}>
                                             {[...Array(5)].map((_, i) => (
                                                 <svg key={i} className={`w-3 h-3 ${i < Math.floor(averageRating) ? 'fill-current' : 'text-beige-dark/30'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.382-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
@@ -175,7 +201,10 @@ const ProductDetail = () => {
                             </div>
                         </div>
 
-                        <p className="text-slate-600 leading-relaxed text-xl font-serif italic mb-10">
+                        <p
+                            className="leading-relaxed text-xl font-serif italic mb-10"
+                            style={{ color: settings.products_detail_description_color || '#475569' }}
+                        >
                             "{product.description}"
                         </p>
 
@@ -183,23 +212,38 @@ const ProductDetail = () => {
                             <button
                                 onClick={() => addToCart(product)}
                                 disabled={product.stock <= 0}
-                                className={`w-full py-6 rounded-full font-bold text-lg transition-all transform hover:scale-[1.02] shadow-2xl ${product.stock > 0
-                                    ? 'bg-earth text-white hover:bg-earth-dark shadow-earth/20'
-                                    : 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                                    }`}
+                                className={`w-full py-6 rounded-full font-bold text-lg transition-all transform hover:scale-[1.02] shadow-2xl disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed`}
+                                style={{
+                                    backgroundColor: product.stock > 0 ? (settings.products_detail_button_bg_color || '#8A9A5B') : undefined,
+                                    color: product.stock > 0 ? (settings.products_detail_button_text_color || '#ffffff') : undefined
+                                }}
                             >
                                 {product.stock > 0 ? 'Añadir a mi Selección' : 'Agotado Temporalmente'}
                             </button>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
-                            <div className="bg-beige-light/30 p-5 rounded-3xl border border-beige-dark/10 text-center">
-                                <div className="text-earth mb-2">🌿</div>
-                                <span className="text-[9px] uppercase tracking-widest text-slate-500 font-bold">100% Natural</span>
+                            <div
+                                className="p-5 rounded-3xl border text-center"
+                                style={{
+                                    backgroundColor: settings.products_detail_badge_bg_color || '#FDFCF8',
+                                    borderColor: (settings.products_detail_badge_text_color || '#8A9A5B') + '20',
+                                    color: settings.products_detail_badge_text_color || '#8A9A5B'
+                                }}
+                            >
+                                <div className="mb-2">🌿</div>
+                                <span className="text-[9px] uppercase tracking-widest font-bold">100% Natural</span>
                             </div>
-                            <div className="bg-beige-light/30 p-5 rounded-3xl border border-beige-dark/10 text-center">
-                                <div className="text-earth mb-2">✨</div>
-                                <span className="text-[9px] uppercase tracking-widest text-slate-500 font-bold">Artesanal</span>
+                            <div
+                                className="p-5 rounded-3xl border text-center"
+                                style={{
+                                    backgroundColor: settings.products_detail_badge_bg_color || '#FDFCF8',
+                                    borderColor: (settings.products_detail_badge_text_color || '#8A9A5B') + '20',
+                                    color: settings.products_detail_badge_text_color || '#8A9A5B'
+                                }}
+                            >
+                                <div className="mb-2">✨</div>
+                                <span className="text-[9px] uppercase tracking-widest font-bold">Artesanal</span>
                             </div>
                         </div>
                     </div>
@@ -223,7 +267,7 @@ const ProductDetail = () => {
                                                 ))}
                                             </div>
                                         </div>
-                                        <p className="text-slate-600 font-serif italic italic leading-relaxed">"{review.comment}"</p>
+                                        <p className="text-slate-600 font-serif italic leading-relaxed">"{review.comment}"</p>
                                     </div>
                                 ))}
                             </div>
@@ -300,8 +344,6 @@ const ProductDetail = () => {
                     </section>
                 )}
             </main>
-
-            {/* Footer eliminado para evitar duplicidad global */}
         </div>
     );
 };

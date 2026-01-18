@@ -95,7 +95,11 @@ const CartDrawer = () => {
                                 <Link
                                     to="/checkout"
                                     onClick={toggleCart}
-                                    className="block w-full bg-earth hover:bg-earth-dark text-white py-4 rounded-full shadow-lg shadow-earth/20 font-bold transition-all transform hover:scale-[1.02] text-center"
+                                    className="block w-full text-white py-4 rounded-full shadow-lg font-bold transition-all transform hover:scale-[1.02] text-center"
+                                    style={{
+                                        backgroundColor: 'var(--color-primary)',
+                                        boxShadow: '0 10px 25px -5px var(--color-primary)33'
+                                    }}
                                 >
                                     Finalizar Compra
                                 </Link>

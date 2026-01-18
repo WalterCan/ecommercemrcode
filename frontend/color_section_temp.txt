@@ -1,0 +1,191 @@
+                        {/* Personalización de Colores */}
+                        <section className="bg-white p-8 rounded-3xl shadow-sm border border-beige-dark/10">
+                            <h2 className="text-xl font-serif text-earth font-bold mb-6 flex items-center gap-2">
+                                <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" /></svg>
+                                Personalización de Colores
+                            </h2>
+                            
+                            <div className="space-y-8">
+                                {/* Descripción */}
+                                <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                                    <p className="text-sm text-blue-800">
+                                        <strong>💡 Tip:</strong> Personaliza los colores de tu tienda para que coincidan con tu marca. Los cambios se aplicarán automáticamente en todo el sitio.
+                                    </p>
+                                </div>
+
+                                {/* Colores Principales */}
+                                <div className="p-6 bg-paper/50 rounded-2xl border border-beige-dark/10">
+                                    <h3 className="text-sm font-bold uppercase tracking-widest text-slate-700 mb-6">Colores Principales</h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <ColorPicker
+                                            label="Color Primario"
+                                            name="theme_primary_color"
+                                            value={settings.theme_primary_color}
+                                            onChange={handleChange}
+                                            description="Usado en botones principales, enlaces y elementos destacados"
+                                        />
+                                        <ColorPicker
+                                            label="Color Secundario"
+                                            name="theme_secondary_color"
+                                            value={settings.theme_secondary_color}
+                                            onChange={handleChange}
+                                            description="Usado en acentos, badges y elementos decorativos"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Colores de Fondo */}
+                                <div className="p-6 bg-paper/50 rounded-2xl border border-beige-dark/10">
+                                    <h3 className="text-sm font-bold uppercase tracking-widest text-slate-700 mb-6">Colores de Fondo</h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <ColorPicker
+                                            label="Fondo Principal"
+                                            name="theme_background_color"
+                                            value={settings.theme_background_color}
+                                            onChange={handleChange}
+                                            description="Color de fondo general del sitio"
+                                        />
+                                        <ColorPicker
+                                            label="Fondo Secundario"
+                                            name="theme_background_secondary"
+                                            value={settings.theme_background_secondary}
+                                            onChange={handleChange}
+                                            description="Usado en tarjetas, secciones y áreas destacadas"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Colores de Texto */}
+                                <div className="p-6 bg-paper/50 rounded-2xl border border-beige-dark/10">
+                                    <h3 className="text-sm font-bold uppercase tracking-widest text-slate-700 mb-6">Colores de Texto</h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <ColorPicker
+                                            label="Texto Principal"
+                                            name="theme_text_primary"
+                                            value={settings.theme_text_primary}
+                                            onChange={handleChange}
+                                            description="Color del texto principal y títulos"
+                                        />
+                                        <ColorPicker
+                                            label="Texto Secundario"
+                                            name="theme_text_secondary"
+                                            value={settings.theme_text_secondary}
+                                            onChange={handleChange}
+                                            description="Color de texto secundario y descripciones"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Vista Previa */}
+                                <div className="p-6 bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-slate-200">
+                                    <h3 className="text-sm font-bold uppercase tracking-widest text-slate-700 mb-6">Vista Previa</h3>
+                                    <div 
+                                        className="p-8 rounded-xl border-2"
+                                        style={{ 
+                                            backgroundColor: settings.theme_background_color,
+                                            borderColor: settings.theme_primary_color + '40'
+                                        }}
+                                    >
+                                        <h4 
+                                            className="text-2xl font-serif font-bold mb-3"
+                                            style={{ color: settings.theme_text_primary }}
+                                        >
+                                            Ejemplo de Título
+                                        </h4>
+                                        <p 
+                                            className="text-sm mb-6"
+                                            style={{ color: settings.theme_text_secondary }}
+                                        >
+                                            Este es un ejemplo de cómo se verá el texto secundario en tu tienda con los colores seleccionados.
+                                        </p>
+                                        <div className="flex gap-4">
+                                            <button
+                                                className="px-6 py-3 rounded-full font-bold text-white shadow-lg transition-transform hover:scale-105"
+                                                style={{ backgroundColor: settings.theme_primary_color }}
+                                            >
+                                                Botón Primario
+                                            </button>
+                                            <button
+                                                className="px-6 py-3 rounded-full font-bold text-white shadow-lg transition-transform hover:scale-105"
+                                                style={{ backgroundColor: settings.theme_secondary_color }}
+                                            >
+                                                Botón Secundario
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Presets */}
+                                <div className="p-6 bg-amber-50 border border-amber-200 rounded-2xl">
+                                    <h3 className="text-sm font-bold uppercase tracking-widest text-amber-900 mb-4">Paletas Predefinidas</h3>
+                                    <p className="text-xs text-amber-700 mb-4">Haz clic en una paleta para aplicarla instantáneamente:</p>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <button
+                                            type="button"
+                                            onClick={() => setSettings(prev => ({
+                                                ...prev,
+                                                theme_primary_color: '#D4A5A5',
+                                                theme_secondary_color: '#C9A961',
+                                                theme_background_color: '#FFFBF5',
+                                                theme_background_secondary: '#F7E7CE',
+                                                theme_text_primary: '#1e293b',
+                                                theme_text_secondary: '#64748b'
+                                            }))}
+                                            className="p-4 bg-white rounded-xl border-2 border-beige-dark/20 hover:border-earth hover:shadow-lg transition-all text-left"
+                                        >
+                                            <div className="flex gap-2 mb-2">
+                                                <div className="w-8 h-8 rounded-full" style={{ backgroundColor: '#D4A5A5' }}></div>
+                                                <div className="w-8 h-8 rounded-full" style={{ backgroundColor: '#C9A961' }}></div>
+                                                <div className="w-8 h-8 rounded-full" style={{ backgroundColor: '#FFFBF5' }}></div>
+                                            </div>
+                                            <p className="text-xs font-bold text-slate-700">Perfumería Elegante</p>
+                                            <p className="text-[10px] text-slate-500">Rosa · Champagne · Oro</p>
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            onClick={() => setSettings(prev => ({
+                                                ...prev,
+                                                theme_primary_color: '#3b82f6',
+                                                theme_secondary_color: '#8b5cf6',
+                                                theme_background_color: '#f8fafc',
+                                                theme_background_secondary: '#e0e7ff',
+                                                theme_text_primary: '#1e293b',
+                                                theme_text_secondary: '#64748b'
+                                            }))}
+                                            className="p-4 bg-white rounded-xl border-2 border-beige-dark/20 hover:border-earth hover:shadow-lg transition-all text-left"
+                                        >
+                                            <div className="flex gap-2 mb-2">
+                                                <div className="w-8 h-8 rounded-full" style={{ backgroundColor: '#3b82f6' }}></div>
+                                                <div className="w-8 h-8 rounded-full" style={{ backgroundColor: '#8b5cf6' }}></div>
+                                                <div className="w-8 h-8 rounded-full" style={{ backgroundColor: '#f8fafc' }}></div>
+                                            </div>
+                                            <p className="text-xs font-bold text-slate-700">Moderno Tecnológico</p>
+                                            <p className="text-[10px] text-slate-500">Azul · Púrpura · Gris Claro</p>
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            onClick={() => setSettings(prev => ({
+                                                ...prev,
+                                                theme_primary_color: '#10b981',
+                                                theme_secondary_color: '#059669',
+                                                theme_background_color: '#f0fdf4',
+                                                theme_background_secondary: '#d1fae5',
+                                                theme_text_primary: '#1e293b',
+                                                theme_text_secondary: '#64748b'
+                                            }))}
+                                            className="p-4 bg-white rounded-xl border-2 border-beige-dark/20 hover:border-earth hover:shadow-lg transition-all text-left"
+                                        >
+                                            <div className="flex gap-2 mb-2">
+                                                <div className="w-8 h-8 rounded-full" style={{ backgroundColor: '#10b981' }}></div>
+                                                <div className="w-8 h-8 rounded-full" style={{ backgroundColor: '#059669' }}></div>
+                                                <div className="w-8 h-8 rounded-full" style={{ backgroundColor: '#f0fdf4' }}></div>
+                                            </div>
+                                            <p className="text-xs font-bold text-slate-700">Natural Orgánico</p>
+                                            <p className="text-[10px] text-slate-500">Verde · Esmeralda · Menta</p>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>

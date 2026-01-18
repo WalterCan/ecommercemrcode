@@ -44,8 +44,23 @@ const ProductCard = ({ product }) => {
                         disabled={product.stock === 0}
                         className={`p-2 rounded-full transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 shadow-lg ${product.stock === 0
                                 ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                                : 'bg-white text-earth hover:bg-earth hover:text-white'
+                                : 'bg-white hover:text-white'
                             }`}
+                        style={product.stock !== 0 ? {
+                            color: 'var(--color-primary)'
+                        } : {}}
+                        onMouseEnter={(e) => {
+                            if (product.stock !== 0) {
+                                e.currentTarget.style.backgroundColor = 'var(--color-primary)';
+                                e.currentTarget.style.color = 'white';
+                            }
+                        }}
+                        onMouseLeave={(e) => {
+                            if (product.stock !== 0) {
+                                e.currentTarget.style.backgroundColor = 'white';
+                                e.currentTarget.style.color = 'var(--color-primary)';
+                            }
+                        }}
                         title={product.stock === 0 ? "Sin stock" : "Añadir al carrito"}
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -71,7 +86,16 @@ const ProductCard = ({ product }) => {
                     </span>
                     <Link
                         to={`/product/${product.id}`}
-                        className="mt-4 text-xs font-bold uppercase tracking-widest text-earth hover:text-terracotta transition-colors border-b border-transparent hover:border-terracotta pb-1"
+                        className="mt-4 text-xs font-bold uppercase tracking-widest transition-colors border-b border-transparent pb-1"
+                        style={{ color: 'var(--color-primary)' }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.color = 'var(--color-secondary)';
+                            e.currentTarget.style.borderBottomColor = 'var(--color-secondary)';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.color = 'var(--color-primary)';
+                            e.currentTarget.style.borderBottomColor = 'transparent';
+                        }}
                     >
                         Ver Detalles
                     </Link>

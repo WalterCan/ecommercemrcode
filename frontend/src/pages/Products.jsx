@@ -3,6 +3,7 @@ import Header from '../components/layout/Header';
 import CartDrawer from '../components/cart/CartDrawer';
 import ProductCard from '../components/products/ProductCard';
 import CategoryFilter from '../components/products/CategoryFilter';
+import { formatImageUrl } from '../utils/imageConfig';
 
 /**
  * Página de Catálogo de Productos.
@@ -16,13 +17,20 @@ const Products = () => {
     const [sortBy, setSortBy] = useState('relevance');
     const [loading, setLoading] = useState(true);
 
+    const [settings, setSettings] = useState({
+        products_empty_icon: '🕯️',
+        products_empty_image_url: '',
+        products_empty_text: 'No encontramos objetos para esta vibración actualmente.'
+    });
+
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
-                const [productsRes, categoriesRes] = await Promise.all([
+                const [productsRes, categoriesRes, settingsRes] = await Promise.all([
                     fetch(`${baseUrl}/products`),
-                    fetch(`${baseUrl}/categories`)
+                    fetch(`${baseUrl}/categories`),
+                    fetch(`${baseUrl}/settings`)
                 ]);
 
                 const rawProducts = await productsRes.json();
@@ -32,11 +40,15 @@ const Products = () => {
                     const rawCategories = await categoriesRes.json();
                     setCategories(rawCategories);
                 } else {
-                    // Fallback extraction
                     const uniqueCats = Array.from(new Set(rawProducts.map(p => p.category?.id)))
                         .filter(Boolean)
                         .map(id => rawProducts.find(p => p.category?.id === id).category);
                     setCategories(uniqueCats);
+                }
+
+                if (settingsRes.ok) {
+                    const settingsData = await settingsRes.json();
+                    setSettings(prev => ({ ...prev, ...settingsData }));
                 }
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -82,9 +94,17 @@ const Products = () => {
                 <div className="container mx-auto px-4">
                     {/* Header del Catálogo */}
                     <div className="text-center mb-16">
-                        <h1 className="text-4xl md:text-5xl font-serif text-slate-800 mb-4">Nuestra Colección</h1>
-                        <p className="text-slate-500 italic max-w-xl mx-auto">
-                            Cada objeto sagrado ha sido cuidadosamente seleccionado y portador de una intención única para tu bienestar.
+                        <h1
+                            className="text-4xl md:text-5xl font-serif mb-4"
+                            style={{ color: settings.products_title_color || '#1e293b' }}
+                        >
+                            {settings.products_title || 'Nuestra Colección'}
+                        </h1>
+                        <p
+                            className="italic max-w-xl mx-auto"
+                            style={{ color: settings.products_subtitle_color || '#64748b' }}
+                        >
+                            {settings.products_subtitle || 'Cada objeto sagrado ha sido cuidadosamente seleccionado y portador de una intención única para tu bienestar.'}
                         </p>
                     </div>
 
@@ -130,9 +150,22 @@ const Products = () => {
                                 </div>
                             ) : (
                                 <div className="text-center py-40 bg-white/50 rounded-3xl border border-dashed border-beige-dark/30">
-                                    <span className="text-6xl mb-6 block">🕯️</span>
-                                    <p className="text-slate-400 font-serif italic text-lg">
-                                        No encontramos objetos para esta vibración actualmente.
+                                    <div className="h-20 mb-6 flex items-center justify-center">
+                                        {settings.products_empty_image_url ? (
+                                            <img
+                                                src={formatImageUrl(settings.products_empty_image_url)}
+                                                alt="Sin resultados"
+                                                className="h-full object-contain"
+                                            />
+                                        ) : (
+                                            <span className="text-6xl block">{settings.products_empty_icon}</span>
+                                        )}
+                                    </div>
+                                    <p
+                                        className="font-serif italic text-lg"
+                                        style={{ color: settings.products_empty_text_color || '#94a3b8' }}
+                                    >
+                                        {settings.products_empty_text}
                                     </p>
                                     <button
                                         onClick={() => { setActiveCategory(null); setSearchQuery(''); }}

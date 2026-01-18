@@ -22,7 +22,7 @@ const storage = multer.diskStorage({
 
 // File filter (images only)
 const fileFilter = (req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) {
+    if (file.mimetype.startsWith('image/') || file.mimetype === 'image/svg+xml') {
         cb(null, true);
     } else {
         cb(new Error('No es un archivo de imagen válido'), false);
