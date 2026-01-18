@@ -110,6 +110,15 @@ const AdminSettings = () => {
         about_cta_title_color: '#ffffff',
         about_cta_button_text: '',
         about_cta_button_link: '',
+        // Footer
+        footer_bg_color: '#FDFCF8',
+        footer_border_color: '#E5E7EB',
+        footer_text_color: '#475569',
+        footer_description: 'Productos seleccionados para tu bienestar y equilibrio energético.',
+        footer_title_color: '#8A9A5B',
+        footer_tagline: 'Inspirando tu equilibrio natural',
+        footer_tagline_color: '#94a3b8',
+        footer_copyright_color: '#94a3b8',
     });
     const [heroImageFile, setHeroImageFile] = useState(null);
     const [heroImagePreview, setHeroImagePreview] = useState(null);
@@ -135,6 +144,7 @@ const AdminSettings = () => {
         { id: 'hero', label: 'Portada', icon: '🖼️' },
         { id: 'nosotros', label: 'Nosotros', icon: '👥' },
         { id: 'productos', label: 'Productos', icon: '🛍️' },
+        { id: 'footer', label: 'Footer', icon: '🦶' },
         { id: 'estilo', label: 'Estilo', icon: '🎨' },
     ];
 
@@ -1725,6 +1735,106 @@ const AdminSettings = () => {
                                                             />
                                                         </div>
                                                     </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </section>
+                                )
+                            }
+
+                            {/* Footer Tab */}
+                            {
+                                activeTab === 'footer' && (
+                                    <section className="bg-white rounded-3xl shadow-sm border border-beige-dark/10 overflow-hidden mb-8">
+                                        <div className="p-8 border-b border-beige-dark/10 bg-paper/30">
+                                            <h2 className="text-xl font-serif text-earth flex items-center gap-3">
+                                                <span className="p-2 bg-earth/10 rounded-xl text-lg">🦶</span>
+                                                Personalización del Footer
+                                            </h2>
+                                            <p className="text-slate-500 text-sm mt-1 italic">Personaliza los textos y colores del pie de página.</p>
+                                        </div>
+
+                                        <div className="p-8 space-y-8">
+                                            {/* Diseño General */}
+                                            <div className="p-6 bg-paper/50 rounded-2xl border border-beige-dark/10">
+                                                <h3 className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-6">Diseño General</h3>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                                    <ColorPicker
+                                                        label="Fondo del Footer"
+                                                        name="footer_bg_color"
+                                                        value={settings.footer_bg_color}
+                                                        onChange={handleChange}
+                                                    />
+                                                    <ColorPicker
+                                                        label="Color de Bordes/Divisores"
+                                                        name="footer_border_color"
+                                                        value={settings.footer_border_color}
+                                                        onChange={handleChange}
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            {/* Columna Marca */}
+                                            <div className="p-6 bg-paper/50 rounded-2xl border border-beige-dark/10">
+                                                <h3 className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-6">Identidad de Marca</h3>
+                                                <div className="space-y-6">
+                                                    <div>
+                                                        <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Descripción (Bajo el Logo)</label>
+                                                        <textarea
+                                                            name="footer_description"
+                                                            value={settings.footer_description || ''}
+                                                            onChange={handleChange}
+                                                            rows="2"
+                                                            className="w-full bg-white border border-beige-dark/20 rounded-xl p-3 focus:outline-none focus:border-earth text-sm"
+                                                            placeholder="Productos seleccionados para tu bienestar..."
+                                                        />
+                                                    </div>
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                        <ColorPicker
+                                                            label="Color de Descripción"
+                                                            name="footer_text_color"
+                                                            value={settings.footer_text_color}
+                                                            onChange={handleChange}
+                                                        />
+                                                        <ColorPicker
+                                                            label="Color de Títulos de Columnas"
+                                                            name="footer_title_color"
+                                                            value={settings.footer_title_color}
+                                                            onChange={handleChange}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Frase y Copyright */}
+                                            <div className="p-6 bg-paper/50 rounded-2xl border border-beige-dark/10">
+                                                <h3 className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-6">Cierre y Legal</h3>
+                                                <div className="space-y-6">
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                                                        <div>
+                                                            <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Frase de Cierre (Tagline)</label>
+                                                            <input
+                                                                type="text"
+                                                                name="footer_tagline"
+                                                                value={settings.footer_tagline || ''}
+                                                                onChange={handleChange}
+                                                                className="w-full bg-white border border-beige-dark/20 rounded-xl p-3 focus:outline-none focus:border-earth text-sm italic"
+                                                                placeholder="Inspirando tu equilibrio natural"
+                                                            />
+                                                        </div>
+                                                        <ColorPicker
+                                                            label="Color de Frase de Cierre"
+                                                            name="footer_tagline_color"
+                                                            value={settings.footer_tagline_color}
+                                                            onChange={handleChange}
+                                                        />
+                                                    </div>
+                                                    <ColorPicker
+                                                        label="Color de Copyright"
+                                                        name="footer_copyright_color"
+                                                        value={settings.footer_copyright_color}
+                                                        onChange={handleChange}
+                                                    />
                                                 </div>
                                             </div>
                                         </div>
