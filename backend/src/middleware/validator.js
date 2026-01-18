@@ -78,11 +78,10 @@ const validateRegister = [
         .normalizeEmail(),
     body('password')
         .notEmpty().withMessage('La contraseña es requerida')
-        .isLength({ min: 6 }).withMessage('La contraseña debe tener al menos 6 caracteres')
-        .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/).withMessage('La contraseña debe contener al menos una mayúscula, una minúscula y un número'),
+        .isLength({ min: 6 }).withMessage('La contraseña debe tener al menos 6 caracteres'),
     body('name')
-        .optional()
         .trim()
+        .notEmpty().withMessage('El nombre es requerido')
         .isLength({ min: 2, max: 100 }).withMessage('El nombre debe tener entre 2 y 100 caracteres'),
     handleValidationErrors
 ];
@@ -154,8 +153,7 @@ const validateForgotPassword = [
 const validateResetPassword = [
     body('password')
         .notEmpty().withMessage('La contraseña es requerida')
-        .isLength({ min: 6 }).withMessage('La contraseña debe tener al menos 6 caracteres')
-        .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/).withMessage('La contraseña debe contener al menos una mayúscula, una minúscula y un número'),
+        .isLength({ min: 6 }).withMessage('La contraseña debe tener al menos 6 caracteres'),
     body('confirmPassword')
         .notEmpty().withMessage('Debes confirmar la contraseña')
         .custom((value, { req }) => value === req.body.password).withMessage('Las contraseñas no coinciden'),

@@ -33,7 +33,7 @@ const OrderConfirmation = () => {
 
         const fetchData = async () => {
             try {
-                const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+                const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
 
                 // Fetch pedido y configuraciones en paralelo
                 const [orderRes, settingsRes] = await Promise.all([
@@ -253,7 +253,7 @@ const OrderConfirmation = () => {
                                     if (url.startsWith('http')) return url;
 
                                     // Determinar base URL (sin /api)
-                                    let baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+                                    let baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
                                     baseUrl = baseUrl.replace(/\/api\/?$/, ''); // Remove /api or /api/
 
                                     // Remover slash inicial del path para evitar dobles

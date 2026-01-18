@@ -25,7 +25,7 @@ const Profile = () => {
 
     const fetchOrders = async () => {
         try {
-            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
             const token = localStorage.getItem('token');
             const response = await fetch(`${baseUrl}/users/orders`, {
                 headers: { 'Authorization': `Bearer ${token}` }
@@ -45,7 +45,7 @@ const Profile = () => {
         e.preventDefault();
         setSaving(true);
         try {
-            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
             const token = localStorage.getItem('token');
             const response = await fetch(`${baseUrl}/users/profile`, {
                 method: 'PUT',

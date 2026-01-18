@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { formatImageUrl } from '../../utils/imageConfig';
 import AdminLayout from '../../components/admin/AdminLayout';
+import { useToast } from '../../context/ToastContext';
 
 /**
  * Panel de Administración de Pedidos
  * Vista mejorada con cards, filtros y gestión de estados
  */
 const AdminOrders = () => {
+    const { showToast } = useToast();
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [filterStatus, setFilterStatus] = useState('all');
@@ -42,11 +44,11 @@ const AdminOrders = () => {
 
             if (response.ok) {
                 fetchOrders(); // Refrescar lista
-                alert('Estado actualizado correctamente');
+                showToast('Estado actualizado correctamente', 'success');
             }
         } catch (error) {
             console.error('Error updating order:', error);
-            alert('Error al actualizar el estado');
+            showToast('Error al actualizar el estado', 'error');
         }
     };
 

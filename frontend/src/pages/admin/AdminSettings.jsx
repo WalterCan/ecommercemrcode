@@ -105,6 +105,13 @@ const AdminSettings = () => {
         products_detail_button_text_color: '#ffffff',
         products_detail_badge_bg_color: '#F7E7CE',
         products_detail_badge_text_color: '#8A9A5B',
+        // Atributos de detalle
+        products_detail_attr1_text: '100% Natural',
+        products_detail_attr1_icon: '🌿',
+        products_detail_attr1_image_url: '',
+        products_detail_attr2_text: 'Artesanal',
+        products_detail_attr2_icon: '✨',
+        products_detail_attr2_image_url: '',
         // CTA
         about_cta_title: '',
         about_cta_title_color: '#ffffff',
@@ -134,6 +141,10 @@ const AdminSettings = () => {
     const [v3ImagePreview, setV3ImagePreview] = useState(null);
     const [productsEmptyImageFile, setProductsEmptyImageFile] = useState(null);
     const [productsEmptyImagePreview, setProductsEmptyImagePreview] = useState(null);
+    const [attr1ImageFile, setAttr1ImageFile] = useState(null);
+    const [attr1ImagePreview, setAttr1ImagePreview] = useState(null);
+    const [attr2ImageFile, setAttr2ImageFile] = useState(null);
+    const [attr2ImagePreview, setAttr2ImagePreview] = useState(null);
     const [activeTab, setActiveTab] = useState('general');
 
     const tabs = [
@@ -159,6 +170,7 @@ const AdminSettings = () => {
             const data = await response.json();
 
             // Mezclamos con los valores por defecto por si falta alguno
+            console.log('📦 Data recibida del server:', data);
             setSettings(prev => ({ ...prev, ...data }));
         } catch (error) {
             console.error('Error fetching settings:', error);
@@ -200,6 +212,12 @@ const AdminSettings = () => {
             } else if (type === 'products_empty') {
                 setProductsEmptyImageFile(file);
                 setProductsEmptyImagePreview(URL.createObjectURL(file));
+            } else if (type === 'attr1') {
+                setAttr1ImageFile(file);
+                setAttr1ImagePreview(URL.createObjectURL(file));
+            } else if (type === 'attr2') {
+                setAttr2ImageFile(file);
+                setAttr2ImagePreview(URL.createObjectURL(file));
             }
         }
     };
@@ -233,6 +251,14 @@ const AdminSettings = () => {
             setProductsEmptyImageFile(null);
             setProductsEmptyImagePreview(null);
             setSettings(prev => ({ ...prev, products_empty_image_url: '' }));
+        } else if (type === 'attr1') {
+            setAttr1ImageFile(null);
+            setAttr1ImagePreview(null);
+            setSettings(prev => ({ ...prev, products_detail_attr1_image_url: '' }));
+        } else if (type === 'attr2') {
+            setAttr2ImageFile(null);
+            setAttr2ImagePreview(null);
+            setSettings(prev => ({ ...prev, products_detail_attr2_image_url: '' }));
         }
     };
 
@@ -257,6 +283,8 @@ const AdminSettings = () => {
             if (v2ImageFile) formData.append('v2_image', v2ImageFile);
             if (v3ImageFile) formData.append('v3_image', v3ImageFile);
             if (productsEmptyImageFile) formData.append('products_empty_image', productsEmptyImageFile);
+            if (attr1ImageFile) formData.append('attr1_image', attr1ImageFile);
+            if (attr2ImageFile) formData.append('attr2_image', attr2ImageFile);
 
             const response = await fetch(`${baseUrl}/settings`, {
                 method: 'PUT',
@@ -282,6 +310,10 @@ const AdminSettings = () => {
                 setV3ImagePreview(null);
                 setProductsEmptyImageFile(null);
                 setProductsEmptyImagePreview(null);
+                setAttr1ImageFile(null);
+                setAttr1ImagePreview(null);
+                setAttr2ImageFile(null);
+                setAttr2ImagePreview(null);
             } else {
                 showToast('Error al guardar configuraciones', 'error');
             }
@@ -936,6 +968,47 @@ const AdminSettings = () => {
                                                     <option value="false">STARTTLS (Puerto 587 - Recomendado)</option>
                                                     <option value="true">SSL/TLS (Puerto 465)</option>
                                                 </select>
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12 pt-12 border-t border-beige-dark/10">
+                                            <div className="col-span-full">
+                                                <h3 className="text-lg font-serif text-earth font-bold mb-2">Identidad Visual y Mensajes</h3>
+                                                <p className="text-sm text-slate-500 mb-6">Personaliza la apariencia y el tono de los correos que reciben tus clientes.</p>
+                                            </div>
+
+                                            <div className="space-y-6">
+                                                <ColorPicker
+                                                    label="Color de Acento (Botones y Detalles)"
+                                                    name="email_accent_color"
+                                                    value={settings.email_accent_color || '#8A9A5B'}
+                                                    onChange={handleChange}
+                                                />
+
+                                                <div>
+                                                    <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Texto del Pie de Página (Footer)</label>
+                                                    <input
+                                                        type="text"
+                                                        name="email_footer_text"
+                                                        value={settings.email_footer_text || ''}
+                                                        onChange={handleChange}
+                                                        className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 focus:outline-none focus:border-earth focus:ring-1 focus:ring-earth transition-all text-sm"
+                                                        placeholder="Ej: Conecta con tu esencia natural"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Frase de Cierre / Bendición</label>
+                                                <textarea
+                                                    name="email_closing_phrase"
+                                                    value={settings.email_closing_phrase || ''}
+                                                    onChange={handleChange}
+                                                    rows="5"
+                                                    className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 focus:outline-none focus:border-earth focus:ring-1 focus:ring-earth transition-all text-sm h-[132px]"
+                                                    placeholder="Ej: Gracias por confiar en nosotros para tu camino de bienestar..."
+                                                ></textarea>
+                                                <p className="text-[10px] text-slate-400 mt-2 italic">Aparecerá al final de cada correo entre comillas.</p>
                                             </div>
                                         </div>
                                     </section>
@@ -1606,7 +1679,7 @@ const AdminSettings = () => {
 
                                             <div className="p-6 bg-paper/50 rounded-2xl border border-beige-dark/10">
                                                 <h3 className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-6">Página de Detalle de Producto</h3>
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                                                     <div className="space-y-6">
                                                         <ColorPicker
                                                             label="Color del Título"
@@ -1636,7 +1709,7 @@ const AdminSettings = () => {
                                                     <div className="space-y-6">
                                                         <div className="p-4 bg-white rounded-xl border border-beige-dark/10 space-y-4">
                                                             <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Botón de Compra</h4>
-                                                            <div className="grid grid-cols-2 gap-4">
+                                                            <div className="grid grid-cols-1 gap-6">
                                                                 <ColorPicker
                                                                     label="Fondo"
                                                                     name="products_detail_button_bg_color"
@@ -1653,7 +1726,7 @@ const AdminSettings = () => {
                                                         </div>
                                                         <div className="p-4 bg-white rounded-xl border border-beige-dark/10 space-y-4">
                                                             <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Tarjetas de Atributos</h4>
-                                                            <div className="grid grid-cols-2 gap-4">
+                                                            <div className="grid grid-cols-1 gap-6">
                                                                 <ColorPicker
                                                                     label="Fondo"
                                                                     name="products_detail_badge_bg_color"
@@ -1666,6 +1739,148 @@ const AdminSettings = () => {
                                                                     value={settings.products_detail_badge_text_color}
                                                                     onChange={handleChange}
                                                                 />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Tarjetas de Atributos Personalizables */}
+                                            <div className="p-6 bg-paper/50 rounded-2xl border border-beige-dark/10">
+                                                <h3 className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-6">Tarjetas de Atributos Personalizables (Dúo)</h3>
+                                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                                    {/* Atributo 1 */}
+                                                    <div className="p-6 bg-white rounded-2xl border border-beige-dark/10 space-y-6">
+                                                        <h4 className="text-[10px] font-bold uppercase tracking-widest text-earth">Atributo Izquierdo</h4>
+                                                        <div>
+                                                            <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Texto del Atributo</label>
+                                                            <input
+                                                                type="text"
+                                                                name="products_detail_attr1_text"
+                                                                value={settings.products_detail_attr1_text || ''}
+                                                                onChange={handleChange}
+                                                                className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 focus:outline-none focus:border-earth text-sm"
+                                                                placeholder="Ej: 100% Natural"
+                                                            />
+                                                        </div>
+                                                        <div className="grid grid-cols-2 gap-4">
+                                                            <div>
+                                                                <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Icono (Emoji)</label>
+                                                                <input
+                                                                    type="text"
+                                                                    name="products_detail_attr1_icon"
+                                                                    value={settings.products_detail_attr1_icon || ''}
+                                                                    onChange={handleChange}
+                                                                    className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 focus:outline-none focus:border-earth text-center text-xl"
+                                                                    placeholder="🌿"
+                                                                />
+                                                            </div>
+                                                            <div>
+                                                                <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">O Imagen / SVG</label>
+                                                                <div className="flex flex-col items-center justify-center p-4 rounded-3xl border border-beige-dark/20 h-[100px] gap-2"
+                                                                    style={{
+                                                                        backgroundColor: settings.products_detail_badge_bg_color || '#FDFCF8',
+                                                                        color: settings.products_detail_badge_text_color || '#8A9A5B'
+                                                                    }}
+                                                                >
+                                                                    {(attr1ImagePreview || (settings.products_detail_attr1_image_url && settings.products_detail_attr1_image_url !== '')) ? (
+                                                                        <div className="relative group flex items-center justify-center h-10 w-full">
+                                                                            <img
+                                                                                src={attr1ImagePreview || formatImageUrl(settings.products_detail_attr1_image_url)}
+                                                                                className="h-full object-contain"
+                                                                                alt="Preview"
+                                                                            />
+                                                                            <button
+                                                                                type="button"
+                                                                                onClick={() => handleRemoveIcon('attr1')}
+                                                                                className="absolute -top-6 -right-2 bg-red-500 text-white rounded-full p-1 shadow-lg"
+                                                                                title="Eliminar Imagen"
+                                                                            >
+                                                                                <svg className="w-2 h-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                                                            </button>
+                                                                        </div>
+                                                                    ) : (
+                                                                        <div className="flex flex-col items-center gap-2">
+                                                                            <div className="text-2xl">{settings.products_detail_attr1_icon || '🌿'}</div>
+                                                                            <input
+                                                                                type="file"
+                                                                                accept="image/*,.svg"
+                                                                                onChange={(e) => handleFileChange(e, 'attr1')}
+                                                                                className="text-[10px] w-full"
+                                                                            />
+                                                                        </div>
+                                                                    )}
+                                                                    <span className="text-[8px] font-bold uppercase tracking-widest">{settings.products_detail_attr1_text || 'Vista Previa'}</span>
+                                                                </div>
+                                                                <p className="text-[10px] text-slate-400 mt-2 italic">Si subes imagen, el emoji se ignorará.</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Atributo 2 */}
+                                                    <div className="p-6 bg-white rounded-2xl border border-beige-dark/10 space-y-6">
+                                                        <h4 className="text-[10px] font-bold uppercase tracking-widest text-earth">Atributo Derecho</h4>
+                                                        <div>
+                                                            <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Texto del Atributo</label>
+                                                            <input
+                                                                type="text"
+                                                                name="products_detail_attr2_text"
+                                                                value={settings.products_detail_attr2_text || ''}
+                                                                onChange={handleChange}
+                                                                className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 focus:outline-none focus:border-earth text-sm"
+                                                                placeholder="Ej: Artesanal"
+                                                            />
+                                                        </div>
+                                                        <div className="grid grid-cols-2 gap-4">
+                                                            <div>
+                                                                <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Icono (Emoji)</label>
+                                                                <input
+                                                                    type="text"
+                                                                    name="products_detail_attr2_icon"
+                                                                    value={settings.products_detail_attr2_icon || ''}
+                                                                    onChange={handleChange}
+                                                                    className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 focus:outline-none focus:border-earth text-center text-xl"
+                                                                    placeholder="✨"
+                                                                />
+                                                            </div>
+                                                            <div>
+                                                                <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">O Imagen / SVG</label>
+                                                                <div className="flex flex-col items-center justify-center p-4 rounded-3xl border border-beige-dark/20 h-[100px] gap-2"
+                                                                    style={{
+                                                                        backgroundColor: settings.products_detail_badge_bg_color || '#FDFCF8',
+                                                                        color: settings.products_detail_badge_text_color || '#8A9A5B'
+                                                                    }}
+                                                                >
+                                                                    {(attr2ImagePreview || (settings.products_detail_attr2_image_url && settings.products_detail_attr2_image_url !== '')) ? (
+                                                                        <div className="relative group flex items-center justify-center h-10 w-full">
+                                                                            <img
+                                                                                src={attr2ImagePreview || formatImageUrl(settings.products_detail_attr2_image_url)}
+                                                                                className="h-full object-contain"
+                                                                                alt="Preview"
+                                                                            />
+                                                                            <button
+                                                                                type="button"
+                                                                                onClick={() => handleRemoveIcon('attr2')}
+                                                                                className="absolute -top-6 -right-2 bg-red-500 text-white rounded-full p-1 shadow-lg"
+                                                                                title="Eliminar Imagen"
+                                                                            >
+                                                                                <svg className="w-2 h-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                                                            </button>
+                                                                        </div>
+                                                                    ) : (
+                                                                        <div className="flex flex-col items-center gap-2">
+                                                                            <div className="text-2xl">{settings.products_detail_attr2_icon || '✨'}</div>
+                                                                            <input
+                                                                                type="file"
+                                                                                accept="image/*,.svg"
+                                                                                onChange={(e) => handleFileChange(e, 'attr2')}
+                                                                                className="text-[10px] w-full"
+                                                                            />
+                                                                        </div>
+                                                                    )}
+                                                                    <span className="text-[8px] font-bold uppercase tracking-widest">{settings.products_detail_attr2_text || 'Vista Previa'}</span>
+                                                                </div>
+                                                                <p className="text-[10px] text-slate-400 mt-2 italic">Si subes imagen, el emoji se ignorará.</p>
                                                             </div>
                                                         </div>
                                                     </div>

@@ -22,7 +22,7 @@ const ResetPassword = () => {
     useEffect(() => {
         const verifyToken = async () => {
             try {
-                const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+                const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
                 const response = await fetch(`${baseUrl}/password/verify/${token}`);
 
                 if (response.ok) {
@@ -59,7 +59,7 @@ const ResetPassword = () => {
         setLoading(true);
 
         try {
-            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
             const response = await fetch(`${baseUrl}/password/reset/${token}`, {
                 method: 'POST',
                 headers: {

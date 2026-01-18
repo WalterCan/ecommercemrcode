@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
 
     const verifyToken = async (token) => {
         try {
-            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
             const response = await fetch(`${baseUrl}/auth/verify`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -43,7 +43,7 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (email, password) => {
         try {
-            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
             const response = await fetch(`${baseUrl}/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -66,7 +66,7 @@ export const AuthProvider = ({ children }) => {
 
     const register = async (email, password, name) => {
         try {
-            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
             console.log('Intentando registro en:', `${baseUrl}/auth/register`);
             const response = await fetch(`${baseUrl}/auth/register`, {
                 method: 'POST',

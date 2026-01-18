@@ -26,7 +26,7 @@ const Products = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+                const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
                 const [productsRes, categoriesRes, settingsRes] = await Promise.all([
                     fetch(`${baseUrl}/products`),
                     fetch(`${baseUrl}/categories`),

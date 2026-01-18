@@ -25,7 +25,7 @@ const Home = () => {
         const fetchData = async () => {
             try {
                 // Usar variable de entorno para la API o fallback a localhost
-                const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+                const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
 
                 const [productsRes, categoriesRes, settingsRes] = await Promise.all([
                     fetch(`${baseUrl}/products`),

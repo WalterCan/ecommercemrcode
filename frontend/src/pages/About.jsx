@@ -38,7 +38,7 @@ const About = () => {
     useEffect(() => {
         const fetchSettings = async () => {
             try {
-                const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+                const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
                 const res = await fetch(`${baseUrl}/settings`);
                 const data = await res.json();
                 setSettings(prev => ({ ...prev, ...data }));

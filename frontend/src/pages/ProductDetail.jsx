@@ -26,15 +26,21 @@ const ProductDetail = () => {
         products_detail_stock_color: '#8A9A5B',
         products_detail_description_color: '#475569',
         products_detail_button_bg_color: '#8A9A5B',
-        products_detail_button_text_color: '#ffffff',
-        products_detail_badge_bg_color: '#F7E7CE',
-        products_detail_badge_text_color: '#8A9A5B',
+        products_detail_button_text_color: '',
+        products_detail_badge_bg_color: '',
+        products_detail_badge_text_color: '',
+        products_detail_attr1_text: '100% Natural',
+        products_detail_attr1_icon: '🌿',
+        products_detail_attr1_image_url: '',
+        products_detail_attr2_text: 'Artesanal',
+        products_detail_attr2_icon: '✨',
+        products_detail_attr2_image_url: '',
     });
 
     useEffect(() => {
         const fetchProductData = async () => {
             try {
-                const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+                const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
 
                 // Fetch producto, relacionados, reseñas y ajustes
                 const [productRes, allProductsRes, reviewsRes, settingsRes] = await Promise.all([
@@ -77,7 +83,7 @@ const ProductDetail = () => {
         e.preventDefault();
         setSubmittingReview(true);
         try {
-            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
             const res = await fetch(`${baseUrl}/reviews`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -223,27 +229,54 @@ const ProductDetail = () => {
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
+                            {/* Atributo 1 */}
                             <div
-                                className="p-5 rounded-3xl border text-center"
+                                className="p-5 rounded-3xl border text-center flex flex-col items-center justify-center gap-2"
                                 style={{
                                     backgroundColor: settings.products_detail_badge_bg_color || '#FDFCF8',
                                     borderColor: (settings.products_detail_badge_text_color || '#8A9A5B') + '20',
                                     color: settings.products_detail_badge_text_color || '#8A9A5B'
                                 }}
                             >
-                                <div className="mb-2">🌿</div>
-                                <span className="text-[9px] uppercase tracking-widest font-bold">100% Natural</span>
+                                {(settings.products_detail_attr1_image_url && settings.products_detail_attr1_image_url !== 'null') ? (
+                                    <img
+                                        src={formatImageUrl(settings.products_detail_attr1_image_url)}
+                                        alt="Icono 1"
+                                        className="h-10 w-auto object-contain"
+                                    />
+                                ) : (
+                                    <div className="text-2xl h-10 flex items-center justify-center">
+                                        {settings.products_detail_attr1_icon || '🌿'}
+                                    </div>
+                                )}
+                                <span className="text-[9px] uppercase tracking-widest font-bold">
+                                    {settings.products_detail_attr1_text || '100% Natural'}
+                                </span>
                             </div>
+
+                            {/* Atributo 2 */}
                             <div
-                                className="p-5 rounded-3xl border text-center"
+                                className="p-5 rounded-3xl border text-center flex flex-col items-center justify-center gap-2"
                                 style={{
                                     backgroundColor: settings.products_detail_badge_bg_color || '#FDFCF8',
                                     borderColor: (settings.products_detail_badge_text_color || '#8A9A5B') + '20',
                                     color: settings.products_detail_badge_text_color || '#8A9A5B'
                                 }}
                             >
-                                <div className="mb-2">✨</div>
-                                <span className="text-[9px] uppercase tracking-widest font-bold">Artesanal</span>
+                                {(settings.products_detail_attr2_image_url && settings.products_detail_attr2_image_url !== 'null') ? (
+                                    <img
+                                        src={formatImageUrl(settings.products_detail_attr2_image_url)}
+                                        alt="Icono 2"
+                                        className="h-10 w-auto object-contain"
+                                    />
+                                ) : (
+                                    <div className="text-2xl h-10 flex items-center justify-center">
+                                        {settings.products_detail_attr2_icon || '✨'}
+                                    </div>
+                                )}
+                                <span className="text-[9px] uppercase tracking-widest font-bold">
+                                    {settings.products_detail_attr2_text || 'Artesanal'}
+                                </span>
                             </div>
                         </div>
                     </div>

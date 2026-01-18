@@ -59,6 +59,10 @@ router.put('/', upload.any(), async (req, res) => {
                     settingsUpdates.about_value_3_image_url = `/uploads/${file.filename}`;
                 } else if (file.fieldname === 'products_empty_image') {
                     settingsUpdates.products_empty_image_url = `/uploads/${file.filename}`;
+                } else if (file.fieldname === 'attr1_image') {
+                    settingsUpdates.products_detail_attr1_image_url = `/uploads/${file.filename}`;
+                } else if (file.fieldname === 'attr2_image') {
+                    settingsUpdates.products_detail_attr2_image_url = `/uploads/${file.filename}`;
                 }
             });
         }

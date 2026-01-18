@@ -17,7 +17,11 @@ class EmailService {
             // Intentar buscar en DB
             const settings = await Setting.findAll({
                 where: {
-                    key: ['email_host', 'email_port', 'email_user', 'email_password', 'email_secure', 'email_from_name']
+                    key: [
+                        'email_host', 'email_port', 'email_user', 'email_password',
+                        'email_secure', 'email_from_name', 'site_name',
+                        'email_accent_color', 'email_footer_text', 'email_closing_phrase'
+                    ]
                 }
             });
 
@@ -33,7 +37,11 @@ class EmailService {
                     user: dbConfig.email_user || process.env.EMAIL_USER,
                     pass: dbConfig.email_password || process.env.EMAIL_PASSWORD
                 },
-                fromName: dbConfig.email_from_name || process.env.EMAIL_FROM_NAME || 'Tienda Holística'
+                fromName: dbConfig.email_from_name || dbConfig.site_name || process.env.EMAIL_FROM_NAME || 'Tienda Holística',
+                siteName: dbConfig.site_name || 'Tienda Holística',
+                accentColor: dbConfig.email_accent_color || '#8A9A5B',
+                footerText: dbConfig.email_footer_text || 'Conecta con tu esencia natural',
+                closingPhrase: dbConfig.email_closing_phrase || 'Que la energía positiva te acompañe en este camino de bienestar'
             };
         } catch (error) {
             console.error('Error fetching email config:', error);
@@ -46,7 +54,11 @@ class EmailService {
                     user: process.env.EMAIL_USER,
                     pass: process.env.EMAIL_PASSWORD
                 },
-                fromName: process.env.EMAIL_FROM_NAME || 'Tienda Holística'
+                fromName: process.env.EMAIL_FROM_NAME || 'Tienda Holística',
+                siteName: 'Tienda Holística',
+                accentColor: '#8A9A5B',
+                footerText: 'Conecta con tu esencia natural',
+                closingPhrase: 'Que la energía positiva te acompañe en este camino de bienestar'
             };
         }
     }
@@ -56,10 +68,22 @@ class EmailService {
      */
     async loadTemplate(templateName, data) {
         try {
+            const config = await this.getConfig();
             const templatePath = path.join(__dirname, '../templates/emails', `${templateName}.hbs`);
             const templateContent = await fs.readFile(templatePath, 'utf-8');
+
+            // Inyectar variables globales de configuración
+            const enhancedData = {
+                ...data,
+                siteName: config.siteName,
+                accentColor: config.accentColor,
+                footerText: config.footerText,
+                closingPhrase: config.closingPhrase,
+                year: new Date().getFullYear()
+            };
+
             const template = handlebars.compile(templateContent);
-            return template(data);
+            return template(enhancedData);
         } catch (error) {
             console.error(`Error loading email template ${templateName}:`, error);
             throw error;
@@ -77,7 +101,12 @@ class EmailService {
             return { success: false, error: 'Email service not configured' };
         }
 
-        const transporter = nodemailer.createTransport(config);
+        const transporter = nodemailer.createTransport({
+            host: config.host,
+            port: config.port,
+            secure: config.secure,
+            auth: config.auth
+        });
 
         try {
             const mailOptions = {
@@ -102,6 +131,7 @@ class EmailService {
      */
     async sendOrderConfirmation(orderData) {
         try {
+            const config = await this.getConfig();
             const html = await this.loadTemplate('orderConfirmation', {
                 customerName: orderData.customer_name,
                 orderId: orderData.id,
@@ -120,7 +150,7 @@ class EmailService {
 
             return await this.sendEmail({
                 to: orderData.customer_email,
-                subject: `Confirmación de Pedido #${orderData.id} - Tienda Holística`,
+                subject: `Confirmación de Pedido #${orderData.id} - ${config.siteName}`,
                 html
             });
         } catch (error) {
@@ -134,6 +164,7 @@ class EmailService {
      */
     async sendOrderStatusUpdate(orderData, newStatus) {
         try {
+            const config = await this.getConfig();
             const html = await this.loadTemplate('orderStatusUpdate', {
                 customerName: orderData.customer_name,
                 orderId: orderData.id,
@@ -144,7 +175,7 @@ class EmailService {
 
             return await this.sendEmail({
                 to: orderData.customer_email,
-                subject: `Actualización de Pedido #${orderData.id} - ${this.getStatusName(newStatus)}`,
+                subject: `Actualización de Pedido #${orderData.id}: ${this.getStatusName(newStatus)} | ${config.siteName}`,
                 html
             });
         } catch (error) {
@@ -158,6 +189,7 @@ class EmailService {
      */
     async sendPasswordReset(userData, resetToken) {
         try {
+            const config = await this.getConfig();
             const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password/${resetToken}`;
 
             const html = await this.loadTemplate('passwordReset', {
@@ -168,7 +200,7 @@ class EmailService {
 
             return await this.sendEmail({
                 to: userData.email,
-                subject: 'Recuperación de Contraseña - Tienda Holística',
+                subject: `Recuperación de Contraseña - ${config.siteName}`,
                 html
             });
         } catch (error) {
