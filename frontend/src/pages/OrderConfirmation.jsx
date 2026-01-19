@@ -24,6 +24,12 @@ const OrderConfirmation = () => {
     const [paymentStatus, setPaymentStatus] = useState(null);
 
     useEffect(() => {
+        if (settings?.mercadopago_public_key) {
+            initMercadoPago(settings.mercadopago_public_key);
+        }
+    }, [settings]);
+
+    useEffect(() => {
         // Obtener estado del pago desde la URL si existe
         const queryParams = new URLSearchParams(location.search);
         const status = queryParams.get('status');

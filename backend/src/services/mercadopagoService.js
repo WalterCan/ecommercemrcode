@@ -1,16 +1,33 @@
 const { MercadoPagoConfig, Preference } = require('mercadopago');
+const Setting = require('../models/Setting');
 
 /**
  * Servicio de Mercado Pago
  * Maneja la creación de preferencias de pago y consultas
  */
 
-// Inicializar cliente de Mercado Pago
-const client = new MercadoPagoConfig({
-    accessToken: process.env.MP_ACCESS_TOKEN
-});
+// Función auxiliar para obtener credenciales dinámicas
+const getMPClient = async () => {
+    try {
+        const [accessTokenSet, publicKeySet] = await Promise.all([
+            Setting.findOne({ where: { key: 'mercadopago_access_token' } }),
+            Setting.findOne({ where: { key: 'mercadopago_public_key' } })
+        ]);
 
-const preference = new Preference(client);
+        const accessToken = (accessTokenSet && accessTokenSet.value) || process.env.MERCADOPAGO_ACCESS_TOKEN;
+
+        if (!accessToken || accessToken === 'tu_access_token_aqui') {
+            throw new Error('Mercado Pago Access Token no configurado');
+        }
+
+        return new MercadoPagoConfig({
+            accessToken: accessToken
+        });
+    } catch (error) {
+        console.error('Error inicializando cliente MP:', error.message);
+        throw error;
+    }
+};
 
 /**
  * Crear preferencia de pago en Mercado Pago
@@ -19,6 +36,9 @@ const preference = new Preference(client);
  */
 const createPaymentPreference = async (orderData) => {
     try {
+        const client = await getMPClient();
+        const preference = new Preference(client);
+
         const { id, items, total, customer_name, customer_email, customer_phone } = orderData;
 
         // Preparar items para Mercado Pago (SDK v2 híbrido)
@@ -62,7 +82,13 @@ const createPaymentPreference = async (orderData) => {
             sandbox_init_point: response.sandbox_init_point
         };
     } catch (error) {
-        console.error('Error creating Mercado Pago preference:', error);
+        console.error('Error creating Mercado Pago preference:');
+        if (error.response) {
+            console.error('Status:', error.response.status);
+            console.error('Data:', JSON.stringify(error.response.data, null, 2));
+        } else {
+            console.error(error);
+        }
         throw new Error('Error al crear preferencia de pago');
     }
 };
@@ -74,6 +100,7 @@ const createPaymentPreference = async (orderData) => {
  */
 const getPaymentInfo = async (paymentId) => {
     try {
+        const client = await getMPClient();
         const { Payment } = require('mercadopago');
         const payment = new Payment(client);
         const paymentInfo = await payment.get({ id: paymentId });

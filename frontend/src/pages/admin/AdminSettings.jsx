@@ -658,6 +658,43 @@ const AdminSettings = () => {
                                                 />
                                             </div>
                                         </div>
+
+                                        <div className="mt-12 pt-12 border-t border-beige-dark/10">
+                                            <h2 className="text-xl font-serif text-earth font-bold mb-6 flex items-center gap-2">
+                                                <span className="p-2 bg-blue-100 rounded-xl text-lg">💳</span>
+                                                Pasarela Mercado Pago
+                                            </h2>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <div className="md:col-span-2">
+                                                    <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Access Token (Producción/Prueba)</label>
+                                                    <input
+                                                        type="password"
+                                                        name="mercadopago_access_token"
+                                                        value={settings.mercadopago_access_token || ''}
+                                                        onChange={handleChange}
+                                                        className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 focus:outline-none focus:border-earth focus:ring-1 focus:ring-earth transition-all"
+                                                        placeholder="APP_USR-..."
+                                                    />
+                                                    <p className="text-[10px] text-slate-400 mt-2 uppercase tracking-tight italic">
+                                                        Tu token de acceso privado. No lo compartas con nadie.
+                                                    </p>
+                                                </div>
+                                                <div className="md:col-span-2">
+                                                    <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Public Key</label>
+                                                    <input
+                                                        type="text"
+                                                        name="mercadopago_public_key"
+                                                        value={settings.mercadopago_public_key || ''}
+                                                        onChange={handleChange}
+                                                        className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 focus:outline-none focus:border-earth focus:ring-1 focus:ring-earth transition-all"
+                                                        placeholder="APP_USR-..."
+                                                    />
+                                                    <p className="text-[10px] text-slate-400 mt-2 uppercase tracking-tight italic">
+                                                        Necesaria para inicializar los componentes de pago en el checkout.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </section>
                                 )
                             }

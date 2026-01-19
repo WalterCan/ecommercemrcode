@@ -172,6 +172,9 @@ async function startServer() {
             // WhatsApp
             { key: 'whatsapp_number', value: '', description: 'Número de WhatsApp para pedidos' },
             { key: 'whatsapp_message', value: '¡Hola! Quiero coordinar el pago de mi pedido.', description: 'Mensaje predeterminado de WhatsApp' },
+            // Mercado Pago
+            { key: 'mercadopago_access_token', value: '', description: 'Mercado Pago Access Token' },
+            { key: 'mercadopago_public_key', value: '', description: 'Mercado Pago Public Key' },
             // Hero Section
             { key: 'hero_tagline', value: 'Bienvenido a tu Espacio Sagrado', description: 'Tagline superior del Hero' },
             { key: 'hero_title', value: 'Descubre tu fragancia perfecta', description: 'Título principal del Hero' },
