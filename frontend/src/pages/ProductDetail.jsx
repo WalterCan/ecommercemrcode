@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import SEO from '../components/common/SEO';
 import { useParams, Link } from 'react-router-dom';
 import Header from '../components/layout/Header';
 import CartDrawer from '../components/cart/CartDrawer';
@@ -27,8 +28,10 @@ const ProductDetail = () => {
         products_detail_description_color: '#475569',
         products_detail_button_bg_color: '#8A9A5B',
         products_detail_button_text_color: '',
+        products_detail_button_text_color: '',
         products_detail_badge_bg_color: '',
         products_detail_badge_text_color: '',
+        products_detail_reviews_color: '#8A9A5B',
         products_detail_attr1_text: '100% Natural',
         products_detail_attr1_icon: '🌿',
         products_detail_attr1_image_url: '',
@@ -194,9 +197,9 @@ const ProductDetail = () => {
                                 </span>
                                 {averageRating && (
                                     <div className="flex items-center gap-1 mt-1">
-                                        <div className="flex text-earth text-[10px]" style={{ color: settings.products_detail_price_color || '#8A9A5B' }}>
+                                        <div className="flex text-[10px]" style={{ color: settings.products_detail_reviews_color || '#8A9A5B' }}>
                                             {[...Array(5)].map((_, i) => (
-                                                <svg key={i} className={`w-3 h-3 ${i < Math.floor(averageRating) ? 'fill-current' : 'text-beige-dark/30'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <svg key={i} className={`w-3 h-3 ${i < Math.floor(averageRating) ? 'fill-current' : 'opacity-30'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.382-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
                                                 </svg>
                                             ))}
@@ -292,9 +295,9 @@ const ProductDetail = () => {
                                     <div key={review.id} className="bg-white p-6 rounded-3xl border border-beige-dark/10 shadow-sm">
                                         <div className="flex justify-between items-center mb-3">
                                             <span className="text-xs font-bold text-slate-800 uppercase tracking-widest">{review.customer_name}</span>
-                                            <div className="flex text-earth">
+                                            <div className="flex text-[10px]" style={{ color: settings.products_detail_reviews_color || '#8A9A5B' }}>
                                                 {[...Array(5)].map((_, i) => (
-                                                    <svg key={i} className={`w-3 h-3 ${i < review.rating ? 'fill-current' : 'text-beige-dark/30'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <svg key={i} className={`w-3 h-3 ${i < review.rating ? 'fill-current' : 'opacity-30'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.382-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
                                                     </svg>
                                                 ))}
@@ -330,7 +333,8 @@ const ProductDetail = () => {
                                             key={star}
                                             type="button"
                                             onClick={() => setNewReview({ ...newReview, rating: star })}
-                                            className={`p-1 transition-colors ${newReview.rating >= star ? 'text-earth' : 'text-beige-dark/30'}`}
+                                            className={`p-1 transition-colors`}
+                                            style={{ color: newReview.rating >= star ? (settings.products_detail_reviews_color || '#8A9A5B') : '#e2e8f0' }}
                                         >
                                             <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.382-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg>
                                         </button>

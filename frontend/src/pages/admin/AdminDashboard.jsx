@@ -27,76 +27,55 @@ const AdminDashboard = () => {
     const fetchStats = async () => {
       try {
         const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+        const token = localStorage.getItem('token');
+        const headers = { 'Authorization': `Bearer ${token}` };
 
-        // Fetch productos
-        const prodRes = await fetch(`${baseUrl}/products`);
-        const prods = await prodRes.json();
+        // Fetch estadísticas nuevas del backend
+        const [generalRes, salesRes, topProdsRes, stockAlertsRes, recentOrdersRes, categoryRes] = await Promise.all([
+          fetch(`${baseUrl}/stats/general`, { headers }),
+          fetch(`${baseUrl}/stats/sales-chart`, { headers }),
+          fetch(`${baseUrl}/stats/top-products`, { headers }),
+          fetch(`${baseUrl}/products/stock-alerts`, { headers }),
+          fetch(`${baseUrl}/stats/recent-orders`, { headers }),
+          fetch(`${baseUrl}/stats/category-stats`, { headers })
+        ]);
 
-        // Fetch categorías
-        const catRes = await fetch(`${baseUrl}/categories`);
-        const cats = await catRes.json();
+        const generalData = await generalRes.json();
+        const salesData = await salesRes.json();
+        const topProducts = await topProdsRes.json();
+        const stockAlerts = await stockAlertsRes.json();
+        const recentOrdersData = await recentOrdersRes.json();
+        const catChart = await categoryRes.json();
 
-        // Fetch pedidos
-        const orderRes = await fetch(`${baseUrl}/orders`);
-        const orders = await orderRes.json();
-
-        // 1. Calcular ventas totales (solo aprobadas)
-        const totalSales = orders
-          .filter(o => o.payment_status === 'approved')
-          .reduce((sum, o) => sum + parseFloat(o.total), 0);
-
-        // 2. Procesar datos para el gráfico de ventas (últimos 7 días)
-        const last7Days = [...Array(7)].map((_, i) => {
-          const d = new Date();
-          d.setDate(d.getDate() - i);
-          return d.toISOString().split('T')[0];
-        }).reverse();
-
-        const chartData = last7Days.map(date => {
-          const dailyTotal = orders
-            .filter(o => o.payment_status === 'approved' && (o.created_at || o.createdAt || '').toString().startsWith(date))
-            .reduce((sum, o) => sum + parseFloat(o.total), 0);
-          return { date: date.split('-').slice(1).join('/'), total: dailyTotal };
-        });
-
-        // 3. Procesar datos para gráfico de categorías
-        const catChart = cats.map(cat => ({
-          name: cat.name,
-          value: prods.filter(p => p.category_id === cat.id).length
-        })).filter(c => c.value > 0);
-
-        // 4. Fetch alertas de stock
-        const alertsRes = await fetch(`${baseUrl}/products/stock-alerts`, {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-        });
-        const stockAlerts = await alertsRes.json();
-
-        // Fetch estadísticas de stock
-        const stockStatsRes = await fetch(`${baseUrl}/products/stock-stats`, {
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-        });
-        const stockStats = await stockStatsRes.json();
-
-        // 5. Últimos 5 pedidos
-        const latest = orders.slice(0, 5);
-
-        // 6. Fetch reseñas pendientes
+        // Obtener reseñas pendientes
         const reviewRes = await fetch(`${baseUrl}/reviews/admin`);
-        const allReviews = await reviewRes.json();
-        const pendingReviews = allReviews.filter(r => !r.is_approved).length;
+        let pendingReviews = 0;
+        if (reviewRes.ok) {
+          const allReviews = await reviewRes.json();
+          pendingReviews = allReviews.filter(r => !r.is_approved).length;
+        }
 
         setStats({
-          products: prods.length,
-          categories: cats.length,
-          orders: orders.length,
-          totalSales: totalSales,
+          products: generalData.lowStockProducts, // Reusamos este campo o lo cambiamos
+          categories: catChart.length, // Ya no es crítico
+          orders: generalData.totalOrders,
+          totalSales: generalData.totalSales,
           pendingReviews: pendingReviews,
-          criticalStock: stockStats.critical + stockStats.low
+          criticalStock: generalData.lowStockProducts,
+          avgTicket: generalData.avgTicket
         });
+
+        // Formatear datos del gráfico
+        const chartData = salesData.map(d => ({
+          date: d.date.split('-').slice(1).join('/'),
+          total: parseFloat(d.total)
+        }));
+
         setSalesData(chartData);
-        setCategoryData(catChart);
-        setCriticalStock(stockAlerts.slice(0, 5)); // Mostrar solo los primeros 5
-        setRecentOrders(latest);
+        setCategoryData(catChart); // Desactivado por ahora si no hay endpoint
+        setCriticalStock(stockAlerts.slice(0, 5));
+        setRecentOrders(recentOrdersData);
+
       } catch (error) {
         console.error('Error fetching stats:', error);
       } finally {

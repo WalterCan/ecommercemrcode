@@ -16,9 +16,11 @@ const settingRoutes = require('./src/routes/settingRoutes');
 const couponRoutes = require('./src/routes/couponRoutes');
 const reviewRoutes = require('./src/routes/reviewRoutes');
 const userRoutes = require('./src/routes/userRoutes');
+const statsRoutes = require('./src/routes/statsRoutes'); // Rutas de estadísticas
 const passwordRoutes = require('./src/routes/passwordRoutes');
 const reportRoutes = require('./src/routes/reportRoutes');
 const categoryRoutes = require('./src/routes/categoryRoutes');
+const uploadRoutes = require('./src/routes/uploadRoutes');
 
 // ============================================
 // IMPORTACIÓN DE MODELOS (para sincronización)
@@ -72,7 +74,9 @@ app.use('/api/auth', authRoutes);
 app.use('/api/password', passwordRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/whatsapp', whatsappRoutes);
+app.use('/api/upload', uploadRoutes); // Rutas de subida de imágenes
 app.use('/api/settings', settingRoutes);
+app.use('/api/stats', statsRoutes); // Rutas de estadísticas
 app.use('/api/coupons', couponRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/users', userRoutes);
@@ -230,6 +234,7 @@ async function startServer() {
             { key: 'products_empty_icon', value: '🕯️', description: 'Icono (emoji) cuando no hay productos' },
             { key: 'products_empty_image_url', value: '', description: 'Imagen/SVG cuando no hay productos' },
             { key: 'products_empty_text', value: 'No encontramos objetos para esta vibración actualmente.', description: 'Mensaje cuando no hay productos' },
+            { key: 'products_detail_reviews_color', value: '#8A9A5B', description: 'Color de las estrellas de reseñas' },
 
             // Nosotros - Imágenes de Pilares
             { key: 'about_value_1_image_url', value: '', description: 'Imagen para pilar 1' },

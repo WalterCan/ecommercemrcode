@@ -25,8 +25,7 @@ const AdminSettings = () => {
         hero_cta_text: '',
         hero_cta1_link: '',
         hero_cta2_text: '',
-        hero_cta1_link: '',
-        hero_cta2_text: '',
+
         hero_cta2_link: '',
         email_host: '',
         email_port: '',

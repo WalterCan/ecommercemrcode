@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import SEO from '../components/common/SEO';
 import Header from '../components/layout/Header';
 import Hero from '../components/home/Hero';
 import ProductGrid from '../components/products/ProductGrid';
@@ -72,8 +73,9 @@ const Home = () => {
     });
 
     return (
-        <div className="min-h-screen">
-            <Header onSearch={setSearchQuery} />
+        <div className="bg-paper min-h-screen font-sans text-slate-800 selection:bg-rose-100 selection:text-rose-900">
+            <SEO title="Inicio" description={settings.home_decorative_text} />
+            <Header />
             <CartDrawer />
 
             <main>

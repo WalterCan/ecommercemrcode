@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import SEO from '../components/common/SEO';
 import Header from '../components/layout/Header';
 import CartDrawer from '../components/cart/CartDrawer';
 import ProductCard from '../components/products/ProductCard';
@@ -86,7 +87,8 @@ const Products = () => {
         });
 
     return (
-        <div className="min-h-screen bg-paper">
+        <div className="bg-paper min-h-screen font-sans text-slate-800 selection:bg-rose-100 selection:text-rose-900">
+            <SEO title="Catálogo" description="Explora nuestra colección de productos holísticos." />
             <Header onSearch={setSearchQuery} />
             <CartDrawer />
 
