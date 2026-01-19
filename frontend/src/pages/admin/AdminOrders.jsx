@@ -177,7 +177,7 @@ const AdminOrders = () => {
                                             <div>
                                                 <h3 className="font-bold text-xl text-slate-800 font-serif">Pedido #{order.id}</h3>
                                                 <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">
-                                                    {new Date(order.created_at).toLocaleDateString('es-AR', {
+                                                    {new Date(order.createdAt || order.created_at).toLocaleDateString('es-AR', {
                                                         day: '2-digit',
                                                         month: 'long',
                                                         year: 'numeric'
