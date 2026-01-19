@@ -21,6 +21,8 @@ import Profile from './pages/Profile';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import NotFound from './pages/NotFound';
+import Terminos from './pages/Terminos';
+import Privacidad from './pages/Privacidad';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -102,7 +104,10 @@ function App() {
                                         <Route path="/registro" element={<Register />} />
                                         <Route path="/forgot-password" element={<ForgotPassword />} />
                                         <Route path="/reset-password/:token" element={<ResetPassword />} />
+                                        <Route path="/reset-password/:token" element={<ResetPassword />} />
                                         <Route path="/perfil" element={<PrivateRoute><Profile /></PrivateRoute>} />
+                                        <Route path="/terminos" element={<Terminos />} />
+                                        <Route path="/privacidad" element={<Privacidad />} />
 
                                         {/* Admin Protected Routes */}
                                         <Route

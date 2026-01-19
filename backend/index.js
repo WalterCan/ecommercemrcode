@@ -236,6 +236,10 @@ async function startServer() {
             { key: 'products_empty_text', value: 'No encontramos objetos para esta vibración actualmente.', description: 'Mensaje cuando no hay productos' },
             { key: 'products_detail_reviews_color', value: '#8A9A5B', description: 'Color de las estrellas de reseñas' },
 
+            // Textos Legales
+            { key: 'terms_text', value: 'Aquí van los términos y condiciones de tu tienda. Puedes editarlos desde el panel de administración.', description: 'Texto de Términos y Condiciones' },
+            { key: 'privacy_text', value: 'Aquí va la política de privacidad de tu tienda. Puedes editarla desde el panel de administración.', description: 'Texto de Política de Privacidad' },
+
             // Nosotros - Imágenes de Pilares
             { key: 'about_value_1_image_url', value: '', description: 'Imagen para pilar 1' },
             { key: 'about_value_2_image_url', value: '', description: 'Imagen para pilar 2' },

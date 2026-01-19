@@ -152,6 +152,28 @@ const Footer = () => {
                                     Contacto
                                 </Link>
                             </li>
+                            <li>
+                                <Link
+                                    to="/terminos"
+                                    className="text-sm hover:underline transition-colors"
+                                    style={{ color: settings.footer_text_color || '#475569' }}
+                                    onMouseEnter={(e) => e.currentTarget.style.color = settings.theme_primary_color || '#8A9A5B'}
+                                    onMouseLeave={(e) => e.currentTarget.style.color = settings.footer_text_color || '#475569'}
+                                >
+                                    Términos y Condiciones
+                                </Link>
+                            </li>
+                            <li>
+                                <Link
+                                    to="/privacidad"
+                                    className="text-sm hover:underline transition-colors"
+                                    style={{ color: settings.footer_text_color || '#475569' }}
+                                    onMouseEnter={(e) => e.currentTarget.style.color = settings.theme_primary_color || '#8A9A5B'}
+                                    onMouseLeave={(e) => e.currentTarget.style.color = settings.footer_text_color || '#475569'}
+                                >
+                                    Política de Privacidad
+                                </Link>
+                            </li>
                         </ul>
                     </div>
 

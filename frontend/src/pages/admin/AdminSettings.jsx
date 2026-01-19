@@ -12,7 +12,10 @@ const AdminSettings = () => {
         bank_name: '',
         bank_account_holder: '',
         bank_cbu: '',
+        bank_cbu: '',
         bank_alias: '',
+        terms_text: '',
+        privacy_text: '',
         whatsapp_number: '',
         whatsapp_message: '',
         hero_tagline: '',
@@ -148,6 +151,7 @@ const AdminSettings = () => {
 
     const tabs = [
         { id: 'general', label: 'General', icon: '⚙️' },
+        { id: 'legal', label: 'Legales', icon: '⚖️' },
         { id: 'pagos', label: 'Pagos', icon: '💳' },
         { id: 'whatsapp', label: 'WhatsApp', icon: '💬' },
         { id: 'email', label: 'Correo', icon: '📧' },
@@ -601,6 +605,52 @@ const AdminSettings = () => {
                                         </div>
                                     </section>
                                 </>
+                            )}
+
+                            {/* Legal Tab */}
+                            {activeTab === 'legal' && (
+                                <section className="bg-white p-8 rounded-3xl shadow-sm border border-beige-dark/10">
+                                    <h2 className="text-xl font-serif text-earth font-bold mb-6 flex items-center gap-2">
+                                        <span className="p-2 bg-earth/10 rounded-xl text-lg">⚖️</span>
+                                        Textos Legales
+                                    </h2>
+
+                                    <div className="space-y-6">
+                                        <div>
+                                            <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">
+                                                Términos y Condiciones
+                                            </label>
+                                            <textarea
+                                                name="terms_text"
+                                                value={settings.terms_text || ''}
+                                                onChange={handleChange}
+                                                rows="10"
+                                                className="w-full bg-white border border-beige-dark/20 rounded-xl p-4 focus:outline-none focus:border-earth text-sm text-slate-600 font-mono"
+                                                placeholder="Escribe aquí los términos y condiciones..."
+                                            />
+                                            <p className="text-xs text-slate-400 mt-2">
+                                                Se mostrará en /terminos
+                                            </p>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">
+                                                Política de Privacidad
+                                            </label>
+                                            <textarea
+                                                name="privacy_text"
+                                                value={settings.privacy_text || ''}
+                                                onChange={handleChange}
+                                                rows="10"
+                                                className="w-full bg-white border border-beige-dark/20 rounded-xl p-4 focus:outline-none focus:border-earth text-sm text-slate-600 font-mono"
+                                                placeholder="Escribe aquí la política de privacidad..."
+                                            />
+                                            <p className="text-xs text-slate-400 mt-2">
+                                                Se mostrará en /privacidad
+                                            </p>
+                                        </div>
+                                    </div>
+                                </section>
                             )}
 
                             {/* Pagos Tab */}
