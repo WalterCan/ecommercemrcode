@@ -190,7 +190,7 @@ class EmailService {
     async sendPasswordReset(userData, resetToken) {
         try {
             const config = await this.getConfig();
-            const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password/${resetToken}`;
+            const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5176'}/reset-password/${resetToken}`;
 
             const html = await this.loadTemplate('passwordReset', {
                 name: userData.name || 'Usuario',

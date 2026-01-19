@@ -29,6 +29,7 @@ services:
       - DB_USER=root
       - DB_PASSWORD=root_password
       - DB_NAME=ecommercemrcode
+      - FRONTEND_URL=http://localhost:5176
     volumes:
       - ./backend:/app
       - /app/node_modules # Evita sobreescribir node_modules del contenedor
