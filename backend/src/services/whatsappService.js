@@ -562,6 +562,52 @@ const sendTestMessage = async (phoneNumber) => {
     }
 };
 
+/**
+ * Enviar mensaje personalizado por WhatsApp
+ */
+const sendCustomMessage = async (phoneNumber, customMessage) => {
+    if (!client || connectionStatus !== 'connected') {
+        return {
+            success: false,
+            error: 'Conecta WhatsApp primero',
+            status: connectionStatus
+        };
+    }
+
+    try {
+        // Limpiar número
+        let cleanNumber = phoneNumber.replace(/\D/g, '');
+        console.log(`🔍 Intentando enviar mensaje a: ${cleanNumber}`);
+
+        // Intentar obtener el ID oficial de WhatsApp (maneja WID y LID)
+        let targetId = `${cleanNumber}@c.us`;
+        try {
+            const numberId = await client.getNumberId(cleanNumber);
+            if (numberId) {
+                targetId = numberId._serialized;
+                console.log(`✅ ID resuelto: ${targetId}`);
+            } else {
+                console.log(`⚠️ No se pudo resolver ID oficial, usando genérico: ${targetId}`);
+            }
+        } catch (idErr) {
+            console.log(`⚠️ Error resolviendo ID: ${idErr.message}`);
+        }
+
+        await client.sendMessage(targetId, customMessage, { sendSeen: false });
+
+        return {
+            success: true,
+            message: 'Mensaje enviado correctamente'
+        };
+    } catch (error) {
+        console.error('Error enviando mensaje personalizado:', error);
+        return {
+            success: false,
+            error: error.message
+        };
+    }
+};
+
 const sendOrderMessage = async (order, type = 'new') => {
     if (!client || connectionStatus !== 'connected') {
         console.log('⚠️ No se pudo enviar WhatsApp: Cliente no conectado');
@@ -613,6 +659,7 @@ module.exports = {
     regenerateQR,
     disconnectWhatsApp,
     sendTestMessage,
+    sendCustomMessage,
     cleanEverything,
     initializeWhatsApp  // Exportar para poder llamarla manualmente
 };

@@ -12,7 +12,6 @@ const AdminSettings = () => {
         bank_name: '',
         bank_account_holder: '',
         bank_cbu: '',
-        bank_cbu: '',
         bank_alias: '',
         terms_text: '',
         privacy_text: '',
@@ -98,6 +97,9 @@ const AdminSettings = () => {
         products_empty_text: '',
         products_empty_text_color: '#94a3b8',
         products_empty_image_url: '',
+        products_detail_reviews_color: '#8A9A5B',
+        // Licencia
+        license_key: '',
         // Detalle de Producto
         products_detail_title_color: '#0f172a',
         products_detail_price_color: '#8A9A5B',
@@ -160,6 +162,8 @@ const AdminSettings = () => {
         { id: 'productos', label: 'Productos', icon: '🛍️' },
         { id: 'footer', label: 'Footer', icon: '🦶' },
         { id: 'estilo', label: 'Estilo', icon: '🎨' },
+        { id: 'licencia', label: 'Licencia', icon: '🔑' },
+        { id: 'agenda', label: 'Turnos', icon: '📅' },
     ];
 
     useEffect(() => {
@@ -742,6 +746,86 @@ const AdminSettings = () => {
                                                         Necesaria para inicializar los componentes de pago en el checkout.
                                                     </p>
                                                 </div>
+                                            </div>
+                                        </div>
+                                    </section>
+                                )
+                            }
+                            {/* Licencia Tab */}
+                            {
+                                activeTab === 'licencia' && (
+                                    <section className="bg-white p-8 rounded-3xl shadow-sm border border-beige-dark/10">
+                                        <h2 className="text-xl font-serif text-earth font-bold mb-6 flex items-center gap-2">
+                                            <span className="p-2 bg-yellow-100 rounded-xl text-lg">🔑</span>
+                                            Licencia de Producto
+                                        </h2>
+                                        <div className="space-y-6">
+                                            <div>
+                                                <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Clave de Activación (SaaS)</label>
+                                                <input
+                                                    type="text"
+                                                    name="license_key"
+                                                    value={settings.license_key || ''}
+                                                    onChange={handleChange}
+                                                    className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 focus:outline-none focus:border-earth focus:ring-1 focus:ring-earth transition-all font-mono tracking-widest text-center text-lg"
+                                                    placeholder="XXXX-XXXX-XXXX-XXXX"
+                                                />
+                                                <p className="text-[10px] text-slate-400 mt-2 uppercase tracking-tight italic">
+                                                    Ingresa tu clave para desbloquear módulos Premium como Clínica y Turnos.
+                                                </p>
+                                                {settings.license_key === 'CLINIC-PRO-2025' && (
+                                                    <div className="mt-4 p-4 bg-green-50 text-green-700 rounded-xl flex items-center gap-2">
+                                                        <span>✅</span>
+                                                        <span className="font-bold text-sm">Módulo Clínica ACTIVADO</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </section>
+                                )
+                            }
+                            {/* Agenda Tab */}
+                            {
+                                activeTab === 'agenda' && (
+                                    <section className="bg-white p-8 rounded-3xl shadow-sm border border-beige-dark/10">
+                                        <h2 className="text-xl font-serif text-earth font-bold mb-6 flex items-center gap-2">
+                                            <span className="p-2 bg-slate-100 rounded-xl text-lg">📅</span>
+                                            Configuración de Agenda
+                                        </h2>
+                                        <div className="space-y-6">
+                                            <div className="grid grid-cols-2 gap-6">
+                                                <div>
+                                                    <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Hora Inicio</label>
+                                                    <input
+                                                        type="time"
+                                                        name="agenda_start_time" // Necesito agregar esto al state inicial si no existe
+                                                        value={settings.agenda_start_time || '09:00'}
+                                                        onChange={handleChange}
+                                                        className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Hora Fin</label>
+                                                    <input
+                                                        type="time"
+                                                        name="agenda_end_time"
+                                                        value={settings.agenda_end_time || '18:00'}
+                                                        onChange={handleChange}
+                                                        className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Días Laborales</label>
+                                                <div className="flex gap-4 flex-wrap">
+                                                    {['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'].map((d, i) => (
+                                                        <label key={i} className="flex items-center gap-2 p-2 border rounded-lg cursor-pointer hover:bg-slate-50">
+                                                            <input type="checkbox" className="accent-earth" checked={true} readOnly={true} /> {/* Placeholder: Implementar lógica de días reales */}
+                                                            <span className="text-sm font-medium text-slate-700">{d}</span>
+                                                        </label>
+                                                    ))}
+                                                </div>
+                                                <p className="text-[10px] text-slate-400 mt-2 italic">Por ahora se asume Lunes a Viernes.</p>
                                             </div>
                                         </div>
                                     </section>

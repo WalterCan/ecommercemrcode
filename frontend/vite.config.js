@@ -7,8 +7,7 @@ export default defineConfig({
     server: {
         host: true, // Necesario para que Docker pueda acceder
         port: 5173,
-        watch: {
-            usePolling: true, // Útil para Docker en Windows
-        },
+        watch: null, // Deshabilitar file watching
+        hmr: false, // Deshabilitar HMR
     },
 })

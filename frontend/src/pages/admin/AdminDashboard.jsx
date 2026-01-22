@@ -104,7 +104,7 @@ const AdminDashboard = () => {
             { label: "Ventas Totales", value: `$${stats.totalSales.toLocaleString('es-AR')}`, color: "bg-earth/10 text-earth", icon: "💰" },
             { label: "Alertas Stock", value: stats.criticalStock || 0, color: (stats.criticalStock || 0) > 0 ? "bg-red-50 text-red-600" : "bg-green-50 text-green-600", icon: "⚠️", link: "/admin/stock-alerts" },
             { label: "Reseñas Pendientes", value: stats.pendingReviews, color: stats.pendingReviews > 0 ? "bg-terracotta/10 text-terracotta" : "bg-moss/10 text-moss", icon: "💬", link: "/admin/reviews" },
-            { label: "Productos", value: stats.products, color: "bg-moss/10 text-moss", icon: "💎", link: "/admin/products" }
+            { label: "Recordatorios", value: "Gestionar", color: "bg-blue-50 text-blue-600", icon: "🔔", link: "/admin/recordatorios" }
           ].map((card, i) => (
             <Link key={i} to={card.link || "#"} className="bg-white p-6 rounded-3xl shadow-sm border border-beige-dark/10 flex items-center justify-between hover:shadow-md transition-all">
               <div>

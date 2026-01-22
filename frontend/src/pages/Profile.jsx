@@ -13,15 +13,46 @@ const Profile = () => {
     const [saving, setSaving] = useState(false);
     const [formData, setFormData] = useState({
         name: user?.name || '',
+        email: user?.email || '',
         phone: user?.phone || '',
+        dni: user?.patient?.dni || '',
+        birth_date: user?.patient?.birth_date || '',
         address: user?.address || '',
         city: user?.city || '',
         postal_code: user?.postal_code || ''
     });
 
     useEffect(() => {
+        fetchProfile();
         fetchOrders();
     }, []);
+
+    const fetchProfile = async () => {
+        try {
+            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${baseUrl}/users/profile`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                const profileUser = data.user || data;
+                setFormData({
+                    name: profileUser.name || '',
+                    email: profileUser.email || '',
+                    phone: profileUser.phone || '',
+                    dni: profileUser.patient?.dni || '',
+                    birth_date: profileUser.patient?.birth_date || '',
+                    address: profileUser.address || '',
+                    city: profileUser.city || '',
+                    postal_code: profileUser.postal_code || ''
+                });
+            }
+        } catch (error) {
+            console.error('Error fetching profile:', error);
+        }
+    };
+
 
     const fetchOrders = async () => {
         try {
@@ -133,13 +164,53 @@ const Profile = () => {
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Teléfono</label>
+                                        <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
+                                            Email <span className="text-red-500">*</span>
+                                        </label>
+                                        <input
+                                            type="email"
+                                            value={formData.email || ''}
+                                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                            placeholder="tu@email.com"
+                                            className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 text-sm focus:outline-none focus:border-earth"
+                                            required
+                                        />
+                                        <p className="text-xs text-slate-400 mt-1">Necesario para recordatorios de turnos</p>
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">
+                                            Teléfono <span className="text-red-500">*</span>
+                                        </label>
                                         <input
                                             type="text"
                                             value={formData.phone}
                                             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                            placeholder="3412345678"
                                             className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 text-sm focus:outline-none focus:border-earth"
+                                            required
                                         />
+                                        <p className="text-xs text-slate-400 mt-1">Necesario para recordatorios de turnos</p>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">DNI</label>
+                                            <input
+                                                type="text"
+                                                value={formData.dni}
+                                                onChange={(e) => setFormData({ ...formData, dni: e.target.value })}
+                                                placeholder="12345678"
+                                                className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 text-sm focus:outline-none focus:border-earth"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Fecha de Nacimiento</label>
+                                            <input
+                                                type="date"
+                                                value={formData.birth_date}
+                                                onChange={(e) => setFormData({ ...formData, birth_date: e.target.value })}
+                                                className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 text-sm focus:outline-none focus:border-earth"
+                                            />
+                                        </div>
                                     </div>
                                     <div>
                                         <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Dirección</label>

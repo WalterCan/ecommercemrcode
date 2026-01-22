@@ -23,6 +23,8 @@ import ResetPassword from './pages/ResetPassword';
 import NotFound from './pages/NotFound';
 import Terminos from './pages/Terminos';
 import Privacidad from './pages/Privacidad';
+import ClientAppointments from './pages/ClientAppointments';
+import ReservarTurno from './pages/ReservarTurno';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -37,6 +39,11 @@ import AdminCoupons from './pages/admin/AdminCoupons';
 import AdminReviews from './pages/admin/AdminReviews';
 import AdminStockAlerts from './pages/admin/AdminStockAlerts';
 import AdminReports from './pages/admin/AdminReports';
+import AdminPatients from './pages/admin/AdminPatients'; // [NEW]
+import AdminCalendar from './pages/admin/AdminCalendar';
+import AdminTherapies from './pages/admin/AdminTherapies'; // [NEW]
+import AdminAvailability from './pages/admin/AdminAvailability'; // [NEW]
+import AdminReminders from './pages/admin/AdminReminders'; // [NEW] Recordatorios
 
 // Components
 import FloatingWhatsApp from './components/layout/FloatingWhatsApp';
@@ -108,6 +115,8 @@ function App() {
                                         <Route path="/perfil" element={<PrivateRoute><Profile /></PrivateRoute>} />
                                         <Route path="/terminos" element={<Terminos />} />
                                         <Route path="/privacidad" element={<Privacidad />} />
+                                        <Route path="/mis-turnos" element={<PrivateRoute><ClientAppointments /></PrivateRoute>} />
+                                        <Route path="/reservar-turno" element={<PrivateRoute><ReservarTurno /></PrivateRoute>} />
 
                                         {/* Admin Protected Routes */}
                                         <Route
@@ -139,6 +148,30 @@ function App() {
                                             element={
                                                 <AdminRoute>
                                                     <AdminCategories />
+                                                </AdminRoute>
+                                            }
+                                        />
+                                        <Route
+                                            path="/admin/agenda"
+                                            element={
+                                                <AdminRoute>
+                                                    <AdminCalendar />
+                                                </AdminRoute>
+                                            }
+                                        />
+                                        <Route
+                                            path="/admin/recordatorios"
+                                            element={
+                                                <AdminRoute>
+                                                    <AdminReminders />
+                                                </AdminRoute>
+                                            }
+                                        />
+                                        <Route
+                                            path="/admin/pacientes"
+                                            element={
+                                                <AdminRoute>
+                                                    <AdminPatients />
                                                 </AdminRoute>
                                             }
                                         />
@@ -214,6 +247,22 @@ function App() {
                                                 </AdminRoute>
                                             }
 
+                                        />
+                                        <Route
+                                            path="/admin/therapies"
+                                            element={
+                                                <AdminRoute>
+                                                    <AdminTherapies />
+                                                </AdminRoute>
+                                            }
+                                        />
+                                        <Route
+                                            path="/admin/availability"
+                                            element={
+                                                <AdminRoute>
+                                                    <AdminAvailability />
+                                                </AdminRoute>
+                                            }
                                         />
                                         <Route
                                             path="/admin/reports"

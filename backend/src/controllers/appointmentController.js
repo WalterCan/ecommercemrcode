@@ -1,0 +1,386 @@
+const Appointment = require('../models/Appointment');
+const Patient = require('../models/Patient');
+const User = require('../models/User');
+const TherapyType = require('../models/TherapyType');
+const { Op } = require('sequelize');
+
+// Obtener turnos por rango de fechas (para el calendario)
+const getAppointments = async (req, res) => {
+    try {
+        const { start, end } = req.query;
+        // Validar fechas
+        if (!start || !end) {
+            return res.status(400).json({ error: 'Rango de fechas requerido' });
+        }
+
+        const appointments = await Appointment.findAll({
+            where: {
+                date: {
+                    [Op.between]: [start, end]
+                }
+            },
+            include: [
+                {
+                    model: Patient,
+                    as: 'patient',
+                    include: [{ model: User, as: 'user', attributes: ['name', 'email', 'phone'] }]
+                },
+                {
+                    model: TherapyType,
+                    as: 'therapy',
+                    attributes: ['name', 'duration', 'price']
+                }
+            ],
+            order: [['date', 'ASC'], ['time', 'ASC']]
+        });
+
+        res.json(appointments);
+    } catch (error) {
+        console.error('Error fetching appointments:', error);
+        res.status(500).json({ error: 'Error al cargar agenda' });
+    }
+};
+
+// Obtener disponibilidad (público/protegido) - Solo devuelve horarios ocupados
+const getAvailability = async (req, res) => {
+    try {
+        const { start, end } = req.query;
+        if (!start || !end) return res.status(400).json({ error: 'Rango de fechas requerido' });
+
+        const appointments = await Appointment.findAll({
+            where: {
+                date: { [Op.between]: [start, end] },
+                status: { [Op.not]: 'cancelled' }
+            },
+            attributes: ['date', 'time', 'status'] // Solo devolver fecha y hora ocupada
+        });
+
+        res.json(appointments);
+    } catch (error) {
+        console.error('Error fetching availability:', error);
+        res.status(500).json({ error: 'Error al cargar disponibilidad' });
+    }
+};
+
+// Obtener turnos del usuario logueado
+const getMyAppointments = async (req, res) => {
+    try {
+        // 1. Buscar el paciente asociado al usuario
+        const patient = await Patient.findOne({ where: { user_id: req.user.id } });
+
+        if (!patient) {
+            return res.json([]); // No tiene historia clínica, por ende no tiene turnos
+        }
+
+        // 2. Buscar turnos de este paciente
+        const appointments = await Appointment.findAll({
+            where: { patient_id: patient.id },
+            include: [
+                {
+                    model: TherapyType,
+                    as: 'therapy',
+                    attributes: ['id', 'name', 'duration', 'price']
+                }
+            ],
+            order: [['date', 'DESC'], ['time', 'DESC']]
+        });
+
+        res.json(appointments);
+    } catch (error) {
+        console.error('Error fetching my appointments:', error);
+        res.status(500).json({ error: 'Error al cargar mis turnos' });
+    }
+};
+
+// Crear un nuevo turno
+const createAppointment = async (req, res) => {
+    try {
+        let { patient_id, product_id, date, time, notes } = req.body;
+
+        // Lógica para asignar paciente si no viene en el body (caso Cliente reservando)
+        if (!patient_id && req.user) {
+            // Buscar si ya es paciente
+            let patient = await Patient.findOne({ where: { user_id: req.user.id } });
+
+            // Si no existe, crearlo automáticamente
+            if (!patient) {
+                patient = await Patient.create({
+                    user_id: req.user.id,
+                    // Se pueden agregar más datos predeterminados si es necesario
+                });
+            }
+            patient_id = patient.id;
+        }
+
+        if (!patient_id && req.body.status !== 'blocked') {
+            return res.status(400).json({ error: 'No se pudo identificar al paciente.' });
+        }
+
+        // Validar disponibilidad (simple: si ya existe turno en esa hora exacto)
+        // MEJORA: Validar duración del servicio y solapamiento.
+        const existing = await Appointment.findOne({
+            where: {
+                date,
+                time,
+                status: { [Op.not]: 'cancelled' } // Ignorar cancelados
+            }
+        });
+
+        if (existing) {
+            return res.status(400).json({ error: 'Horario no disponible' });
+        }
+
+        // Si es bloqueado, no requiere paciente ni producto
+        const appointment = await Appointment.create({
+            patient_id: req.body.status === 'blocked' ? null : patient_id, // Si blocked, null.
+            product_id: req.body.status === 'blocked' ? null : product_id, // Si blocked, null.
+            date,
+            time,
+            notes,
+            status: req.body.status || 'scheduled',
+            payment_status: 'pending'
+        });
+
+        res.status(201).json({ success: true, appointment });
+
+    } catch (error) {
+        console.error('Error creating appointment:', error);
+        res.status(500).json({ error: 'Error al reservar turno' });
+    }
+};
+
+// Actualizar estado (Completado, Cancelado, etc)
+const updateAppointmentStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status, payment_status, notes } = req.body;
+
+        const appointment = await Appointment.findByPk(id);
+        if (!appointment) return res.status(404).json({ error: 'Turno no encontrado' });
+
+        if (status) appointment.status = status;
+        if (payment_status) appointment.payment_status = payment_status;
+        if (notes) appointment.notes = notes;
+
+        await appointment.save();
+
+        res.json({ success: true, appointment });
+
+    } catch (error) {
+        console.error('Error updating appointment:', error);
+        res.status(500).json({ error: 'Error al actualizar turno' });
+    }
+};
+
+// Cancelar turno propio (Cliente)
+const cancelClientAppointment = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const appointment = await Appointment.findByPk(id, {
+            include: [{ model: Patient, as: 'patient' }]
+        });
+
+        if (!appointment) return res.status(404).json({ error: 'Turno no encontrado' });
+
+        // Verificar que el turno pertenezca al usuario logueado
+        if (appointment.patient.user_id !== req.user.id) {
+            return res.status(403).json({ error: 'No tienes permiso para cancelar este turno' });
+        }
+
+        if (appointment.status === 'cancelled') {
+            return res.status(400).json({ error: 'El turno ya está cancelado' });
+        }
+
+        // Liberar el horario para que vuelva a estar disponible
+        appointment.status = 'available';
+        appointment.patient_id = null;
+        appointment.therapy_type_id = null;
+        appointment.notes = null;
+        await appointment.save();
+
+        res.json({ message: 'Turno cancelado y horario liberado', appointment });
+    } catch (error) {
+        console.error('Error cancelling appointment:', error);
+        res.status(500).json({ error: 'Error al cancelar turno' });
+    }
+};
+
+// Reprogramar turno propio (Cliente)
+const rescheduleAppointment = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { new_appointment_id } = req.body;
+
+        if (!new_appointment_id) {
+            return res.status(400).json({ error: 'Debe seleccionar un nuevo horario' });
+        }
+
+        // Buscar turno actual
+        const currentAppointment = await Appointment.findByPk(id, {
+            include: [{ model: Patient, as: 'patient' }]
+        });
+
+        if (!currentAppointment) {
+            return res.status(404).json({ error: 'Turno no encontrado' });
+        }
+
+        // Verificar que el turno pertenezca al usuario
+        if (currentAppointment.patient.user_id !== req.user.id) {
+            return res.status(403).json({ error: 'No tienes permiso para reprogramar este turno' });
+        }
+
+        // Verificar que el turno no esté cancelado o completado
+        if (currentAppointment.status === 'cancelled' || currentAppointment.status === 'completed') {
+            return res.status(400).json({ error: 'No se puede reprogramar un turno cancelado o completado' });
+        }
+
+        // Buscar nuevo horario
+        const newAppointment = await Appointment.findByPk(new_appointment_id);
+
+        if (!newAppointment) {
+            return res.status(404).json({ error: 'Nuevo horario no encontrado' });
+        }
+
+        // Verificar que el nuevo horario esté disponible
+        if (newAppointment.status !== 'available' || newAppointment.patient_id !== null) {
+            return res.status(400).json({ error: 'El horario seleccionado no está disponible' });
+        }
+
+        // Liberar horario anterior
+        currentAppointment.status = 'available';
+        currentAppointment.patient_id = null;
+        currentAppointment.therapy_type_id = null;
+        currentAppointment.notes = null;
+        await currentAppointment.save();
+
+        // Asignar nuevo horario
+        newAppointment.status = 'scheduled';
+        newAppointment.patient_id = currentAppointment.patient.id;
+        newAppointment.therapy_type_id = currentAppointment.therapy_type_id;
+        newAppointment.notes = `Reprogramado desde ${currentAppointment.date} ${currentAppointment.time}`;
+        await newAppointment.save();
+
+        // Cargar datos completos del nuevo turno
+        const updatedAppointment = await Appointment.findByPk(newAppointment.id, {
+            include: [
+                {
+                    model: TherapyType,
+                    as: 'therapy',
+                    attributes: ['id', 'name', 'duration', 'price']
+                },
+                {
+                    model: Patient,
+                    as: 'patient',
+                    attributes: ['id'],
+                    include: [{
+                        model: User,
+                        as: 'user',
+                        attributes: ['name']
+                    }]
+                }
+            ]
+        });
+
+        res.json({
+            message: 'Turno reprogramado exitosamente',
+            appointment: updatedAppointment
+        });
+    } catch (error) {
+        console.error('Error rescheduling appointment:', error);
+        res.status(500).json({ error: 'Error al reprogramar turno' });
+    }
+}
+
+// Reservar un bloque de disponibilidad (Cliente)
+const bookAppointment = async (req, res) => {
+    try {
+        const { appointment_id, therapy_type_id } = req.body;
+
+        if (!therapy_type_id) {
+            return res.status(400).json({ error: 'Debe seleccionar un tipo de terapia' });
+        }
+
+        // Buscar el bloque disponible
+        const slot = await Appointment.findOne({
+            where: {
+                id: appointment_id,
+                status: 'available',
+                patient_id: null
+            }
+        });
+
+        if (!slot) {
+            return res.status(404).json({ error: 'Horario no disponible o ya reservado' });
+        }
+
+        // Verificar que la terapia existe
+        const therapy = await TherapyType.findByPk(therapy_type_id);
+        if (!therapy) {
+            return res.status(404).json({ error: 'Tipo de terapia no encontrado' });
+        }
+
+        // Validar que el usuario tenga email y teléfono para recibir recordatorios
+        if (!req.user.email || !req.user.phone) {
+            return res.status(400).json({
+                error: 'Debes completar tu email y teléfono en tu perfil antes de reservar un turno',
+                missingFields: {
+                    email: !req.user.email,
+                    phone: !req.user.phone
+                }
+            });
+        }
+
+        // Buscar o crear paciente
+        let patient = await Patient.findOne({ where: { user_id: req.user.id } });
+        if (!patient) {
+            patient = await Patient.create({
+                user_id: req.user.id,
+                first_name: req.user.name || 'Cliente',
+                last_name: ''
+            });
+        }
+
+        // Marcar como reservado y asignar terapia
+        slot.status = 'scheduled';
+        slot.patient_id = patient.id;
+        slot.therapy_type_id = therapy_type_id;
+        await slot.save();
+
+        // Cargar datos completos para respuesta
+        const appointment = await Appointment.findByPk(slot.id, {
+            include: [
+                {
+                    model: TherapyType,
+                    as: 'therapy',
+                    attributes: ['id', 'name', 'duration', 'price']
+                },
+                {
+                    model: Patient,
+                    as: 'patient',
+                    attributes: ['id'],
+                    include: [{
+                        model: User,
+                        as: 'user',
+                        attributes: ['name']
+                    }]
+                }
+            ]
+        });
+
+        res.json({ message: 'Turno reservado exitosamente', appointment });
+    } catch (error) {
+        console.error('Error booking appointment:', error);
+        res.status(500).json({ error: 'Error al reservar turno' });
+    }
+};
+
+module.exports = {
+    getAppointments,
+    getMyAppointments,
+    getAvailability,
+    createAppointment,
+    updateAppointmentStatus,
+    cancelClientAppointment,
+    rescheduleAppointment,
+    bookAppointment
+};

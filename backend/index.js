@@ -21,6 +21,7 @@ const passwordRoutes = require('./src/routes/passwordRoutes');
 const reportRoutes = require('./src/routes/reportRoutes');
 const categoryRoutes = require('./src/routes/categoryRoutes');
 const uploadRoutes = require('./src/routes/uploadRoutes');
+const patientRoutes = require('./src/routes/patientRoutes'); // [NEW]
 
 // ============================================
 // IMPORTACIÓN DE MODELOS (para sincronización)
@@ -31,6 +32,8 @@ const Order = require('./src/models/Order');
 const Setting = require('./src/models/Setting');
 const Coupon = require('./src/models/Coupon');
 const Review = require('./src/models/Review');
+const Patient = require('./src/models/Patient'); // [NEW] Consultorio
+const Appointment = require('./src/models/Appointment'); // [NEW] Consultorio
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -81,7 +84,13 @@ app.use('/api/coupons', couponRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/reports', reportRoutes);
+app.api_routes = app.api_routes || {};
 app.use('/api/categories', categoryRoutes);
+app.use('/api/patients', patientRoutes); // [NEW] Consultorio
+app.use('/api/appointments', require('./src/routes/appointmentRoutes')); // [NEW] Agenda
+app.use('/api/therapies', require('./src/routes/therapyRoutes')); // [NEW] Tipos de Terapia
+app.use('/api/availability', require('./src/routes/availabilityRoutes')); // [NEW] Disponibilidad Horaria
+app.use('/api/reminders', require('./src/routes/reminderRoutes')); // [NEW] Recordatorios Automáticos
 /**
  * ============================================
  * RUTA DE SALUD / PRUEBA
@@ -245,6 +254,11 @@ async function startServer() {
             { key: 'about_value_2_image_url', value: '', description: 'Imagen para pilar 2' },
             { key: 'about_value_3_image_url', value: '', description: 'Imagen para pilar 3' },
 
+            { key: 'about_value_3_image_url', value: '', description: 'Imagen para pilar 3' },
+
+            // Licencia (SaaS)
+            { key: 'license_key', value: '', description: 'Clave de licencia para activar módulos Premium (Clínica)' },
+
             // Configuración de Email (SMTP)
         ];
 
@@ -255,6 +269,21 @@ async function startServer() {
             });
         }
         console.log('✅ Configuraciones base verificadas/creadas.');
+
+        // ============================================
+        // CREAR USUARIO ADMINISTRADOR POR DEFECTO
+        // ============================================
+        const { createDefaultAdmin } = require('./src/utils/seedAdmin');
+        await createDefaultAdmin();
+
+        // ============================================
+        // INICIAR CRON JOB DE RECORDATORIOS
+        // ============================================
+        if (process.env.ENABLE_REMINDERS !== 'false') {
+            require('./src/jobs/reminderCron');
+            console.log('✅ Cron de recordatorios iniciado');
+        }
+
 
     } catch (error) {
         console.error('❌ Error durante la sincronización o inicio del servidor:', error);

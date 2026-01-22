@@ -61,6 +61,17 @@ const Product = sequelize.define('Product', {
     featured: {
         type: DataTypes.BOOLEAN,
         defaultValue: false
+    },
+    // Nuevos campos para Servicios (Consultorio)
+    type: {
+        type: DataTypes.ENUM('physical', 'service'),
+        defaultValue: 'physical',
+        allowNull: false
+    },
+    duration: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        comment: 'Duración en minutos (solo para servicios)'
     }
 }, {
     tableName: 'products',

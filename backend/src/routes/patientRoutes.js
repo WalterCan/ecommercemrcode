@@ -1,0 +1,21 @@
+const express = require('express');
+const router = express.Router();
+const { protect, admin } = require('../middleware/authMiddleware');
+const { checkLicense } = require('../middleware/licenseMiddleware');
+const { getPatients, getPatientById, upsertPatient, createPatient } = require('../controllers/patientController');
+
+// Todas las rutas requieren Liciencia Activa + Autenticación
+router.use(protect);
+router.use(checkLicense);
+
+// Rutas
+router.post('/create', admin, (req, res, next) => {
+    console.log('Request to /patients/create');
+    next();
+}, createPatient); // Nuevo Paciente (Nuevo User)
+
+router.get('/', admin, getPatients); // Listar todos (Admin)
+router.get('/:id', admin, getPatientById); // Ver detalle (Admin)
+router.post('/', upsertPatient); // Crear/Actualizar Ficha (Existente User)
+
+module.exports = router;

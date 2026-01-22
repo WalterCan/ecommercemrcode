@@ -1,0 +1,9 @@
+{
+    "ignore": [
+        "whatsapp_sessions/*",
+        "uploads/*",
+        "node_modules/*",
+        ".git/*"
+    ],
+    "ext": "js,json"
+}
