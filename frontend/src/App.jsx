@@ -7,6 +7,7 @@ import { SettingsProvider, useSettings } from './context/SettingsContext';
 import ToastContainer from './components/layout/ToastContainer';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import usePageTitle from './utils/usePageTitle';
+import Layout from './components/layout/Layout';
 
 // Pages
 import Home from './pages/Home';
@@ -25,6 +26,8 @@ import Terminos from './pages/Terminos';
 import Privacidad from './pages/Privacidad';
 import ClientAppointments from './pages/ClientAppointments';
 import ReservarTurno from './pages/ReservarTurno';
+import ConfirmAppointment from './pages/ConfirmAppointment';
+import PaymentStatus from './pages/PaymentStatus';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -119,6 +122,15 @@ function App() {
                                         <Route path="/reservar-turno" element={<PrivateRoute><ReservarTurno /></PrivateRoute>} />
 
                                         {/* Admin Protected Routes */}
+                                        <Route
+                                            path="/turnos/confirmar/:id"
+                                            element={<ConfirmAppointment />}
+                                        />
+                                        <Route path="/turnos/pago/exito" element={<PaymentStatus />} />
+                                        <Route path="/turnos/pago/fallo" element={<PaymentStatus />} />
+                                        <Route path="/turnos/pago/pendiente" element={<PaymentStatus />} />
+
+                                        {/* Rutas de Admin Protegidas */}
                                         <Route
                                             path="/admin"
                                             element={

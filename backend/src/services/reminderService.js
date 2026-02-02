@@ -226,6 +226,16 @@ class ReminderService {
                         <p style="margin: 5px 0;"><strong>💆 Terapia:</strong> ${appointment.therapy?.name || 'N/A'}</p>
                         <p style="margin: 5px 0;"><strong>⏱️ Duración:</strong> ${appointment.therapy?.duration || 'N/A'} minutos</p>
                     </div>
+                    </div>
+                    
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="${process.env.FRONTEND_URL || 'http://localhost:5176'}/turnos/confirmar/${appointment.id}" 
+                           style="background-color: #4CAF50; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">
+                           ✅ Confirmar Asistencia
+                        </a>
+                        <p style="font-size: 12px; color: #888; margin-top: 10px;">Confirmar nos ayuda a organizar mejor la agenda.</p>
+                    </div>
+
                     <p>Si necesitas reprogramar o cancelar, puedes hacerlo desde tu cuenta.</p>
                     <p style="margin-top: 30px;">¡Te esperamos!</p>
                 `;
@@ -295,6 +305,94 @@ class ReminderService {
         } catch (error) {
             console.error(`❌ Error enviando WhatsApp ${type}:`, error.message);
             // No lanzar error para que no bloquee el email
+        }
+    }
+
+    /**
+     * Enviar confirmación inmediata de reserva
+     */
+    async sendBookingConfirmation(appointment) {
+        try {
+            const patient = appointment.patient;
+            const user = patient?.user;
+
+            if (!user) return;
+
+            console.log(`📧 Enviando confirmación de reserva para turno #${appointment.id}...`);
+
+            // Enviar Email
+            if (user.email) {
+                await this.sendConfirmationEmail(appointment, user);
+            }
+
+            // Enviar WhatsApp
+            if (user.phone) {
+                await this.sendConfirmationWhatsApp(appointment, user);
+            }
+
+        } catch (error) {
+            console.error('❌ Error enviando confirmación de reserva:', error);
+        }
+    }
+
+    async sendConfirmationEmail(appointment, user) {
+        try {
+            const aptDate = parseISO(appointment.date);
+            const formattedDate = format(aptDate, "EEEE d 'de' MMMM, yyyy", { locale: es });
+            const timeRange = `${appointment.time?.substring(0, 5)} - ${appointment.end_time?.substring(0, 5)}`;
+            const siteName = process.env.VITE_SITE_NAME || 'Tienda Holística';
+
+            const subject = `⚠️ Acción Requerida: Confirma tu turno para el ${formattedDate}`;
+            const message = `
+                <h2>¡Hola ${user.name}!</h2>
+                <p>Hemos recibido tu reserva. <strong>Para terminar de asegurar tu lugar, por favor confirma tu asistencia.</strong></p>
+                <div style="background: #fff3e0; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 5px solid #ff9800;">
+                    <h3 style="margin-top:0; color: #ef6c00;">Detalles del Turno Reservado</h3>
+                    <p style="margin: 5px 0;"><strong>📅 Fecha:</strong> ${formattedDate}</p>
+                    <p style="margin: 5px 0;"><strong>🕐 Hora:</strong> ${timeRange}</p>
+                    <p style="margin: 5px 0;"><strong>💆 Terapia:</strong> ${appointment.therapy?.name || 'N/A'}</p>
+                    <p style="margin: 5px 0;"><strong>💰 Precio:</strong> $${appointment.therapy?.price || '0'}</p>
+                </div>
+                
+                <div style="text-align: center; margin-top: 30px;">
+                    <a href="${process.env.FRONTEND_URL || 'http://localhost:5176'}/turnos/confirmar/${appointment.id}" 
+                       style="background-color: #ff9800; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                       ✅ Confirmar Asistencia Ahora
+                    </a>
+                </div>
+                <p style="font-size: 13px; color: #666; text-align: center; margin-top: 15px;">
+                    Si no puedes asistir, por favor cancela el turno desde tu perfil para liberar el horario.
+                </p>
+            `;
+
+            await emailService.sendEmail({
+                to: user.email,
+                subject,
+                html: message
+            });
+        } catch (error) {
+            console.error('❌ Error enviando email de confirmación:', error.message);
+        }
+    }
+
+    async sendConfirmationWhatsApp(appointment, user) {
+        try {
+            const aptDate = parseISO(appointment.date);
+            const formattedDate = format(aptDate, "EEEE d 'de' MMMM", { locale: es });
+            const timeRange = `${appointment.time?.substring(0, 5)} - ${appointment.end_time?.substring(0, 5)}`;
+            const siteName = process.env.VITE_SITE_NAME || 'Tienda Holística';
+
+            const message = `*✅ ¡Turno Reservado!* \n\n` +
+                `Hola ${user.name}, tu turno ha sido confirmado:\n\n` +
+                `📅 *${formattedDate}*\n` +
+                `🕐 *${timeRange}*\n` +
+                `💆 *${appointment.therapy?.name || 'Terapia'}*\n\n` +
+                `Te esperamos en ${siteName}. ✨`;
+
+            const phoneNumber = user.phone.replace(/\D/g, '');
+            await whatsappService.sendCustomMessage(phoneNumber, message);
+        } catch (error) {
+            console.error('❌ Error enviando WhatsApp de confirmación:', error.message);
         }
     }
 

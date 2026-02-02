@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useToast } from '../../context/ToastContext';
 import AdminLayout from '../../components/admin/AdminLayout';
+import { format, parse } from 'date-fns';
+import { es } from 'date-fns/locale';
 
 const AdminAvailability = () => {
     const [therapies, setTherapies] = useState([]);
     const [patients, setPatients] = useState([]);
     const [slots, setSlots] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [viewMode, setViewMode] = useState('future'); // 'future' | 'all'
+
+    // Form State
     const [assignToPatient, setAssignToPatient] = useState(false);
     const [formData, setFormData] = useState({
         date: '',
@@ -17,6 +22,7 @@ const AdminAvailability = () => {
         notes: '',
         assign_to_patient: false
     });
+
     const { showToast } = useToast();
     const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
@@ -24,7 +30,7 @@ const AdminAvailability = () => {
         fetchTherapies();
         fetchPatients();
         fetchMySlots();
-    }, []);
+    }, [viewMode]);
 
     const fetchTherapies = async () => {
         try {
@@ -53,9 +59,12 @@ const AdminAvailability = () => {
     };
 
     const fetchMySlots = async () => {
+        setLoading(true);
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`${baseUrl}/availability/my-slots`, {
+            // Si viewMode es 'all', incluimos pasados. Si es 'future', no enviamos nada (backend por defecto filtra) o enviamos false.
+            const query = viewMode === 'all' ? '?include_past=true' : '';
+            const response = await fetch(`${baseUrl}/availability/my-slots${query}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await response.json();
@@ -102,7 +111,7 @@ const AdminAvailability = () => {
                     assign_to_patient: false
                 });
                 setAssignToPatient(false);
-                fetchMySlots();
+                fetchMySlots(); // Refresh current view
             } else {
                 const error = await response.json();
                 showToast(error.error || 'Error al crear', 'error');
@@ -270,13 +279,32 @@ const AdminAvailability = () => {
 
                     {/* Lista de horarios */}
                     <div className="bg-white rounded-3xl shadow-sm border border-beige-dark/10 p-8">
-                        <h3 className="text-xl font-bold mb-6">🕐 Mis Horarios</h3>
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="text-xl font-bold">🕐 Mis Horarios</h3>
+                            <div className="flex bg-slate-100 p-1 rounded-lg">
+                                <button
+                                    onClick={() => setViewMode('future')}
+                                    className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${viewMode === 'future' ? 'bg-white text-earth shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                                >
+                                    Próximos
+                                </button>
+                                <button
+                                    onClick={() => setViewMode('all')}
+                                    className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${viewMode === 'all' ? 'bg-white text-earth shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                                >
+                                    Historial
+                                </button>
+                            </div>
+                        </div>
+
                         {loading ? (
                             <div className="py-10 text-center">
                                 <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-earth mx-auto"></div>
                             </div>
                         ) : slots.length === 0 ? (
-                            <p className="text-slate-400 text-center py-10">No hay horarios creados</p>
+                            <p className="text-slate-400 text-center py-10">
+                                {viewMode === 'future' ? 'No hay horarios próximos' : 'No hay horarios registrados'}
+                            </p>
                         ) : (
                             <div className="space-y-3 max-h-[600px] overflow-y-auto">
                                 {slots.map(slot => (
@@ -285,7 +313,7 @@ const AdminAvailability = () => {
                                             <div className="flex-1">
                                                 <div className="flex items-center gap-2 mb-1">
                                                     <p className="font-bold text-slate-800">
-                                                        {new Date(slot.date).toLocaleDateString('es-AR')}
+                                                        {format(parse(slot.date, 'yyyy-MM-dd', new Date()), 'dd/MM/yyyy', { locale: es })}
                                                     </p>
                                                     {getStatusBadge(slot)}
                                                 </div>

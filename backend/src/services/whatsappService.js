@@ -78,9 +78,13 @@ const cleanEverything = () => {
         console.log('🧹 Limpiando sistema...');
 
         // Cerrar cliente si existe
+        // Cerrar cliente si existe
         if (client) {
             try {
-                client.destroy();
+                // Verificar si existe el browser antes de intentar cerrarlo para evitar crash
+                if (client.pupBrowser) {
+                    client.destroy().catch(err => console.log('⚠️ Error menor cerrando browser:', err.message));
+                }
             } catch (e) { }
             client = null;
         }

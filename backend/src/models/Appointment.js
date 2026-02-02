@@ -28,9 +28,25 @@ const Appointment = sequelize.define('Appointment', {
         comment: 'Hora de fin del bloque'
     },
     status: {
-        type: DataTypes.ENUM('available', 'scheduled', 'completed', 'cancelled', 'no_show', 'blocked'),
+        type: DataTypes.ENUM('available', 'scheduled', 'confirmed', 'completed', 'cancelled', 'no_show', 'blocked'),
         defaultValue: 'available',
         comment: 'available = disponible para reservar, scheduled = reservado por cliente'
+    },
+    // Campos Financieros
+    price_amount: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: true,
+        comment: 'Precio total del turno al momento de reservar'
+    },
+    paid_amount: {
+        type: DataTypes.DECIMAL(10, 2),
+        defaultValue: 0.00,
+        comment: 'Monto total abonado hasta el momento'
+    },
+    payment_method: {
+        type: DataTypes.ENUM('mercadopago', 'transfer', 'cash', 'other'),
+        defaultValue: 'other',
+        comment: 'Método de pago de la seña/total'
     },
     payment_status: {
         type: DataTypes.ENUM('pending', 'partial', 'paid', 'refunded'),

@@ -1,0 +1,16 @@
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+Connected to DB
+Found 0 products with type='service'.
+Found 1 entries in therapy_types table.
+Sample: {
+  "id": 1,
+  "name": "Memoria Celular",
+  "description": "La terapia de memoria celular es un\nenfoque holístico que busca liberar emociones y traumas almacenados en las células, creyendo que estas guardan información vital de nuestra vida y ancestros, afectando el presente; utiliza técnicas como meditación, trabajo corporal y diálogo para sanar patrones negativos y reprogramar creencias limitantes, buscando una transformación física, mental y emocional a través de la consciencia y liberación de bloqueos",
+  "duration": 60,
+  "price": "45000.00",
+  "user_id": 1,
+  "active": true,
+  "createdAt": "2026-01-20T19:02:12.000Z",
+  "updatedAt": "2026-01-20T19:02:12.000Z"
+}
+Total Products: 1

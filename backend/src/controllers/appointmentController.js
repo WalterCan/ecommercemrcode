@@ -3,6 +3,7 @@ const Patient = require('../models/Patient');
 const User = require('../models/User');
 const TherapyType = require('../models/TherapyType');
 const { Op } = require('sequelize');
+const reminderService = require('../services/reminderService');
 
 // Obtener turnos por rango de fechas (para el calendario)
 const getAppointments = async (req, res) => {
@@ -153,7 +154,7 @@ const createAppointment = async (req, res) => {
 const updateAppointmentStatus = async (req, res) => {
     try {
         const { id } = req.params;
-        const { status, payment_status, notes } = req.body;
+        const { status, payment_status, notes, patient_id, product_id, price_amount } = req.body;
 
         const appointment = await Appointment.findByPk(id);
         if (!appointment) return res.status(404).json({ error: 'Turno no encontrado' });
@@ -161,6 +162,15 @@ const updateAppointmentStatus = async (req, res) => {
         if (status) appointment.status = status;
         if (payment_status) appointment.payment_status = payment_status;
         if (notes) appointment.notes = notes;
+        if (patient_id !== undefined) appointment.patient_id = patient_id;
+        if (product_id !== undefined) appointment.product_id = product_id;
+
+        // Si cambia el servicio, podría cambiar el precio (o se puede enviar explícitamente)
+        if (price_amount) appointment.price_amount = price_amount;
+        else if (product_id) {
+            const therapy = await TherapyType.findByPk(product_id);
+            if (therapy) appointment.price_amount = therapy.price;
+        }
 
         await appointment.save();
 
@@ -247,6 +257,9 @@ const rescheduleAppointment = async (req, res) => {
         }
 
         // Liberar horario anterior
+        const originalTherapyId = currentAppointment.therapy_type_id;
+        const originalPatientId = currentAppointment.patient_id;
+
         currentAppointment.status = 'available';
         currentAppointment.patient_id = null;
         currentAppointment.therapy_type_id = null;
@@ -255,8 +268,8 @@ const rescheduleAppointment = async (req, res) => {
 
         // Asignar nuevo horario
         newAppointment.status = 'scheduled';
-        newAppointment.patient_id = currentAppointment.patient.id;
-        newAppointment.therapy_type_id = currentAppointment.therapy_type_id;
+        newAppointment.patient_id = originalPatientId;
+        newAppointment.therapy_type_id = originalTherapyId;
         newAppointment.notes = `Reprogramado desde ${currentAppointment.date} ${currentAppointment.time}`;
         await newAppointment.save();
 
@@ -344,6 +357,12 @@ const bookAppointment = async (req, res) => {
         slot.status = 'scheduled';
         slot.patient_id = patient.id;
         slot.therapy_type_id = therapy_type_id;
+
+        // Asignar datos financieros
+        slot.price_amount = therapy.price; // El precio viene del tipo de terapia
+        slot.payment_method = req.body.payment_method || 'other';
+        slot.payment_status = 'pending';
+
         await slot.save();
 
         // Cargar datos completos para respuesta
@@ -361,16 +380,100 @@ const bookAppointment = async (req, res) => {
                     include: [{
                         model: User,
                         as: 'user',
-                        attributes: ['name']
+                        attributes: ['name', 'email', 'phone']
                     }]
                 }
             ]
         });
 
+        // Enviar confirmación inmediata (Email + WhatsApp)
+        // No esperamos a que termine para no bloquear la respuesta
+        reminderService.sendBookingConfirmation(appointment).catch(err =>
+            console.error('⚠️ Error enviando confirmación de reserva:', err)
+        );
+
         res.json({ message: 'Turno reservado exitosamente', appointment });
     } catch (error) {
         console.error('Error booking appointment:', error);
         res.status(500).json({ error: 'Error al reservar turno' });
+    }
+};
+
+// Confirmar asistencia al turno
+const confirmAppointment = async (req, res) => {
+    try {
+        const { id } = req.params;
+        // Opcional: Validar token si se implementa seguridad extra
+
+        const appointment = await Appointment.findByPk(id);
+
+        if (!appointment) {
+            return res.status(404).json({ error: 'Turno no encontrado' });
+        }
+
+        if (appointment.status !== 'scheduled') {
+            return res.status(400).json({
+                error: 'No se puede confirmar este turno (estado actual: ' + appointment.status + ')'
+            });
+        }
+
+        appointment.status = 'confirmed';
+        await appointment.save();
+
+        res.json({ message: 'Asistencia confirmada exitosamente', appointment });
+    } catch (error) {
+        console.error('Error confirming appointment:', error);
+        res.status(500).json({ error: 'Error al confirmar asistencia' });
+    }
+};
+
+// Registrar pago manual (Parcial o Total)
+const markBalanceAsPaid = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { amount } = req.body; // Opcional: Monto específico a pagar
+
+        const appointment = await Appointment.findByPk(id);
+
+        if (!appointment) return res.status(404).json({ error: 'Turno no encontrado' });
+
+        const price = parseFloat(appointment.price_amount || 0);
+        const currentPaid = parseFloat(appointment.paid_amount || 0);
+        let newPaid = 0;
+
+        if (amount !== undefined && amount !== null) {
+            // Pago parcial o monto específico
+            const paymentAmount = parseFloat(amount);
+            if (isNaN(paymentAmount) || paymentAmount <= 0) {
+                return res.status(400).json({ error: 'Monto inválido' });
+            }
+            newPaid = currentPaid + paymentAmount;
+
+            // Validar si completó el pago
+            appointment.paid_amount = newPaid;
+            if (newPaid >= price - 0.01) { // Tolerancia pequeña
+                appointment.payment_status = 'paid';
+                // Si pagó de más, podríamos ajustarlo o dejarlo así. Lo dejamos así.
+            } else {
+                appointment.payment_status = 'partial';
+            }
+        } else {
+            // Comportamiento anterior: Pagar todo el saldo restante
+            appointment.paid_amount = price;
+            appointment.payment_status = 'paid';
+            newPaid = price;
+        }
+
+        await appointment.save();
+
+        res.json({
+            success: true,
+            message: 'Pago registrado exitosamente',
+            appointment
+        });
+    } catch (error) {
+        console.error('Error marking balance as paid:', error);
+        res.status(500).json({ error: 'Error al registrar pago' });
     }
 };
 
@@ -382,5 +485,7 @@ module.exports = {
     updateAppointmentStatus,
     cancelClientAppointment,
     rescheduleAppointment,
-    bookAppointment
+    bookAppointment,
+    confirmAppointment,
+    markBalanceAsPaid
 };

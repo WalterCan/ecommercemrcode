@@ -3,7 +3,7 @@ import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import SEO from '../components/common/SEO';
 import { useAuth } from '../context/AuthContext';
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, parse } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useToast } from '../context/ToastContext';
 
@@ -162,7 +162,7 @@ const ClientAppointments = () => {
     const upcomingAppointments = appointments.filter(apt => {
         if (apt.status === 'cancelled' || apt.status === 'completed') return false;
 
-        const aptDate = parseISO(apt.date);
+        const aptDate = parse(apt.date, 'yyyy-MM-dd', new Date());
         const [hours, minutes] = apt.time.split(':');
         aptDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
 
@@ -172,7 +172,7 @@ const ClientAppointments = () => {
     const pastAppointments = appointments.filter(apt => {
         if (apt.status === 'cancelled' || apt.status === 'completed') return true;
 
-        const aptDate = parseISO(apt.date);
+        const aptDate = parse(apt.date, 'yyyy-MM-dd', new Date());
         const [hours, minutes] = apt.time.split(':');
         aptDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
 
@@ -193,9 +193,15 @@ const ClientAppointments = () => {
 
             <div className="min-h-screen bg-gradient-to-br from-beige-light via-paper to-beige-light/50 py-20">
                 <div className="container mx-auto px-4 max-w-6xl">
-                    <div className="text-center mb-12">
+                    <div className="text-center mb-12 flex flex-col items-center">
                         <h1 className="text-4xl font-bold text-slate-800 mb-4">Mis Turnos</h1>
-                        <p className="text-slate-600">Gestiona tus citas y tratamientos</p>
+                        <p className="text-slate-600 mb-6">Gestiona tus citas y tratamientos</p>
+                        <a
+                            href="/reservar-turno"
+                            className="bg-earth text-white px-8 py-3 rounded-xl font-bold hover:bg-earth-dark transition-colors shadow-lg shadow-earth/20 flex items-center gap-2"
+                        >
+                            <span>➕</span> Reservar Nuevo Turno
+                        </a>
                     </div>
 
                     {loading ? (
@@ -218,7 +224,7 @@ const ClientAppointments = () => {
                                                     <div className="flex-1">
                                                         <div className="flex items-center gap-3 mb-3">
                                                             <h3 className="text-xl font-bold text-slate-800">
-                                                                {format(parseISO(apt.date), "EEEE d 'de' MMMM, yyyy", { locale: es })}
+                                                                {format(parse(apt.date, 'yyyy-MM-dd', new Date()), "EEEE d 'de' MMMM, yyyy", { locale: es })}
                                                             </h3>
                                                             {getStatusBadge(apt.status)}
                                                         </div>
@@ -249,7 +255,7 @@ const ClientAppointments = () => {
                                                         )}
                                                     </div>
 
-                                                    {apt.status === 'scheduled' && (
+                                                    {['scheduled', 'confirmed', 'pending', 'partial'].includes(apt.status) && (
                                                         <div className="ml-4 flex flex-col gap-2">
                                                             <button
                                                                 onClick={() => handleOpenReschedule(apt)}
@@ -296,7 +302,7 @@ const ClientAppointments = () => {
                                                     <div className="flex-1">
                                                         <div className="flex items-center gap-3 mb-2">
                                                             <p className="font-bold text-slate-700">
-                                                                {format(parseISO(apt.date), "d 'de' MMMM, yyyy", { locale: es })}
+                                                                {format(parse(apt.date, 'yyyy-MM-dd', new Date()), "d 'de' MMMM, yyyy", { locale: es })}
                                                             </p>
                                                             <span className="text-slate-500">•</span>
                                                             <p className="text-slate-600">
@@ -337,7 +343,7 @@ const ClientAppointments = () => {
                             <div className="bg-blue-50 rounded-xl p-4 mb-6">
                                 <p className="text-sm text-slate-600 mb-2">Turno actual:</p>
                                 <p className="font-bold text-lg">
-                                    {format(parseISO(selectedAppointment.date), "EEEE d 'de' MMMM, yyyy", { locale: es })}
+                                    {format(parse(selectedAppointment.date, 'yyyy-MM-dd', new Date()), "EEEE d 'de' MMMM, yyyy", { locale: es })}
                                 </p>
                                 <p className="text-earth font-bold">
                                     {selectedAppointment.time?.substring(0, 5)} - {selectedAppointment.end_time?.substring(0, 5)}
@@ -359,7 +365,7 @@ const ClientAppointments = () => {
                                 {Object.entries(groupedSlots).map(([date, slots]) => (
                                     <div key={date}>
                                         <h4 className="font-bold text-slate-700 mb-3">
-                                            {format(parseISO(date), "EEEE d 'de' MMMM", { locale: es })}
+                                            {format(parse(date, 'yyyy-MM-dd', new Date()), "EEEE d 'de' MMMM", { locale: es })}
                                         </h4>
                                         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                                             {slots.map((slot) => (
@@ -402,8 +408,6 @@ const ClientAppointments = () => {
                     </div>
                 </div>
             )}
-
-            <Footer />
         </>
     );
 };

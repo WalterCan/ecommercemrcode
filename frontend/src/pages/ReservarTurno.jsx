@@ -4,12 +4,15 @@ import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
+import { format, parse } from 'date-fns';
+import { es } from 'date-fns/locale';
 
 const ReservarTurno = () => {
     const [therapies, setTherapies] = useState([]);
     const [availableSlots, setAvailableSlots] = useState([]);
     const [selectedSlot, setSelectedSlot] = useState(null);
     const [selectedTherapy, setSelectedTherapy] = useState(null);
+    const [paymentMethod, setPaymentMethod] = useState('mercadopago'); // 'mercadopago' | 'transfer'
     const [loading, setLoading] = useState(false);
     const [modalTherapy, setModalTherapy] = useState(null);
     const { showToast } = useToast();
@@ -62,6 +65,7 @@ const ReservarTurno = () => {
             return;
         }
 
+        setLoading(true);
         try {
             const token = localStorage.getItem('token');
             const response = await fetch(`${baseUrl}/appointments/book`, {
@@ -72,21 +76,60 @@ const ReservarTurno = () => {
                 },
                 body: JSON.stringify({
                     appointment_id: selectedSlot.id,
-                    therapy_type_id: selectedTherapy
+                    therapy_type_id: selectedTherapy,
+                    payment_method: paymentMethod
                 })
             });
 
-            if (response.ok) {
-                showToast('¡Turno reservado exitosamente!', 'success');
-                navigate('/mis-turnos');
-            } else {
-                const error = await response.json();
+            const data = await response.json();
 
+            if (response.ok) {
+                // Si eligió MercadoPago, crear preferencia
+                if (paymentMethod === 'mercadopago') {
+                    try {
+                        const prefResponse = await fetch(`${baseUrl}/payments/preference`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({
+                                appointmentId: data.appointment.id
+                            })
+                        });
+
+                        const prefData = await prefResponse.json();
+
+                        if (prefResponse.ok && prefData.init_point) {
+                            showToast('Redirigiendo a MercadoPago...', 'info');
+                            window.location.href = prefData.init_point;
+                            return;
+                        } else {
+                            console.error('Error MP Response:', prefResponse.status, prefData);
+                            showToast(`Error al conectar con MercadoPago: ${prefData.message || 'Error desconocido'}. El turno quedó reservado.`, 'warning');
+                            navigate('/mis-turnos');
+                        }
+                    } catch (mpError) {
+                        console.error('Error MP:', mpError);
+                        showToast('Error al conectar con MercadoPago. El turno quedó reservado.', 'warning');
+                        navigate('/mis-turnos');
+                    }
+                } else {
+                    // Transferencia / Efectivo
+                    showToast('¡Turno reservado! Te contactaremos por WhatsApp.', 'success');
+                    // Podríamos redirigir a un WhatsApp link aquí si se desea
+                    const whatsappMsg = `Hola! Reservé el turno #${data.appointment.id} para ${data.appointment.therapy.name} el ${new Date(data.appointment.date).toLocaleDateString()} y quiero coordinar el pago.`;
+                    const whatsappUrl = `https://wa.me/5491112345678?text=${encodeURIComponent(whatsappMsg)}`; // TODO: Usar nro config
+
+                    navigate('/mis-turnos');
+                    // Opcional: window.open(whatsappUrl, '_blank');
+                }
+            } else {
                 // Si falta email o teléfono, mostrar mensaje específico
-                if (error.missingFields) {
+                if (data.missingFields) {
                     const missing = [];
-                    if (error.missingFields.email) missing.push('email');
-                    if (error.missingFields.phone) missing.push('teléfono');
+                    if (data.missingFields.email) missing.push('email');
+                    if (data.missingFields.phone) missing.push('teléfono');
 
                     showToast(
                         `Debes completar tu ${missing.join(' y ')} en tu perfil para reservar turnos`,
@@ -96,12 +139,14 @@ const ReservarTurno = () => {
                     // Redirigir al perfil después de 2 segundos
                     setTimeout(() => navigate('/perfil'), 2000);
                 } else {
-                    showToast(error.error || 'Error al reservar', 'error');
+                    showToast(data.error || 'Error al reservar', 'error');
                 }
             }
         } catch (error) {
             console.error('Error booking appointment:', error);
             showToast('Error de conexión', 'error');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -144,7 +189,7 @@ const ReservarTurno = () => {
                                 {Object.entries(groupedSlots).map(([date, slots]) => (
                                     <div key={date}>
                                         <h3 className="font-bold text-lg mb-3 text-slate-700">
-                                            📅 {new Date(date).toLocaleDateString('es-AR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                                            📅 {format(parse(date, 'yyyy-MM-dd', new Date()), "EEEE d 'de' MMMM, yyyy", { locale: es })}
                                         </h3>
                                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                                             {slots.map(slot => (
@@ -173,9 +218,12 @@ const ReservarTurno = () => {
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 {therapies.map(therapy => (
                                     <div key={therapy.id} className="relative">
-                                        <button
+                                        <div
+                                            role="button"
+                                            tabIndex={0}
                                             onClick={() => setSelectedTherapy(therapy.id)}
-                                            className={`w-full p-6 rounded-xl border-2 transition-all text-left ${selectedTherapy === therapy.id
+                                            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setSelectedTherapy(therapy.id); }}
+                                            className={`w-full p-6 rounded-xl border-2 transition-all text-left cursor-pointer ${selectedTherapy === therapy.id
                                                 ? 'border-earth bg-earth/10'
                                                 : 'border-beige-dark/20 hover:border-earth/50'
                                                 }`}
@@ -199,7 +247,7 @@ const ReservarTurno = () => {
                                                 <span className="text-slate-500">⏱️ {therapy.duration} min</span>
                                                 <span className="font-bold text-earth">${parseFloat(therapy.price).toLocaleString('es-AR')}</span>
                                             </div>
-                                        </button>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
@@ -209,23 +257,78 @@ const ReservarTurno = () => {
                     {/* Botón de Confirmación */}
                     {selectedSlot && selectedTherapy && (
                         <div className="bg-white rounded-3xl shadow-lg border border-beige-dark/10 p-8">
-                            <h2 className="text-2xl font-bold mb-6">3️⃣ Confirmar Reserva</h2>
+                            <h2 className="text-2xl font-bold mb-6">3️⃣ Confirmar y Pagar</h2>
                             <div className="bg-beige-light/30 rounded-xl p-6 mb-6">
                                 <p className="text-sm text-slate-600 mb-2">Fecha y Hora:</p>
                                 <p className="font-bold text-lg mb-4">
-                                    📅 {new Date(selectedSlot.date).toLocaleDateString('es-AR')} -
+                                    📅 {format(parse(selectedSlot.date, 'yyyy-MM-dd', new Date()), 'dd/MM/yyyy', { locale: es })} -
                                     🕐 {selectedSlot.time?.substring(0, 5)} a {selectedSlot.end_time?.substring(0, 5)}
                                 </p>
                                 <p className="text-sm text-slate-600 mb-2">Terapia:</p>
-                                <p className="font-bold text-lg text-earth">
+                                <p className="font-bold text-lg text-earth mb-4">
                                     {therapies.find(t => t.id === selectedTherapy)?.name}
                                 </p>
+
+                                <div className="border-t border-dashed border-slate-300 my-4 pt-4">
+                                    <div className="flex justify-between items-center mb-2">
+                                        <span className="text-slate-600">Valor Total:</span>
+                                        <span className="text-lg font-bold">
+                                            ${parseFloat(therapies.find(t => t.id === selectedTherapy)?.price || 0).toLocaleString('es-AR')}
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between items-center mb-2 text-earth font-bold">
+                                        <span>Seña (50%):</span>
+                                        <span>
+                                            ${(parseFloat(therapies.find(t => t.id === selectedTherapy)?.price || 0) * 0.5).toLocaleString('es-AR')}
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between items-center text-sm text-slate-500">
+                                        <span>Saldo a abonar en consultorio:</span>
+                                        <span>
+                                            ${(parseFloat(therapies.find(t => t.id === selectedTherapy)?.price || 0) * 0.5).toLocaleString('es-AR')}
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
+
+                            <div className="mb-6">
+                                <h3 className="font-bold text-lg mb-3">Método de Pago de Seña</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                    <button
+                                        onClick={() => setPaymentMethod('mercadopago')}
+                                        className={`p-4 rounded-xl border-2 flex flex-col items-center justify-center gap-2 transition-all ${paymentMethod === 'mercadopago'
+                                            ? 'border-[#009EE3] bg-[#009EE3]/5 text-[#009EE3]'
+                                            : 'border-slate-200 hover:border-[#009EE3]/50 text-slate-500'
+                                            }`}
+                                    >
+                                        <span className="font-bold">Mercado Pago</span>
+                                        <span className="text-xs">Tarjetas, Débito, Dinero en cuenta</span>
+                                    </button>
+
+                                    <button
+                                        onClick={() => setPaymentMethod('transfer')}
+                                        className={`p-4 rounded-xl border-2 flex flex-col items-center justify-center gap-2 transition-all ${paymentMethod === 'transfer'
+                                            ? 'border-green-600 bg-green-50 text-green-700'
+                                            : 'border-slate-200 hover:border-green-600/50 text-slate-500'
+                                            }`}
+                                    >
+                                        <span className="font-bold">Transferencia / Efectivo</span>
+                                        <span className="text-xs">Coordinar por WhatsApp</span>
+                                    </button>
+                                </div>
+                            </div>
+
                             <button
                                 onClick={handleBook}
-                                className="w-full bg-earth text-white py-4 rounded-xl font-bold text-lg hover:bg-earth-dark transition-all"
+                                disabled={loading}
+                                className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${paymentMethod === 'mercadopago'
+                                    ? 'bg-[#009EE3] hover:bg-[#008ED0] text-white'
+                                    : 'bg-green-600 hover:bg-green-700 text-white'
+                                    } ${loading ? 'opacity-75 cursor-not-allowed' : ''}`}
                             >
-                                Confirmar Reserva
+                                {loading ? 'Procesando...' : (
+                                    paymentMethod === 'mercadopago' ? 'Pagar Seña con Mercado Pago' : 'Confirmar Reserva'
+                                )}
                             </button>
                         </div>
                     )}

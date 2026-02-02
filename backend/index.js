@@ -91,6 +91,7 @@ app.use('/api/appointments', require('./src/routes/appointmentRoutes')); // [NEW
 app.use('/api/therapies', require('./src/routes/therapyRoutes')); // [NEW] Tipos de Terapia
 app.use('/api/availability', require('./src/routes/availabilityRoutes')); // [NEW] Disponibilidad Horaria
 app.use('/api/reminders', require('./src/routes/reminderRoutes')); // [NEW] Recordatorios Automáticos
+app.use('/api/payments', require('./src/routes/paymentRoutes')); // [NEW] Pagos MercadoPago
 /**
  * ============================================
  * RUTA DE SALUD / PRUEBA

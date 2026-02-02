@@ -4,10 +4,20 @@ import react from '@vitejs/plugin-react'
 // https://vitejs.dev/config/
 export default defineConfig({
     plugins: [react()],
+    cacheDir: '/app/node_modules/.vite',
     server: {
-        host: true, // Necesario para que Docker pueda acceder
+        host: true,
         port: 5173,
-        watch: null, // Deshabilitar file watching
-        hmr: false, // Deshabilitar HMR
+        watch: {
+            usePolling: true, // Importante para Docker en Windows
+            ignored: ['**/node_modules/**', '**/dist/**', '**/.git/**']
+        },
+        hmr: {
+            host: 'localhost',
+            clientPort: 5176 // Puerto expuesto en docker-compose
+        }
+    },
+    optimizeDeps: {
+        force: false,
     },
 })

@@ -122,7 +122,13 @@ const getAvailableSlots = async (req, res) => {
             patient_id: null
         };
 
-        if (date) where.date = date;
+        if (date) {
+            where.date = date;
+        } else {
+            // Si no hay fecha específica, mostrar desde hoy en adelante
+            const today = new Date().toISOString().split('T')[0];
+            where.date = { [Op.gte]: today };
+        }
 
         const slots = await Appointment.findAll({
             where,
@@ -149,13 +155,22 @@ const getMyAvailability = async (req, res) => {
 
         const therapyIds = therapies.map(t => t.id);
 
+        const { include_past } = req.query;
+
+        const where = {
+            [Op.or]: [
+                { therapy_type_id: { [Op.in]: therapyIds } },
+                { therapy_type_id: null } // Bloques sin terapia asignada
+            ]
+        };
+
+        if (include_past !== 'true') {
+            const today = new Date().toISOString().split('T')[0];
+            where.date = { [Op.gte]: today };
+        }
+
         const slots = await Appointment.findAll({
-            where: {
-                [Op.or]: [
-                    { therapy_type_id: { [Op.in]: therapyIds } },
-                    { therapy_type_id: null } // Bloques sin terapia asignada
-                ]
-            },
+            where,
             include: [
                 {
                     model: TherapyType,
