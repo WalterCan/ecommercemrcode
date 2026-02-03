@@ -1,0 +1,299 @@
+
+> ecommerce-perfumes-frontend@0.0.0 test
+> vitest
+
+
+[1m[44m DEV [49m[22m [34mv4.0.18 [39m[90mD:/PROYECTOS/ecommerce/frontend[39m
+
+ [31m❯[39m src/components/StockBadge.test.jsx [2m([22m[2m0 test[22m[2m)[22m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Suites 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/components/StockBadge.test.jsx[2m [ src/components/StockBadge.test.jsx ][22m
+[31m[1mError[22m: Failed to resolve import "@testing-library/jest-dom/matchers" from "src/test/setup.js". Does the file exist?[39m
+  Plugin: [35mvite:import-analysis[39m
+  File: [36mD:/PROYECTOS/ecommerce/frontend/src/test/setup.js[39m:3:27
+[33m  1  |  import { expect, afterEach } from 'vitest'
+  2  |  import { cleanup } from '@testing-library/react'
+  3  |  import * as matchers from '@testing-library/jest-dom/matchers'
+     |                               ^
+  4  |  
+  5  |  expect.extend(matchers)[39m
+[90m [2m❯[22m TransformPluginContext._formatLog node_modules/vite/dist/node/chunks/config.js:[2m28998:43[22m[39m
+[90m [2m❯[22m TransformPluginContext.error node_modules/vite/dist/node/chunks/config.js:[2m28995:14[22m[39m
+[90m [2m❯[22m normalizeUrl node_modules/vite/dist/node/chunks/config.js:[2m27118:18[22m[39m
+[90m [2m❯[22m node_modules/vite/dist/node/chunks/config.js:[2m27176:32[22m[39m
+[90m [2m❯[22m TransformPluginContext.transform node_modules/vite/dist/node/chunks/config.js:[2m27144:4[22m[39m
+[90m [2m❯[22m EnvironmentPluginContainer.transform node_modules/vite/dist/node/chunks/config.js:[2m28796:14[22m[39m
+[90m [2m❯[22m loadAndTransform node_modules/vite/dist/node/chunks/config.js:[2m22669:26[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [2mno tests[22m
+[2m   Start at [22m 10:03:27
+[2m   Duration [22m 990ms[2m (transform 0ms, setup 0ms, import 0ms, tests 0ms, environment 798ms)[22m
+
+[1m[41m FAIL [49m[22m [31mTests failed. Watching for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+[1m[35m
+Restarting due to config changes...[39m[22m
+
+[1m[44m DEV [49m[22m [34mv4.0.18 [39m[90mD:/PROYECTOS/ecommerce/frontend[39m
+
+ [31m❯[39m src/components/StockBadge.test.jsx [2m([22m[2m0 test[22m[2m)[22m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Suites 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/components/StockBadge.test.jsx[2m [ src/components/StockBadge.test.jsx ][22m
+[31m[1mError[22m: Failed to resolve import "@testing-library/jest-dom/matchers" from "src/test/setup.js". Does the file exist?[39m
+  Plugin: [35mvite:import-analysis[39m
+  File: [36mD:/PROYECTOS/ecommerce/frontend/src/test/setup.js[39m:3:27
+[33m  1  |  import { expect, afterEach } from 'vitest'
+  2  |  import { cleanup } from '@testing-library/react'
+  3  |  import * as matchers from '@testing-library/jest-dom/matchers'
+     |                               ^
+  4  |  
+  5  |  expect.extend(matchers)[39m
+[90m [2m❯[22m TransformPluginContext._formatLog node_modules/vite/dist/node/chunks/config.js:[2m28998:43[22m[39m
+[90m [2m❯[22m TransformPluginContext.error node_modules/vite/dist/node/chunks/config.js:[2m28995:14[22m[39m
+[90m [2m❯[22m normalizeUrl node_modules/vite/dist/node/chunks/config.js:[2m27118:18[22m[39m
+[90m [2m❯[22m node_modules/vite/dist/node/chunks/config.js:[2m27176:32[22m[39m
+[90m [2m❯[22m TransformPluginContext.transform node_modules/vite/dist/node/chunks/config.js:[2m27144:4[22m[39m
+[90m [2m❯[22m EnvironmentPluginContainer.transform node_modules/vite/dist/node/chunks/config.js:[2m28796:14[22m[39m
+[90m [2m❯[22m loadAndTransform node_modules/vite/dist/node/chunks/config.js:[2m22669:26[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [2mno tests[22m
+[2m   Start at [22m 10:04:22
+[2m   Duration [22m 1.23s[2m (transform 0ms, setup 0ms, import 0ms, tests 0ms, environment 1.01s)[22m
+
+[1m[41m FAIL [49m[22m [31mTests failed. Watching for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+[1m[35m
+Restarting due to config changes...[39m[22m
+
+[1m[44m DEV [49m[22m [34mv4.0.18 [39m[90mD:/PROYECTOS/ecommerce/frontend[39m
+
+ [31m❯[39m src/components/StockBadge.test.jsx [2m([22m[2m0 test[22m[2m)[22m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Suites 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/components/StockBadge.test.jsx[2m [ src/components/StockBadge.test.jsx ][22m
+[31m[1mError[22m: Cannot find module '@testing-library/dom'
+Require stack:
+- D:\PROYECTOS\ecommerce\frontend\node_modules\@testing-library\react\dist\pure.js[39m
+[90m [2m❯[22m Object.<anonymous> node_modules/@testing-library/react/dist/pure.js:[2m46:12[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [2mno tests[22m
+[2m   Start at [22m 10:06:16
+[2m   Duration [22m 1.31s[2m (transform 22ms, setup 0ms, import 0ms, tests 0ms, environment 971ms)[22m
+
+[1m[41m FAIL [49m[22m [31mTests failed. Watching for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+c[3J[1m[44m RERUN [49m[22m [34m[2msrc/test/setup.js [22m[34mx1 [34m[39m
+
+ [31m❯[39m src/components/StockBadge.test.jsx [2m([22m[2m0 test[22m[2m)[22m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Suites 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/components/StockBadge.test.jsx[2m [ src/components/StockBadge.test.jsx ][22m
+[31m[1mError[22m: Cannot find module '@testing-library/dom'
+Require stack:
+- D:\PROYECTOS\ecommerce\frontend\node_modules\@testing-library\react\dist\pure.js[39m
+[90m [2m❯[22m Object.<anonymous> node_modules/@testing-library/react/dist/pure.js:[2m46:12[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [2mno tests[22m
+[2m   Start at [22m 10:06:35
+[2m   Duration [22m 0ms
+
+[1m[41m FAIL [49m[22m [31mTests failed. Watching for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+[1m[35m
+Restarting due to config changes...[39m[22m
+
+[1m[44m DEV [49m[22m [34mv4.0.18 [39m[90mD:/PROYECTOS/ecommerce/frontend[39m
+
+ [32m✓[39m src/components/StockBadge.test.jsx [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m   Start at [22m 10:08:23
+[2m   Duration [22m 1.62s[2m (transform 24ms, setup 0ms, import 43ms, tests 3ms, environment 1.25s)[22m
+
+[1m[42m PASS [49m[22m [32mWaiting for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+[1m[35m
+Restarting due to config changes...[39m[22m
+
+[1m[44m DEV [49m[22m [34mv4.0.18 [39m[90mD:/PROYECTOS/ecommerce/frontend[39m
+
+ [31m❯[39m src/components/StockBadge.test.jsx [2m([22m[2m0 test[22m[2m)[22m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Suites 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/components/StockBadge.test.jsx[2m [ src/components/StockBadge.test.jsx ][22m
+[31m[1mError[22m: Cannot find module '@testing-library/dom'
+Require stack:
+- D:\PROYECTOS\ecommerce\frontend\node_modules\@testing-library\react\dist\pure.js[39m
+[90m [2m❯[22m Object.<anonymous> node_modules/@testing-library/react/dist/pure.js:[2m46:12[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [2mno tests[22m
+[2m   Start at [22m 10:12:40
+[2m   Duration [22m 1.78s[2m (transform 10ms, setup 0ms, import 0ms, tests 0ms, environment 1.36s)[22m
+
+[1m[41m FAIL [49m[22m [31mTests failed. Watching for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+c[3J[1m[44m RERUN [49m[22m [34m[2msrc/test/setup.js [22m[34mx1 [34m[39m
+
+ [32m✓[39m src/components/StockBadge.test.jsx [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m   Start at [22m 10:12:43
+[2m   Duration [22m 55ms
+
+[1m[42m PASS [49m[22m [32mWaiting for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+c[3J[1m[44m RERUN [49m[22m [34m[2msrc/test/setup.js [22m[34mx2 [34m[39m
+
+ [32m✓[39m src/components/StockBadge.test.jsx [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m   Start at [22m 10:13:15
+[2m   Duration [22m 296ms
+
+[1m[42m PASS [49m[22m [32mWaiting for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+c[3J[1m[44m RERUN [49m[22m [34m[2msrc/test/setup.js [22m[34mx3 [34m[39m
+
+ [31m❯[39m src/components/StockBadge.test.jsx [2m([22m[2m0 test[22m[2m)[22m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Suites 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/components/StockBadge.test.jsx[2m [ src/components/StockBadge.test.jsx ][22m
+[31m[1mError[22m: Cannot find module '@testing-library/dom'
+Require stack:
+- D:\PROYECTOS\ecommerce\frontend\node_modules\@testing-library\react\dist\pure.js[39m
+[90m [2m❯[22m Object.<anonymous> node_modules/@testing-library/react/dist/pure.js:[2m46:12[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [2mno tests[22m
+[2m   Start at [22m 10:16:10
+[2m   Duration [22m 0ms
+
+[1m[41m FAIL [49m[22m [31mTests failed. Watching for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+[1m[35m
+Restarting due to config changes...[39m[22m
+
+[1m[44m DEV [49m[22m [34mv4.0.18 [39m[90mD:/PROYECTOS/ecommerce/frontend[39m
+
+ [31m❯[39m src/components/StockBadge.test.jsx [2m([22m[2m0 test[22m[2m)[22m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Suites 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/components/StockBadge.test.jsx[2m [ src/components/StockBadge.test.jsx ][22m
+[31m[1mError[22m: Cannot find module '@testing-library/dom'
+Require stack:
+- D:\PROYECTOS\ecommerce\frontend\node_modules\@testing-library\react\dist\pure.js[39m
+[90m [2m❯[22m Object.<anonymous> node_modules/@testing-library/react/dist/pure.js:[2m46:12[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [2mno tests[22m
+[2m   Start at [22m 10:16:47
+[2m   Duration [22m 2.34s[2m (transform 8ms, setup 0ms, import 0ms, tests 0ms, environment 1.82s)[22m
+
+[1m[41m FAIL [49m[22m [31mTests failed. Watching for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+c[3J[1m[44m RERUN [49m[22m [34m[2mpackage.json [22m[34mx1 [34m[39m
+
+ [32m✓[39m src/components/StockBadge.test.jsx [2m([22m[2m1 test[22m[2m)[22m[32m 3[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m   Start at [22m 10:25:45
+[2m   Duration [22m 6.33s
+
+[1m[42m PASS [49m[22m [32mWaiting for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+c[3J[1m[44m RERUN [49m[22m [34m[2msrc/test/setup.js [22m[34mx2 [34m[39m
+
+ [31m❯[39m src/components/StockBadge.test.jsx [2m([22m[2m0 test[22m[2m)[22m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Suites 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/components/StockBadge.test.jsx[2m [ src/components/StockBadge.test.jsx ][22m
+[31m[1mError[22m: Failed to resolve import "@testing-library/jest-dom/matchers" from "src/test/setup.js". Does the file exist?[39m
+  Plugin: [35mvite:import-analysis[39m
+  File: [36mD:/PROYECTOS/ecommerce/frontend/src/test/setup.js[39m:3:27
+[33m  1  |  import { expect, afterEach } from 'vitest'
+  2  |  import { cleanup } from '@testing-library/react'
+  3  |  import * as matchers from '@testing-library/jest-dom/matchers'
+     |                               ^
+  4  |  
+  5  |  expect.extend(matchers)[39m
+[90m [2m❯[22m TransformPluginContext._formatLog node_modules/vite/dist/node/chunks/config.js:[2m28998:43[22m[39m
+[90m [2m❯[22m TransformPluginContext.error node_modules/vite/dist/node/chunks/config.js:[2m28995:14[22m[39m
+[90m [2m❯[22m normalizeUrl node_modules/vite/dist/node/chunks/config.js:[2m27118:18[22m[39m
+[90m [2m❯[22m node_modules/vite/dist/node/chunks/config.js:[2m27176:32[22m[39m
+[90m [2m❯[22m TransformPluginContext.transform node_modules/vite/dist/node/chunks/config.js:[2m27144:4[22m[39m
+[90m [2m❯[22m EnvironmentPluginContainer.transform node_modules/vite/dist/node/chunks/config.js:[2m28796:14[22m[39m
+[90m [2m❯[22m loadAndTransform node_modules/vite/dist/node/chunks/config.js:[2m22669:26[22m[39m
+[90m [2m❯[22m fetchModule node_modules/vite/dist/node/chunks/config.js:[2m33992:15[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [2mno tests[22m
+[2m   Start at [22m 10:27:52
+[2m   Duration [22m 0ms
+
+[1m[41m FAIL [49m[22m [31mTests failed. Watching for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+c[3J[1m[44m RERUN [49m[22m [34m[2msrc/test/setup.js [22m[34mx3 [34m[39m
+
+ [32m✓[39m src/components/StockBadge.test.jsx [2m([22m[2m4 tests[22m[2m)[22m[32m 79[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m4 passed[39m[22m[90m (4)[39m
+[2m   Start at [22m 10:28:26
+[2m   Duration [22m 987ms
+
+[1m[42m PASS [49m[22m [32mWaiting for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+c[3J[1m[44m RERUN [49m[22m [34m[2msrc/components/StockBadge.test.jsx [22m[34mx4 [34m[39m
+
+ [32m✓[39m src/components/StockBadge.test.jsx [2m([22m[2m4 tests[22m[2m)[22m[32m 61[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m4 passed[39m[22m[90m (4)[39m
+[2m   Start at [22m 10:28:29
+[2m   Duration [22m 606ms
+
+[1m[42m PASS [49m[22m [32mWaiting for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
