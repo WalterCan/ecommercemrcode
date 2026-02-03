@@ -60,6 +60,29 @@ const upsertPatient = async (req, res) => {
     }
 };
 
+// Actualizar Paciente por ID (Admin)
+const updatePatient = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { birth_date, dni, emergency_contact, observations } = req.body;
+
+        const patient = await Patient.findByPk(id);
+        if (!patient) return res.status(404).json({ error: 'Paciente no encontrado' });
+
+        await patient.update({ birth_date, dni, emergency_contact, observations });
+
+        // Reload with user data to return consistent shape
+        await patient.reload({
+            include: [{ model: User, as: 'user', attributes: ['name', 'email', 'phone', 'address'] }]
+        });
+
+        res.json(patient);
+    } catch (error) {
+        console.error('Error updating patient:', error);
+        res.status(500).json({ error: 'Error al actualizar paciente' });
+    }
+};
+
 // Registrar un Nuevo Paciente desde Cero (Admin)
 const createPatient = async (req, res) => {
     const t = await require('../config/db').transaction();
@@ -162,6 +185,7 @@ module.exports = {
     getPatients,
     getPatientById,
     upsertPatient,
+    updatePatient,
     createPatient,
     addClinicalRecord,
     updateClinicalRecord,

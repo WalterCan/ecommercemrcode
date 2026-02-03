@@ -25,6 +25,7 @@ router.post('/create', admin, (req, res, next) => {
 router.get('/', admin, getPatients); // Listar todos (Admin)
 router.get('/:id', admin, getPatientById); // Ver detalle (Admin)
 router.post('/', upsertPatient); // Crear/Actualizar Ficha (Existente User)
+router.put('/:id', admin, require('../controllers/patientController').updatePatient); // Actualizar Detalle (Admin)
 
 // Historia Clínica
 router.post('/:id/history', admin, addClinicalRecord); // Agregar nota
