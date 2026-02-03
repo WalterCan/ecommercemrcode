@@ -6,13 +6,35 @@ const { Op } = require('sequelize');
  */
 const createTherapy = async (req, res) => {
     try {
-        const { name, description, duration, price } = req.body;
+        let { name, description, duration, price, icon, image_url } = req.body;
+
+        // Si viene como multipart con un campo "data" (JSON string)
+        if (req.body.data) {
+            try {
+                const parsed = JSON.parse(req.body.data);
+                name = parsed.name;
+                description = parsed.description;
+                duration = parsed.duration;
+                price = parsed.price;
+                icon = parsed.icon;
+                image_url = parsed.image_url;
+            } catch (e) {
+                console.error('Error parsing therapy data:', e);
+            }
+        }
+
+        // Si hay un archivo cargado, actualizar la URL
+        if (req.file) {
+            image_url = `/uploads/${req.file.filename}`;
+        }
 
         const therapy = await TherapyType.create({
             name,
             description,
             duration: duration || 60,
             price,
+            icon: icon || '🧘',
+            image_url,
             user_id: req.user.id // El profesional logueado
         });
 
@@ -30,7 +52,7 @@ const getTherapies = async (req, res) => {
     try {
         const therapies = await TherapyType.findAll({
             where: { active: true },
-            attributes: ['id', 'name', 'description', 'duration', 'price'],
+            attributes: ['id', 'name', 'description', 'duration', 'price', 'icon', 'image_url'],
             order: [['name', 'ASC']]
         });
 
@@ -70,7 +92,28 @@ const getMyTherapies = async (req, res) => {
 const updateTherapy = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, description, duration, price, active } = req.body;
+        let { name, description, duration, price, active, icon, image_url } = req.body;
+
+        // Si viene como multipart con un campo "data" (JSON string)
+        if (req.body.data) {
+            try {
+                const parsed = JSON.parse(req.body.data);
+                name = parsed.name;
+                description = parsed.description;
+                duration = parsed.duration;
+                price = parsed.price;
+                active = parsed.active;
+                icon = parsed.icon;
+                image_url = parsed.image_url;
+            } catch (e) {
+                console.error('Error parsing therapy data:', e);
+            }
+        }
+
+        // Si hay un archivo cargado, actualizar la URL
+        if (req.file) {
+            image_url = `/uploads/${req.file.filename}`;
+        }
 
         const queryParams = { id };
         if (req.user.role !== 'super_admin') {
@@ -85,7 +128,7 @@ const updateTherapy = async (req, res) => {
             return res.status(404).json({ error: 'Terapia no encontrada' });
         }
 
-        await therapy.update({ name, description, duration, price, active });
+        await therapy.update({ name, description, duration, price, active, icon, image_url });
         res.json(therapy);
     } catch (error) {
         console.error('Error updating therapy:', error);

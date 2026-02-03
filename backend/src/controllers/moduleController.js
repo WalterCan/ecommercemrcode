@@ -20,6 +20,23 @@ exports.listModules = async (req, res) => {
 };
 
 /**
+ * Obtener códigos de módulos activos (público)
+ * Se usa para que el Header sepa qué enlaces mostrar a visitantes
+ */
+exports.getActiveModules = async (req, res) => {
+    try {
+        const modules = await Module.findAll({
+            where: { is_active: true },
+            attributes: ['code']
+        });
+        res.json(modules.map(m => m.code));
+    } catch (error) {
+        console.error('Error getting active modules:', error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
+/**
  * Obtener módulos de un usuario específico
  */
 exports.getUserModules = async (req, res) => {

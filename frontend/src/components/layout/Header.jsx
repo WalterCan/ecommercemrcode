@@ -15,6 +15,7 @@ const Header = ({ onSearch }) => {
     const [allProducts, setAllProducts] = useState([]);
     const [suggestions, setSuggestions] = useState([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
+    const [activeModules, setActiveModules] = useState([]); // [NEW]
     const [settings, setSettings] = useState({
         announcement_active: 'false',
         announcement_text: '',
@@ -25,12 +26,19 @@ const Header = ({ onSearch }) => {
     useEffect(() => {
         const fetchSettings = async () => {
             try {
-                const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
-                const res = await fetch(`${baseUrl}/settings`);
-                const data = await res.json();
-                setSettings(prev => ({ ...prev, ...data }));
+                const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
+                const settingsRes = await fetch(`${baseUrl}/settings`);
+                const settingsData = await settingsRes.json();
+                setSettings(prev => ({ ...prev, ...settingsData }));
+
+                // [NEW] Fetch módulos activos
+                const modulesRes = await fetch(`${baseUrl}/modules/active`);
+                if (modulesRes.ok) {
+                    const modulesData = await modulesRes.json();
+                    setActiveModules(modulesData);
+                }
             } catch (error) {
-                console.error('Error loading settings:', error);
+                console.error('Error loading settings or modules:', error);
             }
         };
         fetchSettings();
@@ -40,7 +48,7 @@ const Header = ({ onSearch }) => {
     const handleInputFocus = async () => {
         if (allProducts.length === 0) {
             try {
-                const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+                const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
                 const res = await fetch(`${baseUrl}/products`);
                 const data = await res.json();
                 setAllProducts(data);
@@ -94,6 +102,9 @@ const Header = ({ onSearch }) => {
                     <Link to="/" className="text-xs font-bold uppercase tracking-widest text-slate-600 hover:text-earth transition-colors">Inicio</Link>
                     <Link to="/productos" className="text-xs font-bold uppercase tracking-widest text-slate-600 hover:text-earth transition-colors">Productos</Link>
                     <Link to="/nosotros" className="text-xs font-bold uppercase tracking-widest text-slate-600 hover:text-earth transition-colors">Nosotros</Link>
+                    {activeModules.includes('appointments') && (
+                        <Link to="/terapias" className="text-xs font-bold uppercase tracking-widest text-slate-600 hover:text-earth transition-colors">Terapias</Link>
+                    )}
                     {(user?.role === 'admin' || user?.role === 'super_admin') && (
                         <Link
                             to="/admin"
@@ -187,7 +198,7 @@ const Header = ({ onSearch }) => {
                     </button>
 
                     {/* Botón de Mis Turnos (Solo Logueados) */}
-                    {user && (
+                    {user && activeModules.includes('appointments') && (
                         <Link
                             to="/mis-turnos"
                             className="p-2 text-slate-600 hover:text-earth transition-colors"

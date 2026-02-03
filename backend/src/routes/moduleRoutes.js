@@ -4,6 +4,9 @@ const moduleController = require('../controllers/moduleController');
 const { protect } = require('../middleware/authMiddleware');
 const { requireModule, requireSuperAdmin, requireAdmin } = require('../middleware/moduleAccess');
 
+// Ruta pública - Ver qué módulos están activos en el sistema
+router.get('/active', moduleController.getActiveModules);
+
 // Rutas para Admin y Super Admin (Lectura de catálogo)
 router.get('/', protect, requireAdmin, moduleController.listModules);
 router.get('/modules', protect, requireAdmin, moduleController.listModules);

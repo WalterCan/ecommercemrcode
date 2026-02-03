@@ -26,6 +26,7 @@ import Terminos from './pages/Terminos';
 import Privacidad from './pages/Privacidad';
 import ClientAppointments from './pages/ClientAppointments';
 import ReservarTurno from './pages/ReservarTurno';
+import Therapies from './pages/Therapies'; // [NEW] Público
 import ConfirmAppointment from './pages/ConfirmAppointment';
 import PaymentStatus from './pages/PaymentStatus';
 
@@ -117,6 +118,7 @@ function App() {
                                         <Route path="/product/:id" element={<ProductDetail />} />
                                         <Route path="/productos" element={<Products />} />
                                         <Route path="/nosotros" element={<About />} />
+                                        <Route path="/terapias" element={<Therapies />} />
                                         <Route path="/checkout" element={<Checkout />} />
                                         <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />
                                         <Route path="/login" element={<Login />} />

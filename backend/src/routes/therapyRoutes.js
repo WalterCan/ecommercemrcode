@@ -10,17 +10,19 @@ const {
     deleteTherapy
 } = require('../controllers/therapyController');
 
-// Todas las rutas requieren Licencia Activa + Autenticación
+const upload = require('../middleware/uploadMiddleware');
+
+// Ruta pública - Ver todas las terapias activas
+router.get('/', getTherapies);
+
+// Rutas protegidas (Requieren autenticación)
 router.use(protect);
 router.use(checkLicense);
 
-// Rutas públicas (autenticadas)
-router.get('/', getTherapies); // Ver todas las terapias activas
-
 // Rutas de profesional
 router.get('/my-therapies', getMyTherapies); // Ver mis terapias
-router.post('/', createTherapy); // Crear terapia
-router.put('/:id', updateTherapy); // Actualizar terapia
+router.post('/', upload.single('icon_image'), createTherapy); // Crear terapia
+router.put('/:id', upload.single('icon_image'), updateTherapy); // Actualizar terapia
 router.delete('/:id', deleteTherapy); // Eliminar terapia
 
 module.exports = router;

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useToast } from '../../context/ToastContext';
 import AdminLayout from '../../components/admin/AdminLayout';
+import { formatImageUrl } from '../../utils/imageConfig';
 
 const AdminTherapies = () => {
     const [therapies, setTherapies] = useState([]);
@@ -13,8 +14,12 @@ const AdminTherapies = () => {
         description: '',
         duration: 60,
         price: '',
-        active: true
+        active: true,
+        icon: '🧘',
+        image_url: ''
     });
+    const [iconFile, setIconFile] = useState(null);
+    const [iconPreview, setIconPreview] = useState(null);
     const { showToast } = useToast();
     const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
 
@@ -38,6 +43,20 @@ const AdminTherapies = () => {
         }
     };
 
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setIconFile(file);
+            setIconPreview(URL.createObjectURL(file));
+        }
+    };
+
+    const removeIconImage = () => {
+        setIconFile(null);
+        setIconPreview(null);
+        setFormData(prev => ({ ...prev, image_url: '' }));
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -47,20 +66,27 @@ const AdminTherapies = () => {
                 : `${baseUrl}/therapies`;
             const method = editingId ? 'PUT' : 'POST';
 
+            const data = new FormData();
+            data.append('data', JSON.stringify(formData));
+            if (iconFile) {
+                data.append('icon_image', iconFile);
+            }
+
             const response = await fetch(url, {
                 method,
                 headers: {
-                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify(formData)
+                body: data
             });
 
             if (response.ok) {
                 showToast(editingId ? 'Terapia actualizada' : 'Terapia creada', 'success');
                 setShowForm(false);
                 setEditingId(null);
-                setFormData({ name: '', description: '', duration: 60, price: '', active: true });
+                setFormData({ name: '', description: '', duration: 60, price: '', active: true, icon: '🧘', image_url: '' });
+                setIconFile(null);
+                setIconPreview(null);
                 fetchTherapies();
             } else {
                 showToast('Error al guardar terapia', 'error');
@@ -77,8 +103,12 @@ const AdminTherapies = () => {
             description: therapy.description || '',
             duration: therapy.duration,
             price: therapy.price,
-            active: therapy.active
+            active: therapy.active,
+            icon: therapy.icon || '🧘',
+            image_url: therapy.image_url || ''
         });
+        setIconFile(null);
+        setIconPreview(null);
         setEditingId(therapy.id);
         setShowForm(true);
     };
@@ -110,7 +140,7 @@ const AdminTherapies = () => {
             onClick={() => {
                 setShowForm(true);
                 setEditingId(null);
-                setFormData({ name: '', description: '', duration: 60, price: '', active: true });
+                setFormData({ name: '', description: '', duration: 60, price: '', active: true, icon: '🧘' });
             }}
             className="bg-earth text-white px-6 py-2 rounded-full font-bold text-sm hover:bg-earth-dark transition-all shadow-lg shadow-earth/20 flex items-center gap-2"
         >
@@ -132,9 +162,61 @@ const AdminTherapies = () => {
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                     required
-                                    className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 focus:outline-none focus:border-earth focus:ring-1 focus:ring-earth"
+                                    className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 focus:outline-none focus:border-earth focus:ring-1 focus:ring-earth text-sm font-bold"
                                     placeholder="Ej: Consulta Ayurveda"
                                 />
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="bg-paper/30 p-4 rounded-2xl border border-beige-dark/10">
+                                    <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-3 text-center">Icono (Emoji)</label>
+                                    <div className="flex flex-col items-center gap-2">
+                                        <input
+                                            type="text"
+                                            value={formData.icon}
+                                            onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
+                                            className="w-full bg-white border border-beige-dark/20 rounded-xl p-3 text-center text-2xl focus:outline-none focus:border-earth focus:ring-1 focus:ring-earth"
+                                            placeholder="🧘"
+                                            maxLength="5"
+                                        />
+                                        <span className="text-[10px] text-slate-400 uppercase tracking-tighter">O pega un emoji aquí</span>
+                                    </div>
+                                </div>
+
+                                <div className="bg-paper/30 p-4 rounded-2xl border border-beige-dark/10">
+                                    <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-3 text-center">O Imagen / SVG</label>
+                                    <div className="flex flex-col items-center gap-3">
+                                        {/* Preview Area */}
+                                        <div className="w-16 h-16 bg-white rounded-xl border border-beige-dark/10 flex items-center justify-center overflow-hidden relative group">
+                                            {iconPreview || formData.image_url ? (
+                                                <>
+                                                    <img
+                                                        src={iconPreview || formatImageUrl(formData.image_url)}
+                                                        alt="Icon Preview"
+                                                        className="w-full h-full object-contain p-1"
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={removeIconImage}
+                                                        className="absolute inset-0 bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                                    >
+                                                        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                                    </button>
+                                                </>
+                                            ) : (
+                                                <div className="text-beige-dark opacity-30">
+                                                    <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                                </div>
+                                            )}
+                                        </div>
+                                        <input
+                                            type="file"
+                                            accept="image/*,.svg"
+                                            onChange={handleFileChange}
+                                            className="block w-full text-[10px] text-slate-500 file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:bg-earth/10 file:text-earth hover:file:bg-earth/20 cursor-pointer"
+                                        />
+                                    </div>
+                                </div>
                             </div>
                             <div>
                                 <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Descripción</label>

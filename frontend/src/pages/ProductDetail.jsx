@@ -26,6 +26,7 @@ const ProductDetail = () => {
     const [relatedProducts, setRelatedProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [settings, setSettings] = useState({});
+    const [activeModules, setActiveModules] = useState([]); // [NEW] Verificación de módulos
 
     // Estados de Reserva (Solo para Servicios)
     const [selectedDate, setSelectedDate] = useState(null);
@@ -45,11 +46,12 @@ const ProductDetail = () => {
             try {
                 const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
 
-                const [prodRes, allRes, revRes, setRes] = await Promise.all([
+                const [prodRes, allRes, revRes, setRes, modRes] = await Promise.all([
                     fetch(`${baseUrl}/products/${id}`),
                     fetch(`${baseUrl}/products`),
                     fetch(`${baseUrl}/reviews/product/${id}`),
-                    fetch(`${baseUrl}/settings`)
+                    fetch(`${baseUrl}/settings`),
+                    fetch(`${baseUrl}/modules/active`) // [NEW]
                 ]);
 
                 if (!prodRes.ok) throw new Error('Producto no encontrado');
@@ -68,6 +70,9 @@ const ProductDetail = () => {
 
                 // Ajustes
                 if (setRes.ok) setSettings(await setRes.json());
+
+                // Módulos activos
+                if (modRes.ok) setActiveModules(await modRes.json());
 
             } catch (error) {
                 console.error(error);
@@ -161,10 +166,35 @@ const ProductDetail = () => {
             } else {
                 showToast(data.error || 'Error al reservar', 'error');
             }
+        } finally {
+            setBookingProcessing(false);
+        }
+    };
+
+    const handleReviewSubmit = async (e) => {
+        e.preventDefault();
+        setSubmittingReview(true);
+        try {
+            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
+            const res = await fetch(`${baseUrl}/reviews`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    product_id: id,
+                    ...newReview
+                })
+            });
+
+            if (res.ok) {
+                showToast('Reseña enviada con éxito (pendiente de aprobación)', 'success');
+                setNewReview({ customer_name: '', rating: 5, comment: '' });
+            } else {
+                showToast('Error al enviar reseña', 'error');
+            }
         } catch (error) {
             showToast('Error de conexión', 'error');
         } finally {
-            setBookingProcessing(false);
+            setSubmittingReview(false);
         }
     };
 
@@ -193,6 +223,38 @@ const ProductDetail = () => {
                         <h1 className="text-4xl lg:text-5xl font-serif mb-6">{product.name}</h1>
                         <p className="text-3xl font-serif font-bold text-earth mb-8">${parseFloat(product.price).toLocaleString('es-AR')}</p>
                         <p className="leading-relaxed text-lg font-serif italic text-slate-600 mb-10">{product.description}</p>
+
+                        {/* Atributos Personalizables */}
+                        <div className="flex flex-wrap gap-4 mt-2 mb-10">
+                            {settings.products_detail_attr1_text && (
+                                <div className="flex items-center gap-3 px-5 py-3 rounded-2xl shadow-sm border border-beige-dark/5"
+                                    style={{
+                                        backgroundColor: settings.products_detail_badge_bg_color || '#FDFCF8',
+                                        color: settings.products_detail_badge_text_color || '#8A9A5B'
+                                    }}>
+                                    {settings.products_detail_attr1_image_url ? (
+                                        <img src={formatImageUrl(settings.products_detail_attr1_image_url)} alt="Icon" className="w-6 h-6 object-contain" />
+                                    ) : (
+                                        <span className="text-xl">{settings.products_detail_attr1_icon}</span>
+                                    )}
+                                    <span className="text-[10px] font-bold uppercase tracking-[0.1em] leading-none">{settings.products_detail_attr1_text}</span>
+                                </div>
+                            )}
+                            {settings.products_detail_attr2_text && (
+                                <div className="flex items-center gap-3 px-5 py-3 rounded-2xl shadow-sm border border-beige-dark/5"
+                                    style={{
+                                        backgroundColor: settings.products_detail_badge_bg_color || '#FDFCF8',
+                                        color: settings.products_detail_badge_text_color || '#8A9A5B'
+                                    }}>
+                                    {settings.products_detail_attr2_image_url ? (
+                                        <img src={formatImageUrl(settings.products_detail_attr2_image_url)} alt="Icon" className="w-6 h-6 object-contain" />
+                                    ) : (
+                                        <span className="text-xl">{settings.products_detail_attr2_icon}</span>
+                                    )}
+                                    <span className="text-[10px] font-bold uppercase tracking-[0.1em] leading-none">{settings.products_detail_attr2_text}</span>
+                                </div>
+                            )}
+                        </div>
 
                         {/* LÓGICA DIFERENCIADA: PRODUCTO vs SERVICIO */}
                         {product.type === 'service' ? (
@@ -260,6 +322,111 @@ const ProductDetail = () => {
                         )}
                     </div>
                 </div>
+
+                {/* Productos Relacionados */}
+                {relatedProducts.length > 0 && (
+                    <div className="mt-32 animate-fade-in border-t border-beige-dark/10 pt-20">
+                        <h2 className="text-3xl font-serif mb-12 text-slate-800 text-center">También te puede interesar</h2>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                            {relatedProducts.map(relProduct => (
+                                <ProductCard key={relProduct.id} product={relProduct} />
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* SECCIÓN DE RESEÑAS (Condicional) */}
+                {activeModules.includes('reviews') && (
+                    <div className="mt-20 border-t border-beige-dark/10 pt-20 animate-fade-in">
+                        <div className="max-w-4xl mx-auto">
+                            <h2 className="text-3xl font-serif mb-12 text-center underline decoration-earth/30">Reseñas de Clientes</h2>
+
+                            <div className="grid md:grid-cols-2 gap-16">
+                                {/* Lista de Reseñas */}
+                                <div>
+                                    <h3 className="text-sm font-bold uppercase tracking-widest text-slate-400 mb-8">Lo que dicen otros</h3>
+                                    <div className="space-y-8">
+                                        {reviews.length > 0 ? (
+                                            reviews.map((rev, i) => (
+                                                <div key={rev.id || i} className="bg-white p-6 rounded-3xl shadow-sm border border-beige-dark/5">
+                                                    <div className="flex justify-between items-start mb-4">
+                                                        <span className="font-bold text-slate-700">{rev.customer_name}</span>
+                                                        <div className="flex text-earth">
+                                                            {[...Array(5)].map((_, i) => (
+                                                                <svg key={i} className={`w-3 h-3 ${i < rev.rating ? 'fill-current' : 'text-beige-dark/30'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.382-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                                                                </svg>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                    <p className="text-slate-600 italic leading-relaxed">"{rev.comment}"</p>
+                                                    <p className="text-[10px] text-slate-300 mt-4 uppercase tracking-tighter">
+                                                        {new Date(rev.created_at || rev.createdAt).toLocaleDateString()}
+                                                    </p>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <p className="text-slate-400 italic font-serif">Aún no hay reseñas aprobadas para este producto.</p>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Formulario */}
+                                <div className="bg-beige-light/20 p-8 rounded-[40px] border border-beige-dark/10 h-fit">
+                                    <h3 className="text-sm font-bold uppercase tracking-widest text-slate-400 mb-8">Cuéntanos tu experiencia</h3>
+                                    <form onSubmit={handleReviewSubmit} className="space-y-6">
+                                        <div>
+                                            <label className="block text-[10px] uppercase font-bold text-slate-400 mb-2">Tu Nombre</label>
+                                            <input
+                                                type="text"
+                                                required
+                                                value={newReview.customer_name}
+                                                onChange={(e) => setNewReview({ ...newReview, customer_name: e.target.value })}
+                                                className="w-full bg-white/50 border-none rounded-2xl px-4 py-3 text-sm focus:ring-1 focus:ring-earth/30"
+                                                placeholder="Ej: Ana García"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] uppercase font-bold text-slate-400 mb-2">Calificación</label>
+                                            <div className="flex gap-2">
+                                                {[1, 2, 3, 4, 5].map(num => (
+                                                    <button
+                                                        key={num}
+                                                        type="button"
+                                                        onClick={() => setNewReview({ ...newReview, rating: num })}
+                                                        className={`p-1 transition-transform hover:scale-125 ${newReview.rating >= num ? 'text-earth' : 'text-beige-dark/30'}`}
+                                                    >
+                                                        <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24">
+                                                            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                                                        </svg>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] uppercase font-bold text-slate-400 mb-2">Comentario</label>
+                                            <textarea
+                                                required
+                                                rows="4"
+                                                value={newReview.comment}
+                                                onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
+                                                className="w-full bg-white/50 border-none rounded-2xl px-4 py-3 text-sm focus:ring-1 focus:ring-earth/30 resize-none"
+                                                placeholder="Comparte tu opinión sobre este producto..."
+                                            ></textarea>
+                                        </div>
+                                        <button
+                                            type="submit"
+                                            disabled={submittingReview}
+                                            className="w-full py-4 bg-slate-800 text-white rounded-2xl font-bold uppercase tracking-[0.2em] text-[10px] hover:bg-slate-700 transition-all shadow-lg disabled:opacity-50"
+                                        >
+                                            {submittingReview ? 'Enviando...' : 'Publicar Reseña'}
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </main>
         </div>
     );

@@ -42,6 +42,17 @@ const TherapyType = sequelize.define('TherapyType', {
         type: DataTypes.BOOLEAN,
         defaultValue: true,
         comment: 'Si la terapia está activa/disponible'
+    },
+    icon: {
+        type: DataTypes.STRING(20),
+        allowNull: true,
+        defaultValue: '🧘',
+        comment: 'Emoji o icono representativo de la terapia'
+    },
+    image_url: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+        comment: 'URL de la imagen o SVG cargado para la terapia'
     }
 }, {
     tableName: 'therapy_types',
