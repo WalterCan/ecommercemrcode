@@ -16,7 +16,7 @@ const AdminProducts = () => {
 
   const fetchProducts = async () => {
     try {
-      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
       const response = await fetch(`${baseUrl}/products`);
       const data = await response.json();
       setProducts(data);
@@ -30,7 +30,7 @@ const AdminProducts = () => {
   const handleDelete = async (id) => {
     if (window.confirm('¿Estás seguro de que deseas eliminar este objeto sagrado?')) {
       try {
-        const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+        const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
         const response = await fetch(`${baseUrl}/products/${id}`, {
           method: 'DELETE'
         });

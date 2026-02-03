@@ -34,6 +34,9 @@ const Coupon = require('./src/models/Coupon');
 const Review = require('./src/models/Review');
 const Patient = require('./src/models/Patient'); // [NEW] Consultorio
 const Appointment = require('./src/models/Appointment'); // [NEW] Consultorio
+const TherapyType = require('./src/models/TherapyType'); // [NEW] Tipos de terapia
+const Module = require('./src/models/Module'); // [NEW] Módulos del sistema
+const UserModule = require('./src/models/UserModule'); // [NEW] Permisos modulares
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -92,6 +95,7 @@ app.use('/api/therapies', require('./src/routes/therapyRoutes')); // [NEW] Tipos
 app.use('/api/availability', require('./src/routes/availabilityRoutes')); // [NEW] Disponibilidad Horaria
 app.use('/api/reminders', require('./src/routes/reminderRoutes')); // [NEW] Recordatorios Automáticos
 app.use('/api/payments', require('./src/routes/paymentRoutes')); // [NEW] Pagos MercadoPago
+app.use('/api/module-management', require('./src/routes/moduleRoutes')); // [NEW] Gestión de Módulos
 /**
  * ============================================
  * RUTA DE SALUD / PRUEBA
@@ -276,6 +280,12 @@ async function startServer() {
         // ============================================
         const { createDefaultAdmin } = require('./src/utils/seedAdmin');
         await createDefaultAdmin();
+
+        // ============================================
+        // INICIALIZAR MÓDULOS DEL SISTEMA
+        // ============================================
+        const { seedModules } = require('./src/utils/seedModules');
+        await seedModules();
 
         // ============================================
         // INICIAR CRON JOB DE RECORDATORIOS

@@ -46,6 +46,8 @@ const Patient = sequelize.define('Patient', {
     underscored: true
 });
 
+const ClinicalRecord = require('./ClinicalRecord');
+
 // Relación: Un Paciente pertenece a un Usuario
 Patient.belongsTo(User, {
     foreignKey: 'user_id',
@@ -54,6 +56,17 @@ Patient.belongsTo(User, {
 
 User.hasOne(Patient, {
     foreignKey: 'user_id',
+    as: 'patient'
+});
+
+// Relación: Historia Clínica
+Patient.hasMany(ClinicalRecord, {
+    foreignKey: 'patient_id',
+    as: 'clinical_records'
+});
+
+ClinicalRecord.belongsTo(Patient, {
+    foreignKey: 'patient_id',
     as: 'patient'
 });
 

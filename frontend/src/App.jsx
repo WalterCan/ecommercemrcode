@@ -47,10 +47,16 @@ import AdminCalendar from './pages/admin/AdminCalendar';
 import AdminTherapies from './pages/admin/AdminTherapies'; // [NEW]
 import AdminAvailability from './pages/admin/AdminAvailability'; // [NEW]
 import AdminReminders from './pages/admin/AdminReminders'; // [NEW] Recordatorios
+import SuperAdminUserManagement from './pages/admin/SuperAdminUserManagement'; // [NEW] Super Admin
+import AdminTherapyStats from './pages/admin/AdminTherapyStats'; // [NEW] Therapy Stats
+import AdminPatientDetail from './pages/admin/AdminPatientDetail'; // [NEW] Patient Detail
 
 // Components
 import FloatingWhatsApp from './components/layout/FloatingWhatsApp';
 import Footer from './components/layout/Footer';
+import ModuleRoute from './components/common/ModuleRoute'; // [NEW] Module-based routes
+import SuperAdminRoute from './components/common/SuperAdminRoute'; // [NEW] Super Admin routes
+import ModuleNotAvailable from './pages/ModuleNotAvailable'; // [NEW] Module not available page
 
 // Private Route Component (Any Logged In User)
 const PrivateRoute = ({ children }) => {
@@ -78,8 +84,8 @@ const AdminRoute = ({ children }) => {
     // Si no está logueado, al login
     if (!user) return <Navigate to="/login" />;
 
-    // Si está logueado pero NO es admin, al perfil de cliente
-    if (user.role !== 'admin') return <Navigate to="/perfil" />;
+    // Si está logueado pero NO es admin ni super_admin, al perfil de cliente
+    if (user.role !== 'admin' && user.role !== 'super_admin') return <Navigate to="/perfil" />;
 
     return children;
 };
@@ -118,8 +124,31 @@ function App() {
                                         <Route path="/perfil" element={<PrivateRoute><Profile /></PrivateRoute>} />
                                         <Route path="/terminos" element={<Terminos />} />
                                         <Route path="/privacidad" element={<Privacidad />} />
-                                        <Route path="/mis-turnos" element={<PrivateRoute><ClientAppointments /></PrivateRoute>} />
-                                        <Route path="/reservar-turno" element={<PrivateRoute><ReservarTurno /></PrivateRoute>} />
+
+                                        {/* Module-Protected Routes - Appointments */}
+                                        <Route
+                                            path="/mis-turnos"
+                                            element={
+                                                <PrivateRoute>
+                                                    <ModuleRoute moduleCode="appointments" moduleName="Sistema de Turnos">
+                                                        <ClientAppointments />
+                                                    </ModuleRoute>
+                                                </PrivateRoute>
+                                            }
+                                        />
+                                        <Route
+                                            path="/reservar-turno"
+                                            element={
+                                                <PrivateRoute>
+                                                    <ModuleRoute moduleCode="appointments" moduleName="Sistema de Turnos">
+                                                        <ReservarTurno />
+                                                    </ModuleRoute>
+                                                </PrivateRoute>
+                                            }
+                                        />
+
+                                        {/* Module Not Available Page */}
+                                        <Route path="/modulo-no-disponible" element={<ModuleNotAvailable />} />
 
                                         {/* Admin Protected Routes */}
                                         <Route
@@ -188,6 +217,22 @@ function App() {
                                             }
                                         />
                                         <Route
+                                            path="/admin/pacientes/ingresos"
+                                            element={
+                                                <AdminRoute>
+                                                    <AdminTherapyStats />
+                                                </AdminRoute>
+                                            }
+                                        />
+                                        <Route
+                                            path="/admin/pacientes/:id"
+                                            element={
+                                                <AdminRoute>
+                                                    <AdminPatientDetail />
+                                                </AdminRoute>
+                                            }
+                                        />
+                                        <Route
                                             path="/admin/categories/new"
                                             element={
                                                 <AdminRoute>
@@ -231,7 +276,9 @@ function App() {
                                             path="/admin/settings"
                                             element={
                                                 <AdminRoute>
-                                                    <AdminSettings />
+                                                    <ModuleRoute moduleCode="settings" moduleName="Ajustes del Sitio">
+                                                        <AdminSettings />
+                                                    </ModuleRoute>
                                                 </AdminRoute>
                                             }
                                         />
@@ -282,6 +329,16 @@ function App() {
                                                 <AdminRoute>
                                                     <AdminReports />
                                                 </AdminRoute>
+                                            }
+                                        />
+
+                                        {/* Super Admin Routes */}
+                                        <Route
+                                            path="/super-admin/users"
+                                            element={
+                                                <SuperAdminRoute>
+                                                    <SuperAdminUserManagement />
+                                                </SuperAdminRoute>
                                             }
                                         />
 

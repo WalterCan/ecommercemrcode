@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const Module = require('../models/Module');
 const { validateLogin, validateRegister } = require('../middleware/validator');
 const { authLimiter } = require('../middleware/rateLimiter');
 
@@ -16,10 +17,27 @@ router.post('/login', authLimiter, validateLogin, async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        // Buscar usuario
-        const user = await User.findOne({ where: { email } });
+        // Buscar usuario con sus módulos habilitados
+        const user = await User.findOne({
+            where: { email },
+            include: [{
+                model: Module,
+                as: 'modules',
+                through: {
+                    attributes: ['enabled'],
+                    where: { enabled: true },
+                    required: false
+                }
+            }]
+        });
+
         if (!user) {
             return res.status(401).json({ message: 'Credenciales inválidas' });
+        }
+
+        // Verificar si el usuario está activo
+        if (!user.is_active) {
+            return res.status(403).json({ message: 'Esta cuenta ha sido desactivada. Contacta al administrador.' });
         }
 
         // Verificar contraseña
@@ -45,7 +63,8 @@ router.post('/login', authLimiter, validateLogin, async (req, res) => {
                 role: user.role,
                 address: user.address,
                 city: user.city,
-                postal_code: user.postal_code
+                postal_code: user.postal_code,
+                modules: user.modules || []
             }
         });
     } catch (error) {
@@ -64,11 +83,24 @@ router.get('/verify', async (req, res) => {
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
         const user = await User.findByPk(decoded.id, {
-            attributes: { exclude: ['password'] }
+            attributes: { exclude: ['password'] },
+            include: [{
+                model: Module,
+                as: 'modules',
+                through: {
+                    attributes: ['enabled'],
+                    where: { enabled: true },
+                    required: false
+                }
+            }]
         });
 
         if (!user) {
             return res.status(401).json({ message: 'Usuario no encontrado' });
+        }
+
+        if (!user.is_active) {
+            return res.status(403).json({ message: 'Cuenta desactivada' });
         }
 
         res.json({ user });

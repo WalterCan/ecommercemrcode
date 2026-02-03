@@ -9,7 +9,7 @@ const AdminReviews = () => {
 
     const fetchReviews = async () => {
         try {
-            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
             const res = await fetch(`${baseUrl}/reviews/admin`);
             const data = await res.json();
             setReviews(data);
@@ -26,7 +26,7 @@ const AdminReviews = () => {
 
     const handleApprove = async (id) => {
         try {
-            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
             const res = await fetch(`${baseUrl}/reviews/${id}/approve`, { method: 'PUT' });
             if (res.ok) {
                 showToast('Reseña aprobada', 'success');

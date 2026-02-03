@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import StockBadge from '../../components/StockBadge';
 import { formatImageUrl } from '../../utils/imageConfig';
+import AdminLayout from '../../components/admin/AdminLayout';
 
 /**
  * AdminStockAlerts - Página de alertas de stock crítico y bajo
@@ -19,7 +20,7 @@ const AdminStockAlerts = () => {
     const [filter, setFilter] = useState('all'); // 'all', 'critical', 'low'
 
     useEffect(() => {
-        if (!user || user.role !== 'admin') {
+        if (!user || (user.role !== 'admin' && user.role !== 'super_admin')) {
             navigate('/');
             return;
         }
@@ -29,7 +30,7 @@ const AdminStockAlerts = () => {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
             const token = localStorage.getItem('token');
 
             // Obtener alertas
@@ -71,8 +72,8 @@ const AdminStockAlerts = () => {
     }
 
     return (
-        <div className="min-h-screen bg-paper">
-            <div className="container mx-auto px-4 py-8">
+        <AdminLayout title="Alertas de Stock">
+            <div className="p-8">
                 {/* Header */}
                 <div className="mb-8">
                     <h1 className="text-3xl font-serif text-slate-800 mb-2">Alertas de Stock</h1>
@@ -136,8 +137,8 @@ const AdminStockAlerts = () => {
                         <button
                             onClick={() => setFilter('all')}
                             className={`px-4 py-2 rounded-full font-medium transition-colors ${filter === 'all'
-                                    ? 'bg-earth text-white'
-                                    : 'bg-beige text-slate-700 hover:bg-beige-dark'
+                                ? 'bg-earth text-white'
+                                : 'bg-beige text-slate-700 hover:bg-beige-dark'
                                 }`}
                         >
                             Todos ({products.length})
@@ -145,8 +146,8 @@ const AdminStockAlerts = () => {
                         <button
                             onClick={() => setFilter('critical')}
                             className={`px-4 py-2 rounded-full font-medium transition-colors ${filter === 'critical'
-                                    ? 'bg-red-600 text-white'
-                                    : 'bg-red-100 text-red-800 hover:bg-red-200'
+                                ? 'bg-red-600 text-white'
+                                : 'bg-red-100 text-red-800 hover:bg-red-200'
                                 }`}
                         >
                             Críticos ({stats.critical})
@@ -154,8 +155,8 @@ const AdminStockAlerts = () => {
                         <button
                             onClick={() => setFilter('low')}
                             className={`px-4 py-2 rounded-full font-medium transition-colors ${filter === 'low'
-                                    ? 'bg-yellow-600 text-white'
-                                    : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
+                                ? 'bg-yellow-600 text-white'
+                                : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
                                 }`}
                         >
                             Bajos ({stats.low})
@@ -261,7 +262,7 @@ const AdminStockAlerts = () => {
                     )}
                 </div>
             </div>
-        </div>
+        </AdminLayout>
     );
 };
 

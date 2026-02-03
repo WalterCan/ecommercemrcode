@@ -1,6 +1,8 @@
 const { Op } = require('sequelize');
 const Order = require('../models/Order');
 const Product = require('../models/Product');
+const Appointment = require('../models/Appointment');
+const TherapyType = require('../models/TherapyType');
 const sequelize = require('../config/db');
 
 /**
@@ -77,8 +79,6 @@ exports.getSalesChart = async (req, res) => {
 
 /**
  * Obtener Top 5 Productos más vendidos
- * Nota: Como items es JSON, procesamos esto en memoria por simplicidad
- * Idealmente debería normalizarse la BD para escalar, pero sirve para V1.
  */
 exports.getTopProducts = async (req, res) => {
     try {
@@ -165,5 +165,104 @@ exports.getCategoryStats = async (req, res) => {
     } catch (error) {
         console.error('Error fetching category stats:', error);
         res.status(500).json({ message: 'Error al obtener estadísticas de categorías' });
+    }
+};
+
+/**
+ * Obtener estadísticas de ingresos por terapias
+ */
+exports.getTherapyStats = async (req, res) => {
+    try {
+        // Ingresos Totales de terapias (Confirmadas o Completadas)
+        const totalIncome = await Appointment.sum('paid_amount', {
+            where: {
+                status: { [Op.in]: ['confirmed', 'completed'] }
+            }
+        });
+
+        // Ingresos Pendientes (Scheduled con monto por pagar)
+        const pendingIncomeRaw = await Appointment.findAll({
+            where: {
+                status: 'scheduled'
+            },
+            attributes: [
+                [sequelize.literal('SUM(price_amount - paid_amount)'), 'pending']
+            ],
+            raw: true
+        });
+        const pendingIncome = pendingIncomeRaw[0]?.pending || 0;
+
+        // Cantidad de sesiones realizadas/por realizar
+        const totalSessions = await Appointment.count({
+            where: {
+                status: { [Op.in]: ['scheduled', 'confirmed', 'completed'] }
+            }
+        });
+
+        // Desglose por tipo de terapia
+        const therapyTypeStats = await Appointment.findAll({
+            attributes: [
+                'therapy_type_id',
+                [sequelize.fn('SUM', sequelize.col('paid_amount')), 'income'],
+                [sequelize.fn('COUNT', sequelize.col('Appointment.id')), 'count']
+            ],
+            include: [{
+                model: TherapyType,
+                as: 'therapy',
+                attributes: ['name']
+            }],
+            where: {
+                status: { [Op.in]: ['confirmed', 'completed'] },
+                therapy_type_id: { [Op.ne]: null }
+            },
+            group: ['therapy_type_id', 'therapy.id', 'therapy.name']
+        });
+
+        const formattedTherapyStats = therapyTypeStats.map(stat => ({
+            name: stat.therapy ? stat.therapy.name : 'Desconocida',
+            income: parseFloat(stat.get('income') || 0),
+            count: parseInt(stat.get('count') || 0)
+        }));
+
+        res.json({
+            totalIncome: parseFloat(totalIncome || 0),
+            pendingIncome: parseFloat(pendingIncome || 0),
+            totalSessions,
+            byType: formattedTherapyStats
+        });
+
+    } catch (error) {
+        console.error('Error fetching therapy stats:', error);
+        res.status(500).json({ message: error.message || 'Error al obtener estadísticas de terapias' });
+    }
+};
+
+/**
+ * Gráfico de ingresos por terapias (Últimos 30 días)
+ */
+exports.getTherapySalesChart = async (req, res) => {
+    try {
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+        const incomeData = await Appointment.findAll({
+            attributes: [
+                [sequelize.fn('DATE', sequelize.col('date')), 'date'],
+                [sequelize.fn('SUM', sequelize.col('paid_amount')), 'total'],
+                [sequelize.fn('COUNT', sequelize.col('id')), 'count']
+            ],
+            where: {
+                date: { [Op.gte]: thirtyDaysAgo },
+                status: { [Op.in]: ['confirmed', 'completed'] }
+            },
+            group: [sequelize.fn('DATE', sequelize.col('date'))],
+            order: [[sequelize.fn('DATE', sequelize.col('date')), 'ASC']],
+            raw: true
+        });
+
+        res.json(incomeData);
+    } catch (error) {
+        console.error('Error fetching therapy income chart:', error);
+        res.status(500).json({ message: error.message || 'Error al obtener gráfico de ingresos de terapias' });
     }
 };

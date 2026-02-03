@@ -46,10 +46,16 @@ const getTherapies = async (req, res) => {
  */
 const getMyTherapies = async (req, res) => {
     try {
-        const therapies = await TherapyType.findAll({
-            where: { user_id: req.user.id },
+        const queryOptions = {
             order: [['created_at', 'DESC']]
-        });
+        };
+
+        // Si no es super admin, filtrar por su ID
+        if (req.user.role !== 'super_admin') {
+            queryOptions.where = { user_id: req.user.id };
+        }
+
+        const therapies = await TherapyType.findAll(queryOptions);
 
         res.json(therapies);
     } catch (error) {
@@ -66,8 +72,13 @@ const updateTherapy = async (req, res) => {
         const { id } = req.params;
         const { name, description, duration, price, active } = req.body;
 
+        const queryParams = { id };
+        if (req.user.role !== 'super_admin') {
+            queryParams.user_id = req.user.id;
+        }
+
         const therapy = await TherapyType.findOne({
-            where: { id, user_id: req.user.id }
+            where: queryParams
         });
 
         if (!therapy) {
@@ -89,8 +100,13 @@ const deleteTherapy = async (req, res) => {
     try {
         const { id } = req.params;
 
+        const queryParams = { id };
+        if (req.user.role !== 'super_admin') {
+            queryParams.user_id = req.user.id;
+        }
+
         const therapy = await TherapyType.findOne({
-            where: { id, user_id: req.user.id }
+            where: queryParams
         });
 
         if (!therapy) {

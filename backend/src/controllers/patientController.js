@@ -1,5 +1,6 @@
 const Patient = require('../models/Patient');
 const User = require('../models/User');
+const ClinicalRecord = require('../models/ClinicalRecord');
 
 // Obtener todos los pacientes (Admin)
 const getPatients = async (req, res) => {
@@ -18,7 +19,13 @@ const getPatients = async (req, res) => {
 const getPatientById = async (req, res) => {
     try {
         const patient = await Patient.findByPk(req.params.id, {
-            include: [{ model: User, as: 'user', attributes: ['name', 'email', 'phone', 'address'] }]
+            include: [
+                { model: User, as: 'user', attributes: ['name', 'email', 'phone', 'address'] },
+                { model: ClinicalRecord, as: 'clinical_records', required: false }
+            ],
+            order: [
+                [{ model: ClinicalRecord, as: 'clinical_records' }, 'date', 'DESC']
+            ]
         });
         if (!patient) return res.status(404).json({ error: 'Paciente no encontrado' });
         res.json(patient);
@@ -98,9 +105,65 @@ const createPatient = async (req, res) => {
     }
 };
 
+// Agregar Nota de Evolución (Historia Clínica)
+const addClinicalRecord = async (req, res) => {
+    try {
+        const { id } = req.params; // Patient ID
+        const { date, notes, attachments } = req.body;
+
+        const record = await ClinicalRecord.create({
+            patient_id: id,
+            date,
+            notes,
+            attachments
+        });
+
+        res.status(201).json(record);
+    } catch (error) {
+        console.error('Error adding clinical record:', error);
+        res.status(500).json({ error: 'Error al agregar nota' });
+    }
+};
+
+// Editar Nota de Evolución
+const updateClinicalRecord = async (req, res) => {
+    try {
+        const { recordId } = req.params;
+        const { date, notes, attachments } = req.body;
+
+        const record = await ClinicalRecord.findByPk(recordId);
+        if (!record) return res.status(404).json({ error: 'Nota no encontrada' });
+
+        await record.update({ date, notes, attachments });
+        res.json(record);
+    } catch (error) {
+        console.error('Error updating clinical record:', error);
+        res.status(500).json({ error: 'Error al actualizar nota' });
+    }
+};
+
+// Eliminar Nota de Evolución
+const deleteClinicalRecord = async (req, res) => {
+    try {
+        const { recordId } = req.params;
+        const record = await ClinicalRecord.findByPk(recordId);
+
+        if (!record) return res.status(404).json({ error: 'Nota no encontrada' });
+
+        await record.destroy();
+        res.json({ message: 'Nota eliminada' });
+    } catch (error) {
+        console.error('Error deleting clinical record:', error);
+        res.status(500).json({ error: 'Error al eliminar nota' });
+    }
+};
+
 module.exports = {
     getPatients,
     getPatientById,
     upsertPatient,
-    createPatient
+    createPatient,
+    addClinicalRecord,
+    updateClinicalRecord,
+    deleteClinicalRecord
 };

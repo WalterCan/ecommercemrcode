@@ -44,7 +44,7 @@ const User = sequelize.define('User', {
         allowNull: true
     },
     role: {
-        type: DataTypes.ENUM('admin', 'customer'),
+        type: DataTypes.ENUM('super_admin', 'admin', 'customer'),
         defaultValue: 'customer'
     },
     reset_password_token: {
@@ -54,6 +54,10 @@ const User = sequelize.define('User', {
     reset_password_expires: {
         type: DataTypes.DATE,
         allowNull: true
+    },
+    is_active: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true
     }
 }, {
     tableName: 'users',

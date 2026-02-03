@@ -17,7 +17,7 @@ const AdminCoupons = () => {
 
     const fetchCoupons = async () => {
         try {
-            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
             const res = await fetch(`${baseUrl}/coupons`);
             const data = await res.json();
             setCoupons(data);
@@ -35,7 +35,7 @@ const AdminCoupons = () => {
     const handleCreate = async (e) => {
         e.preventDefault();
         try {
-            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
 
             // Limpiar datos: convertir campos vacíos a null
             const cleanedCoupon = {

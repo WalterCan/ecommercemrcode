@@ -8,6 +8,13 @@ export default defineConfig({
     server: {
         host: true,
         port: 5173,
+        proxy: {
+            '/api': {
+                target: 'http://localhost:3002',
+                changeOrigin: true,
+                secure: false
+            }
+        },
         watch: {
             usePolling: true, // Importante para Docker en Windows
             ignored: ['**/node_modules/**', '**/dist/**', '**/.git/**']

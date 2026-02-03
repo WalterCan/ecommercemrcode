@@ -94,7 +94,7 @@ const Header = ({ onSearch }) => {
                     <Link to="/" className="text-xs font-bold uppercase tracking-widest text-slate-600 hover:text-earth transition-colors">Inicio</Link>
                     <Link to="/productos" className="text-xs font-bold uppercase tracking-widest text-slate-600 hover:text-earth transition-colors">Productos</Link>
                     <Link to="/nosotros" className="text-xs font-bold uppercase tracking-widest text-slate-600 hover:text-earth transition-colors">Nosotros</Link>
-                    {user?.role === 'admin' && (
+                    {(user?.role === 'admin' || user?.role === 'super_admin') && (
                         <Link
                             to="/admin"
                             className="text-xs font-bold uppercase tracking-widest text-earth flex items-center gap-1"
@@ -201,7 +201,7 @@ const Header = ({ onSearch }) => {
 
                     {/* Botón de Cuenta */}
                     <Link
-                        to={user ? (user.role === 'admin' ? '/admin' : '/perfil') : '/login'}
+                        to={user ? ((user.role === 'admin' || user.role === 'super_admin') ? '/admin' : '/perfil') : '/login'}
                         className="p-2 text-slate-600 hover:text-earth transition-colors"
                         title={user ? `Hola, ${user.name || 'Usuario'}` : 'Iniciar Sesión'}
                     >

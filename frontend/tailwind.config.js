@@ -49,6 +49,11 @@ export default {
                     dark: 'var(--color-secondary)',
                     light: 'var(--color-secondary)'
                 },
+                primary: {
+                    DEFAULT: 'var(--color-primary)',
+                    dark: 'var(--color-primary)',
+                    light: 'var(--color-primary)'
+                },
                 paper: 'var(--color-bg-primary)', // Color de fondo principal dinámico
             },
             fontFamily: {

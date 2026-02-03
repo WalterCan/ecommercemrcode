@@ -11,6 +11,7 @@ const Profile = () => {
     const [orders, setOrders] = useState([]);
     const [loadingOrders, setLoadingOrders] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [userModules, setUserModules] = useState([]);
     const [formData, setFormData] = useState({
         name: user?.name || '',
         email: user?.email || '',
@@ -25,6 +26,7 @@ const Profile = () => {
     useEffect(() => {
         fetchProfile();
         fetchOrders();
+        fetchUserModules();
     }, []);
 
     const fetchProfile = async () => {
@@ -69,6 +71,22 @@ const Profile = () => {
             console.error('Error fetching orders:', error);
         } finally {
             setLoadingOrders(false);
+        }
+    };
+
+    const fetchUserModules = async () => {
+        try {
+            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${baseUrl}/api/module-management/my-modules`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setUserModules(data);
+            }
+        } catch (error) {
+            console.error('Error fetching modules:', error);
         }
     };
 
@@ -249,6 +267,30 @@ const Profile = () => {
                                         {saving ? 'Guardando...' : 'Guardar Cambios'}
                                     </button>
                                 </form>
+                            </div>
+
+                            {/* Módulos Activos */}
+                            <div className="bg-white p-8 rounded-3xl shadow-sm border border-beige-dark/10 mt-6">
+                                <h2 className="text-xl font-serif text-earth font-bold mb-4">📦 Mis Módulos Activos</h2>
+                                {userModules.length > 0 ? (
+                                    <div className="flex flex-wrap gap-2">
+                                        {userModules.map(module => (
+                                            <span
+                                                key={module.id}
+                                                className="px-3 py-2 bg-green-100 text-green-800 rounded-full text-sm font-medium flex items-center gap-2"
+                                                title={module.description}
+                                            >
+                                                <span>{module.icon}</span>
+                                                <span>{module.name}</span>
+                                            </span>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p className="text-slate-500 text-sm">No tienes módulos habilitados actualmente.</p>
+                                )}
+                                <p className="text-xs text-slate-400 mt-4">
+                                    Los módulos determinan qué funcionalidades puedes acceder en la plataforma.
+                                </p>
                             </div>
                         </div>
 

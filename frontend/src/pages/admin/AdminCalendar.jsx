@@ -51,7 +51,7 @@ const AdminCalendar = () => {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
-            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
 
             const startStr = format(startOfWeek(currentDate, { weekStartsOn: 1 }), 'yyyy-MM-dd');
             const endStr = format(addDays(startOfWeek(currentDate, { weekStartsOn: 1 }), 6), 'yyyy-MM-dd');
@@ -72,7 +72,7 @@ const AdminCalendar = () => {
     const fetchResources = async () => {
         try {
             const token = localStorage.getItem('token');
-            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
             const patRes = await fetch(`${baseUrl}/patients`, { headers: { 'Authorization': `Bearer ${token}` } });
             if (patRes.ok) setPatients(await patRes.json());
 
@@ -121,7 +121,7 @@ const AdminCalendar = () => {
         e.preventDefault();
         try {
             const token = localStorage.getItem('token');
-            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
 
             const payload = {
                 date: selectedSlot.date,

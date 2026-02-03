@@ -2,7 +2,15 @@ const express = require('express');
 const router = express.Router();
 const { protect, admin } = require('../middleware/authMiddleware');
 const { checkLicense } = require('../middleware/licenseMiddleware');
-const { getPatients, getPatientById, upsertPatient, createPatient } = require('../controllers/patientController');
+const {
+    getPatients,
+    getPatientById,
+    upsertPatient,
+    createPatient,
+    addClinicalRecord,
+    updateClinicalRecord,
+    deleteClinicalRecord
+} = require('../controllers/patientController');
 
 // Todas las rutas requieren Liciencia Activa + Autenticación
 router.use(protect);
@@ -17,5 +25,10 @@ router.post('/create', admin, (req, res, next) => {
 router.get('/', admin, getPatients); // Listar todos (Admin)
 router.get('/:id', admin, getPatientById); // Ver detalle (Admin)
 router.post('/', upsertPatient); // Crear/Actualizar Ficha (Existente User)
+
+// Historia Clínica
+router.post('/:id/history', admin, addClinicalRecord); // Agregar nota
+router.put('/history/:recordId', admin, updateClinicalRecord); // Editar nota
+router.delete('/history/:recordId', admin, deleteClinicalRecord); // Eliminar nota
 
 module.exports = router;

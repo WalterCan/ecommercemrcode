@@ -172,7 +172,7 @@ const AdminSettings = () => {
 
     const fetchSettings = async () => {
         try {
-            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
             const response = await fetch(`${baseUrl}/settings`);
             const data = await response.json();
 
@@ -273,7 +273,7 @@ const AdminSettings = () => {
         e.preventDefault();
         setSaving(true);
         try {
-            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
 
             const formData = new FormData();
             formData.append('data', JSON.stringify(settings));
@@ -486,7 +486,7 @@ const AdminSettings = () => {
                                                         {(logoPreview || settings.site_logo_url) ? (
                                                             <>
                                                                 <img
-                                                                    src={logoPreview || (settings.site_logo_url?.startsWith('http') ? settings.site_logo_url : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:3001'}${settings.site_logo_url}`)}
+                                                                    src={logoPreview || (settings.site_logo_url?.startsWith('http') ? settings.site_logo_url : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:3002'}${settings.site_logo_url}`)}
                                                                     alt="Logo Preview"
                                                                     className="w-full h-full object-contain"
                                                                 />
@@ -1282,7 +1282,7 @@ const AdminSettings = () => {
                                                         <div className="h-32 rounded-xl overflow-hidden border border-beige-dark/10 bg-white">
                                                             {(heroImagePreview || settings.hero_image_url) ? (
                                                                 <img
-                                                                    src={heroImagePreview || (settings.hero_image_url?.startsWith('http') ? settings.hero_image_url : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:3001'}${settings.hero_image_url}`)}
+                                                                    src={heroImagePreview || (settings.hero_image_url?.startsWith('http') ? settings.hero_image_url : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:3002'}${settings.hero_image_url}`)}
                                                                     alt="Hero Preview"
                                                                     className="w-full h-full object-cover"
                                                                 />
@@ -1454,7 +1454,7 @@ const AdminSettings = () => {
                                                         <div className="aspect-[4/5] rounded-2xl overflow-hidden border border-beige-dark/10 bg-white mb-4">
                                                             {(aboutImagePreview || settings.about_mission_image_url) ? (
                                                                 <img
-                                                                    src={aboutImagePreview || (settings.about_mission_image_url?.startsWith('http') ? settings.about_mission_image_url : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:3001'}${settings.about_mission_image_url}`)}
+                                                                    src={aboutImagePreview || (settings.about_mission_image_url?.startsWith('http') ? settings.about_mission_image_url : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:3002'}${settings.about_mission_image_url}`)}
                                                                     alt="Mission Preview"
                                                                     className="w-full h-full object-cover"
                                                                 />

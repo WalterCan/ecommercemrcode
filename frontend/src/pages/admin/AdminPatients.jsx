@@ -20,7 +20,7 @@ const AdminPatients = () => {
     const fetchPatients = async () => {
         try {
             const token = localStorage.getItem('token');
-            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
 
             const response = await fetch(`${baseUrl}/patients`, {
                 headers: { 'Authorization': `Bearer ${token}` }
@@ -49,7 +49,7 @@ const AdminPatients = () => {
         e.preventDefault();
         try {
             const token = localStorage.getItem('token');
-            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
 
             const response = await fetch(`${baseUrl}/patients/create`, {
                 method: 'POST',
@@ -183,7 +183,10 @@ const AdminPatients = () => {
                                             <div className="text-xs text-slate-400">{patient.user?.email}</div>
                                         </td>
                                         <td className="p-4">
-                                            <button className="text-earth hover:text-earth-dark font-medium text-sm">
+                                            <button
+                                                onClick={() => window.location.href = `/admin/pacientes/${patient.id}`}
+                                                className="text-earth hover:text-earth-dark font-medium text-sm"
+                                            >
                                                 Ver Ficha
                                             </button>
                                         </td>
