@@ -3,6 +3,7 @@ const router = express.Router();
 const Product = require('../models/Product');
 const Category = require('../models/Category');
 const { validateProduct } = require('../middleware/validator');
+const { protect, admin } = require('../middleware/authMiddleware');
 
 /**
  * Rutas de Productos
@@ -100,7 +101,7 @@ const upload = require('../middleware/uploadMiddleware');
 // ... (existing GET routes)
 
 // Creación de Producto
-router.post('/', upload.single('image'), validateProduct, async (req, res) => {
+router.post('/', protect, admin, upload.single('image'), validateProduct, async (req, res) => {
     try {
         const productData = req.body;
         if (req.file) {
@@ -115,7 +116,7 @@ router.post('/', upload.single('image'), validateProduct, async (req, res) => {
 });
 
 // Actualización de Producto
-router.put('/:id', upload.single('image'), validateProduct, async (req, res) => {
+router.put('/:id', protect, admin, upload.single('image'), validateProduct, async (req, res) => {
     try {
         const product = await Product.findByPk(req.params.id);
         if (!product) return res.status(404).json({ message: 'Producto no encontrado' });
@@ -133,7 +134,7 @@ router.put('/:id', upload.single('image'), validateProduct, async (req, res) => 
 });
 
 // Eliminación de Producto
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', protect, admin, async (req, res) => {
     try {
         const product = await Product.findByPk(req.params.id);
         if (!product) return res.status(404).json({ message: 'Producto no encontrado' });

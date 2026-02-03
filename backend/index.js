@@ -1,132 +1,25 @@
-const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
-require('dotenv').config();
-const path = require('path');
+const app = require('./src/app');
 const sequelize = require('./src/config/db');
+require('dotenv').config();
 
-// ============================================
-// IMPORTACIÓN DE RUTAS
-// ============================================
-const productRoutes = require('./src/routes/productRoutes');
-const authRoutes = require('./src/routes/authRoutes');
-const orderRoutes = require('./src/routes/orderRoutes');
-const whatsappRoutes = require('./src/routes/whatsappRoutes');
-const settingRoutes = require('./src/routes/settingRoutes');
-const couponRoutes = require('./src/routes/couponRoutes');
-const reviewRoutes = require('./src/routes/reviewRoutes');
-const userRoutes = require('./src/routes/userRoutes');
-const statsRoutes = require('./src/routes/statsRoutes'); // Rutas de estadísticas
-const passwordRoutes = require('./src/routes/passwordRoutes');
-const reportRoutes = require('./src/routes/reportRoutes');
-const categoryRoutes = require('./src/routes/categoryRoutes');
-const uploadRoutes = require('./src/routes/uploadRoutes');
-const patientRoutes = require('./src/routes/patientRoutes'); // [NEW]
+const PORT = process.env.PORT || 3001;
 
 // ============================================
 // IMPORTACIÓN DE MODELOS (para sincronización)
 // ============================================
+// Aunque app.js carga rutas y controladores (y por ende modelos), 
+// mantenemos esto para asegurar orden de carga de asociaciones si fuera necesario.
 const Category = require('./src/models/Category');
 const Product = require('./src/models/Product');
 const Order = require('./src/models/Order');
 const Setting = require('./src/models/Setting');
 const Coupon = require('./src/models/Coupon');
 const Review = require('./src/models/Review');
-const Patient = require('./src/models/Patient'); // [NEW] Consultorio
-const Appointment = require('./src/models/Appointment'); // [NEW] Consultorio
-const TherapyType = require('./src/models/TherapyType'); // [NEW] Tipos de terapia
-const Module = require('./src/models/Module'); // [NEW] Módulos del sistema
-const UserModule = require('./src/models/UserModule'); // [NEW] Permisos modulares
-
-const app = express();
-const PORT = process.env.PORT || 3001;
-
-// ============================================
-// MIDDLEWARES
-// ============================================
-// Seguridad con Helmet
-app.use(helmet({
-    crossOriginResourcePolicy: { policy: "cross-origin" },
-    contentSecurityPolicy: false // Deshabilitado para desarrollo, habilitar en producción
-}));
-
-// CORS configurado
-const allowedOrigins = process.env.ALLOWED_ORIGINS
-    ? process.env.ALLOWED_ORIGINS.split(',')
-    : ['http://localhost:5173', 'http://localhost:5175', 'http://localhost:5176'];
-
-app.use(cors({
-    origin: function (origin, callback) {
-        // Permitir requests sin origin (como mobile apps o curl)
-        if (!origin) return callback(null, true);
-
-        if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
-            callback(null, true);
-        } else {
-            callback(new Error('No permitido por CORS'));
-        }
-    },
-    credentials: true
-}));
-
-app.use(express.json());
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-// ============================================
-// REGISTRO DE RUTAS
-// ============================================
-app.use('/api/products', productRoutes);
-app.use('/api/auth', authRoutes);
-app.use('/api/password', passwordRoutes);
-app.use('/api/orders', orderRoutes);
-app.use('/api/whatsapp', whatsappRoutes);
-app.use('/api/upload', uploadRoutes); // Rutas de subida de imágenes
-app.use('/api/settings', settingRoutes);
-app.use('/api/stats', statsRoutes); // Rutas de estadísticas
-app.use('/api/coupons', couponRoutes);
-app.use('/api/reviews', reviewRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/reports', reportRoutes);
-app.api_routes = app.api_routes || {};
-app.use('/api/categories', categoryRoutes);
-app.use('/api/patients', patientRoutes); // [NEW] Consultorio
-app.use('/api/appointments', require('./src/routes/appointmentRoutes')); // [NEW] Agenda
-app.use('/api/therapies', require('./src/routes/therapyRoutes')); // [NEW] Tipos de Terapia
-app.use('/api/availability', require('./src/routes/availabilityRoutes')); // [NEW] Disponibilidad Horaria
-app.use('/api/reminders', require('./src/routes/reminderRoutes')); // [NEW] Recordatorios Automáticos
-app.use('/api/payments', require('./src/routes/paymentRoutes')); // [NEW] Pagos MercadoPago
-app.use('/api/module-management', require('./src/routes/moduleRoutes')); // [NEW] Gestión de Módulos
-/**
- * ============================================
- * RUTA DE SALUD / PRUEBA
- * ============================================
- */
-app.get('/api/health', (req, res) => {
-    res.json({
-        status: 'ok',
-        message: 'Servidor E-commerce Perfumes funcionando',
-        timestamp: new Date(),
-        services: {
-            database: 'MySQL',
-            payments: 'MercadoPago',
-            notifications: 'WhatsApp'
-        }
-    });
-});
-
-// ============================================
-// MANEJADOR DE RUTAS NO ENCONTRADAS
-// ============================================
-// Mejor práctica - Usar el manejador al final
-app.use((req, res) => {
-    res.status(404).json({
-        success: false,
-        error: 'Ruta no encontrada',
-        path: req.originalUrl,
-        method: req.method,
-        timestamp: new Date()
-    });
-});
+const Patient = require('./src/models/Patient');
+const Appointment = require('./src/models/Appointment');
+const TherapyType = require('./src/models/TherapyType');
+const Module = require('./src/models/Module');
+const UserModule = require('./src/models/UserModule');
 
 // ============================================
 // INICIO DEL SERVIDOR
@@ -243,28 +136,20 @@ async function startServer() {
             { key: 'about_cta_title', value: '¿Listo para comenzar tu ritual?', description: 'Título del CTA final' },
             { key: 'about_cta_button_text', value: 'Ver Colección', description: 'Texto del botón del CTA final' },
             { key: 'about_cta_button_link', value: '/productos', description: 'Enlace del botón del CTA final' },
-
             // Colección de Productos
             { key: 'products_empty_icon', value: '🕯️', description: 'Icono (emoji) cuando no hay productos' },
             { key: 'products_empty_image_url', value: '', description: 'Imagen/SVG cuando no hay productos' },
             { key: 'products_empty_text', value: 'No encontramos objetos para esta vibración actualmente.', description: 'Mensaje cuando no hay productos' },
             { key: 'products_detail_reviews_color', value: '#8A9A5B', description: 'Color de las estrellas de reseñas' },
-
             // Textos Legales
             { key: 'terms_text', value: 'Aquí van los términos y condiciones de tu tienda. Puedes editarlos desde el panel de administración.', description: 'Texto de Términos y Condiciones' },
             { key: 'privacy_text', value: 'Aquí va la política de privacidad de tu tienda. Puedes editarla desde el panel de administración.', description: 'Texto de Política de Privacidad' },
-
             // Nosotros - Imágenes de Pilares
             { key: 'about_value_1_image_url', value: '', description: 'Imagen para pilar 1' },
             { key: 'about_value_2_image_url', value: '', description: 'Imagen para pilar 2' },
             { key: 'about_value_3_image_url', value: '', description: 'Imagen para pilar 3' },
-
-            { key: 'about_value_3_image_url', value: '', description: 'Imagen para pilar 3' },
-
             // Licencia (SaaS)
             { key: 'license_key', value: '', description: 'Clave de licencia para activar módulos Premium (Clínica)' },
-
-            // Configuración de Email (SMTP)
         ];
 
         for (const setting of defaultSettings) {
@@ -294,7 +179,6 @@ async function startServer() {
             require('./src/jobs/reminderCron');
             console.log('✅ Cron de recordatorios iniciado');
         }
-
 
     } catch (error) {
         console.error('❌ Error durante la sincronización o inicio del servidor:', error);
