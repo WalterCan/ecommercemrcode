@@ -14,6 +14,11 @@ const requireModule = (moduleCode) => {
                 return next();
             }
 
+            // Clientes tienen acceso implícito al módulo de turnos
+            if (req.user && req.user.role === 'customer' && moduleCode === 'appointments') {
+                return next();
+            }
+
             // Buscar el módulo
             const module = await Module.findOne({
                 where: {

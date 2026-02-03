@@ -31,6 +31,13 @@ const ModuleRoute = ({ children, moduleCode, moduleName }) => {
             return;
         }
 
+        // Clientes siempre tienen acceso a modulo de turnos (appointments)
+        if (user.role === 'customer' && moduleCode === 'appointments') {
+            setHasAccess(true);
+            setChecking(false);
+            return;
+        }
+
         // Verificar si el usuario tiene el módulo habilitado
         try {
             const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';

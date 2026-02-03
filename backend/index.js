@@ -20,6 +20,7 @@ const Appointment = require('./src/models/Appointment');
 const TherapyType = require('./src/models/TherapyType');
 const Module = require('./src/models/Module');
 const UserModule = require('./src/models/UserModule');
+const AuditLog = require('./src/models/AuditLog'); // [NEW] Auditoría
 
 // ============================================
 // INICIO DEL SERVIDOR

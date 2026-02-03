@@ -8,18 +8,24 @@ const reminderService = require('../services/reminderService');
 // Obtener turnos por rango de fechas (para el calendario)
 const getAppointments = async (req, res) => {
     try {
-        const { start, end } = req.query;
+        const { start, end, patient_id } = req.query;
         // Validar fechas
         if (!start || !end) {
             return res.status(400).json({ error: 'Rango de fechas requerido' });
         }
 
+        const where = {
+            date: {
+                [Op.between]: [start, end]
+            }
+        };
+
+        if (patient_id) {
+            where.patient_id = patient_id;
+        }
+
         const appointments = await Appointment.findAll({
-            where: {
-                date: {
-                    [Op.between]: [start, end]
-                }
-            },
+            where,
             include: [
                 {
                     model: Patient,
@@ -332,20 +338,38 @@ const bookAppointment = async (req, res) => {
             return res.status(404).json({ error: 'Tipo de terapia no encontrado' });
         }
 
-        // Validar que el usuario tenga email y teléfono para recibir recordatorios
-        if (!req.user.email || !req.user.phone) {
+        // Buscar o crear paciente
+        let patient = await Patient.findOne({ where: { user_id: req.user.id } });
+
+        // Validar campos obligatorios del usuario
+        const missingUserFields = {
+            name: !req.user.name,
+            email: !req.user.email,
+            phone: !req.user.phone
+        };
+
+        // Validar campos obligatorios del paciente
+        const missingPatientFields = {
+            dni: !patient?.dni,
+            birth_date: !patient?.birth_date
+        };
+
+        const hasMissingFields = Object.values(missingUserFields).some(v => v) ||
+            Object.values(missingPatientFields).some(v => v);
+
+        if (hasMissingFields) {
             return res.status(400).json({
-                error: 'Debes completar tu email y teléfono en tu perfil antes de reservar un turno',
+                error: 'Debes completar tu perfil antes de reservar un turno',
                 missingFields: {
-                    email: !req.user.email,
-                    phone: !req.user.phone
+                    ...missingUserFields,
+                    ...missingPatientFields
                 }
             });
         }
 
-        // Buscar o crear paciente
-        let patient = await Patient.findOne({ where: { user_id: req.user.id } });
         if (!patient) {
+            // Esto no debería pasar si llegamos aquí por la validación de arriba, 
+            // pero lo dejamos por seguridad o por si en el futuro algunos campos fueran opcionales.
             patient = await Patient.create({
                 user_id: req.user.id,
                 first_name: req.user.name || 'Cliente',
@@ -431,7 +455,7 @@ const confirmAppointment = async (req, res) => {
 const markBalanceAsPaid = async (req, res) => {
     try {
         const { id } = req.params;
-        const { amount } = req.body; // Opcional: Monto específico a pagar
+        const { amount, payment_method } = req.body; // Opcional: Monto específico a pagar y método
 
         const appointment = await Appointment.findByPk(id);
 
@@ -457,11 +481,11 @@ const markBalanceAsPaid = async (req, res) => {
             } else {
                 appointment.payment_status = 'partial';
             }
-        } else {
-            // Comportamiento anterior: Pagar todo el saldo restante
-            appointment.paid_amount = price;
-            appointment.payment_status = 'paid';
-            newPaid = price;
+        }
+
+        // Actualizar método de pago si se proporciona (útil para registrar cobros manuales)
+        if (payment_method) {
+            appointment.payment_method = payment_method;
         }
 
         await appointment.save();

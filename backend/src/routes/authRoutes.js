@@ -5,6 +5,7 @@ const User = require('../models/User');
 const Module = require('../models/Module');
 const { validateLogin, validateRegister } = require('../middleware/validator');
 const { authLimiter } = require('../middleware/rateLimiter');
+const auditService = require('../services/auditService');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'holistica_secret_key_2025';
 
@@ -52,6 +53,9 @@ router.post('/login', authLimiter, validateLogin, async (req, res) => {
             JWT_SECRET,
             { expiresIn: '30d' }
         );
+
+        // Audit Log
+        await auditService.log(req, 'LOGIN', 'User', user.id, { email: user.email, role: user.role });
 
         res.json({
             token,
@@ -134,6 +138,9 @@ router.post('/register', validateRegister, async (req, res) => {
             JWT_SECRET,
             { expiresIn: '30d' }
         );
+
+        // Audit Log
+        await auditService.log(req, 'REGISTER', 'User', user.id, { email: user.email, role: user.role });
 
         res.status(201).json({
             token,

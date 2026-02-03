@@ -201,7 +201,7 @@ const Header = ({ onSearch }) => {
 
                     {/* Botón de Cuenta */}
                     <Link
-                        to={user ? ((user.role === 'admin' || user.role === 'super_admin') ? '/admin' : '/perfil') : '/login'}
+                        to={user ? '/perfil' : '/login'}
                         className="p-2 text-slate-600 hover:text-earth transition-colors"
                         title={user ? `Hola, ${user.name || 'Usuario'}` : 'Iniciar Sesión'}
                     >

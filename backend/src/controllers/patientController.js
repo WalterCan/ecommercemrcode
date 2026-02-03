@@ -1,6 +1,7 @@
 const Patient = require('../models/Patient');
 const User = require('../models/User');
 const ClinicalRecord = require('../models/ClinicalRecord');
+const auditService = require('../services/auditService');
 
 // Obtener todos los pacientes (Admin)
 const getPatients = async (req, res) => {
@@ -51,6 +52,9 @@ const upsertPatient = async (req, res) => {
 
         if (!created) {
             await patient.update({ birth_date, dni, emergency_contact, observations });
+            await auditService.log(req, 'UPDATE', 'Patient', patient.id, { changes: req.body });
+        } else {
+            await auditService.log(req, 'CREATE', 'Patient', patient.id, { ...req.body });
         }
 
         res.json({ success: true, patient });
@@ -75,6 +79,8 @@ const updatePatient = async (req, res) => {
         await patient.reload({
             include: [{ model: User, as: 'user', attributes: ['name', 'email', 'phone', 'address'] }]
         });
+
+        await auditService.log(req, 'UPDATE', 'Patient', patient.id, { changes: req.body });
 
         res.json(patient);
     } catch (error) {
@@ -119,6 +125,10 @@ const createPatient = async (req, res) => {
         }, { transaction: t });
 
         await t.commit();
+
+        await auditService.log(req, 'CREATE', 'User', user.id, { email, role: 'customer' });
+        await auditService.log(req, 'CREATE', 'Patient', patient.id, { dni });
+
         res.status(201).json({ success: true, patient, user_id: user.id });
 
     } catch (error) {
@@ -141,6 +151,8 @@ const addClinicalRecord = async (req, res) => {
             attachments
         });
 
+        await auditService.log(req, 'CREATE', 'ClinicalRecord', record.id, { patient_id: id });
+
         res.status(201).json(record);
     } catch (error) {
         console.error('Error adding clinical record:', error);
@@ -158,6 +170,7 @@ const updateClinicalRecord = async (req, res) => {
         if (!record) return res.status(404).json({ error: 'Nota no encontrada' });
 
         await record.update({ date, notes, attachments });
+        await auditService.log(req, 'UPDATE', 'ClinicalRecord', record.id, { patient_id: record.patient_id });
         res.json(record);
     } catch (error) {
         console.error('Error updating clinical record:', error);
@@ -174,6 +187,7 @@ const deleteClinicalRecord = async (req, res) => {
         if (!record) return res.status(404).json({ error: 'Nota no encontrada' });
 
         await record.destroy();
+        await auditService.log(req, 'DELETE', 'ClinicalRecord', recordId, { patient_id: record.patient_id });
         res.json({ message: 'Nota eliminada' });
     } catch (error) {
         console.error('Error deleting clinical record:', error);

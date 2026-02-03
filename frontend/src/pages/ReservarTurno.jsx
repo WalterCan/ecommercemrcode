@@ -127,17 +127,25 @@ const ReservarTurno = () => {
             } else {
                 // Si falta email o teléfono, mostrar mensaje específico
                 if (data.missingFields) {
-                    const missing = [];
-                    if (data.missingFields.email) missing.push('email');
-                    if (data.missingFields.phone) missing.push('teléfono');
+                    const fieldLabels = {
+                        name: 'nombre',
+                        email: 'email',
+                        phone: 'teléfono',
+                        dni: 'DNI',
+                        birth_date: 'fecha de nacimiento'
+                    };
+
+                    const missing = Object.entries(data.missingFields)
+                        .filter(([_, isMissing]) => isMissing)
+                        .map(([field, _]) => fieldLabels[field] || field);
 
                     showToast(
-                        `Debes completar tu ${missing.join(' y ')} en tu perfil para reservar turnos`,
+                        `Debes completar: ${missing.join(', ')} en tu perfil para reservar turnos`,
                         'error'
                     );
 
-                    // Redirigir al perfil después de 2 segundos
-                    setTimeout(() => navigate('/perfil'), 2000);
+                    // Redirigir al perfil después de 2.5 segundos
+                    setTimeout(() => navigate('/perfil'), 2500);
                 } else {
                     showToast(data.error || 'Error al reservar', 'error');
                 }

@@ -8,6 +8,7 @@
     "test:watch": "cross-env NODE_ENV=test jest --watch",
     "test:coverage": "cross-env NODE_ENV=test jest --coverage",
     "start": "node index.js",
+    "doctor": "node scripts/doctor.js",
     "dev": "node index.js"
   },
   "keywords": [],

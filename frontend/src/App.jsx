@@ -44,12 +44,14 @@ import AdminStockAlerts from './pages/admin/AdminStockAlerts';
 import AdminReports from './pages/admin/AdminReports';
 import AdminPatients from './pages/admin/AdminPatients'; // [NEW]
 import AdminCalendar from './pages/admin/AdminCalendar';
+import AdminAppointmentHistory from './pages/admin/AdminAppointmentHistory';
 import AdminTherapies from './pages/admin/AdminTherapies'; // [NEW]
 import AdminAvailability from './pages/admin/AdminAvailability'; // [NEW]
 import AdminReminders from './pages/admin/AdminReminders'; // [NEW] Recordatorios
 import SuperAdminUserManagement from './pages/admin/SuperAdminUserManagement'; // [NEW] Super Admin
 import AdminTherapyStats from './pages/admin/AdminTherapyStats'; // [NEW] Therapy Stats
 import AdminPatientDetail from './pages/admin/AdminPatientDetail'; // [NEW] Patient Detail
+import AdminAudit from './pages/admin/AdminAudit'; // [NEW] Audit Logs
 
 // Components
 import FloatingWhatsApp from './components/layout/FloatingWhatsApp';
@@ -197,6 +199,14 @@ function App() {
                                             element={
                                                 <AdminRoute>
                                                     <AdminCalendar />
+                                                </AdminRoute>
+                                            }
+                                        />
+                                        <Route
+                                            path="/admin/turnos/historial"
+                                            element={
+                                                <AdminRoute>
+                                                    <AdminAppointmentHistory />
                                                 </AdminRoute>
                                             }
                                         />

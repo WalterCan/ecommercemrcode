@@ -46,6 +46,12 @@ const AdminLayout = ({ children, title, actions }) => {
         },
         {
             module: 'appointments',
+            path: '/admin/turnos/historial',
+            label: 'Historial',
+            icon: <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+        },
+        {
+            module: 'appointments',
             path: '/admin/therapies',
             label: 'Mis Terapias',
             icon: <span style={{ fontSize: '18px' }}>🧘</span>
@@ -175,18 +181,32 @@ const AdminLayout = ({ children, title, actions }) => {
 
                     {/* Menú exclusivo para Super Admin */}
                     {user?.role === 'super_admin' && (
-                        <Link
-                            to="/super-admin/users"
-                            className={`flex items-center gap-3 p-3 rounded-xl transition-all text-sm ${location.pathname === '/super-admin/users'
-                                ? 'bg-purple-100 text-purple-700 font-bold shadow-sm'
-                                : 'text-purple-600 hover:bg-purple-50 hover:text-purple-700 border border-purple-200/50'
-                                }`}
-                        >
-                            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                            </svg>
-                            👑 Gestión Usuarios
-                        </Link>
+                        <>
+                            <Link
+                                to="/super-admin/users"
+                                className={`flex items-center gap-3 p-3 rounded-xl transition-all text-sm ${location.pathname === '/super-admin/users'
+                                    ? 'bg-purple-100 text-purple-700 font-bold shadow-sm'
+                                    : 'text-purple-600 hover:bg-purple-50 hover:text-purple-700 border border-purple-200/50'
+                                    }`}
+                            >
+                                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                </svg>
+                                👑 Gestión Usuarios
+                            </Link>
+                            <Link
+                                to="/admin/audit"
+                                className={`flex items-center gap-3 p-3 rounded-xl transition-all text-sm ${location.pathname === '/admin/audit'
+                                    ? 'bg-purple-100 text-purple-700 font-bold shadow-sm'
+                                    : 'text-purple-600 hover:bg-purple-50 hover:text-purple-700 border border-purple-200/50'
+                                    }`}
+                            >
+                                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                </svg>
+                                🛡️ Auditoría
+                            </Link>
+                        </>
                     )}
                 </nav>
 
@@ -213,15 +233,15 @@ const AdminLayout = ({ children, title, actions }) => {
 
                         <div className="h-8 w-px bg-beige-dark/20"></div>
 
-                        <div className="flex items-center gap-4">
+                        <Link to="/perfil" className="flex items-center gap-4 hover:bg-beige/50 p-2 rounded-lg transition-colors group">
                             <div className="flex flex-col items-end">
-                                <span className="text-xs font-bold text-slate-700">{user?.email || 'Admin'}</span>
+                                <span className="text-xs font-bold text-slate-700 group-hover:text-earth transition-colors">{user?.email || 'Admin'}</span>
                                 <span className="text-[10px] uppercase text-moss font-bold tracking-widest">Conectado</span>
                             </div>
-                            <div className="w-10 h-10 bg-beige rounded-full flex items-center justify-center text-earth font-serif font-bold border border-beige-dark/20">
+                            <div className="w-10 h-10 bg-beige rounded-full flex items-center justify-center text-earth font-serif font-bold border border-beige-dark/20 group-hover:bg-earth group-hover:text-white transition-all">
                                 {user?.email ? user.email[0].toUpperCase() : 'A'}
                             </div>
-                        </div>
+                        </Link>
                     </div>
                 </header>
 
@@ -229,7 +249,7 @@ const AdminLayout = ({ children, title, actions }) => {
                     {children}
                 </div>
             </main>
-        </div>
+        </div >
     );
 };
 

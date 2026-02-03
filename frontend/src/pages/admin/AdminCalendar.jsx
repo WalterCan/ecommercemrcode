@@ -325,7 +325,16 @@ const AdminCalendar = () => {
 
                                             {event.status !== 'blocked' && (
                                                 <div className="border-t border-slate-100 pt-4">
-                                                    <h4 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2"><span>💰</span> Estado del Pago</h4>
+                                                    <div className="flex justify-between items-center mb-3">
+                                                        <h4 className="text-sm font-bold text-slate-700 flex items-center gap-2"><span>💰</span> Estado del Pago</h4>
+                                                        {event.payment_method && (
+                                                            <span className="text-[10px] font-bold uppercase px-2 py-1 bg-slate-100 text-slate-500 rounded-full">
+                                                                {event.payment_method === 'mercadopago' ? '💳 Mercado Pago' :
+                                                                    event.payment_method === 'transfer' ? '🏦 Transferencia' :
+                                                                        event.payment_method === 'cash' ? '💵 Efectivo' : 'Otro'}
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                     <div className="grid grid-cols-3 gap-2 text-center mb-4">
                                                         <div className="bg-white p-2 rounded-lg border border-slate-200">
                                                             <p className="text-[10px] text-slate-400 uppercase font-bold">Total</p>
@@ -342,7 +351,7 @@ const AdminCalendar = () => {
                                                     </div>
                                                     {balance > 0 && (
                                                         <div className="bg-green-50 p-4 rounded-xl border border-green-100 mt-2">
-                                                            <label className="block text-xs font-bold text-green-700 mb-2 uppercase">Registrar Nuevo Pago</label>
+                                                            <label className="block text-xs font-bold text-green-700 mb-2 uppercase">Registrar Nuevo Pago (Manual)</label>
                                                             <div className="flex gap-2">
                                                                 <input
                                                                     type="number"
@@ -361,11 +370,10 @@ const AdminCalendar = () => {
                                                                             showToast('Ingrese un monto válido', 'error');
                                                                             return;
                                                                         }
-                                                                        if (!window.confirm(`¿Confirmar pago de $${amount}?`)) return;
 
                                                                         try {
                                                                             const token = localStorage.getItem('token');
-                                                                            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+                                                                            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
 
                                                                             const res = await fetch(`${baseUrl}/appointments/${event.id}/pay-balance`, {
                                                                                 method: 'PUT',
