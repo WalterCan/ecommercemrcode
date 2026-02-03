@@ -79,7 +79,8 @@ app.use('/api/therapies', require('./routes/therapyRoutes')); // [NEW] Tipos de 
 app.use('/api/availability', require('./routes/availabilityRoutes')); // [NEW] Disponibilidad Horaria
 app.use('/api/reminders', require('./routes/reminderRoutes')); // [NEW] Recordatorios Automáticos
 app.use('/api/payments', require('./routes/paymentRoutes')); // [NEW] Pagos MercadoPago
-app.use('/api/module-management', require('./routes/moduleRoutes')); // [NEW] Gestión de Módulos
+app.use('/api/module-management', require('./routes/moduleRoutes'));
+app.use('/api/modules', require('./routes/moduleRoutes'));
 app.use('/api/audit-logs', require('./routes/auditRoutes')); // [NEW] Auditoría
 
 /**

@@ -65,6 +65,27 @@ const requireModule = (moduleCode) => {
 };
 
 /**
+ * Middleware para verificar si el usuario es Admin o Super Admin
+ */
+const requireAdmin = (req, res, next) => {
+    if (!req.user) {
+        return res.status(401).json({
+            error: 'No autenticado',
+            message: 'Debes iniciar sesión'
+        });
+    }
+
+    if (req.user.role !== 'admin' && req.user.role !== 'super_admin') {
+        return res.status(403).json({
+            error: 'Acceso denegado',
+            message: 'Solo administradores pueden acceder a esta funcionalidad'
+        });
+    }
+
+    next();
+};
+
+/**
  * Middleware para verificar si el usuario es Super Admin
  */
 const requireSuperAdmin = (req, res, next) => {
@@ -87,5 +108,6 @@ const requireSuperAdmin = (req, res, next) => {
 
 module.exports = {
     requireModule,
+    requireAdmin,
     requireSuperAdmin
 };

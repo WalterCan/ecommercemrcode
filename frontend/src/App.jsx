@@ -38,6 +38,7 @@ import AdminCategories from './pages/admin/AdminCategories';
 import AdminCategoryForm from './pages/admin/AdminCategoryForm';
 import AdminWhatsApp from './pages/admin/WhatsAppConnect';
 import AdminSettings from './pages/admin/AdminSettings';
+import AdminModulesMarketplace from './pages/admin/AdminModulesMarketplace';
 import AdminCoupons from './pages/admin/AdminCoupons';
 import AdminReviews from './pages/admin/AdminReviews';
 import AdminStockAlerts from './pages/admin/AdminStockAlerts';
@@ -167,6 +168,14 @@ function App() {
                                             element={
                                                 <AdminRoute>
                                                     <AdminDashboard />
+                                                </AdminRoute>
+                                            }
+                                        />
+                                        <Route
+                                            path="/admin/apps"
+                                            element={
+                                                <AdminRoute>
+                                                    <AdminModulesMarketplace />
                                                 </AdminRoute>
                                             }
                                         />
@@ -348,6 +357,14 @@ function App() {
                                             element={
                                                 <SuperAdminRoute>
                                                     <SuperAdminUserManagement />
+                                                </SuperAdminRoute>
+                                            }
+                                        />
+                                        <Route
+                                            path="/admin/audit"
+                                            element={
+                                                <SuperAdminRoute>
+                                                    <AdminAudit />
                                                 </SuperAdminRoute>
                                             }
                                         />

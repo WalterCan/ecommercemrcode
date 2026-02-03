@@ -2,10 +2,13 @@ const express = require('express');
 const router = express.Router();
 const moduleController = require('../controllers/moduleController');
 const { protect } = require('../middleware/authMiddleware');
-const { requireSuperAdmin } = require('../middleware/moduleAccess');
+const { requireModule, requireSuperAdmin, requireAdmin } = require('../middleware/moduleAccess');
 
-// Rutas para Super Admin
-router.get('/modules', protect, requireSuperAdmin, moduleController.listModules);
+// Rutas para Admin y Super Admin (Lectura de catálogo)
+router.get('/', protect, requireAdmin, moduleController.listModules);
+router.get('/modules', protect, requireAdmin, moduleController.listModules);
+
+// Rutas para Super Admin (Gestión)
 router.get('/users-with-modules', protect, requireSuperAdmin, moduleController.getAllUsersWithModules);
 router.get('/users/:userId/modules', protect, requireSuperAdmin, moduleController.getUserModules);
 router.post('/enable', protect, requireSuperAdmin, moduleController.enableModuleForUser);

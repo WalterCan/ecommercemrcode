@@ -8,6 +8,7 @@ const { Op } = require('sequelize');
  */
 exports.listModules = async (req, res) => {
     try {
+        console.log(`📋 Catálogo de módulos solicitado por usuario ID: ${req.user.id}, Rol: ${req.user.role}`);
         const modules = await Module.findAll({
             order: [['name', 'ASC']]
         });
