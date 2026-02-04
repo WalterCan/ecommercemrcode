@@ -1,28 +1,47 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
+import { useAuth } from '../context/AuthContext';
 import { formatImageUrl } from '../utils/imageConfig';
 
 const Therapies = () => {
+    const { user: currentUser } = useAuth();
     const [therapies, setTherapies] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [isModuleActive, setIsModuleActive] = useState(true);
 
     useEffect(() => {
-        const fetchTherapies = async () => {
+        const fetchContent = async () => {
             try {
                 const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
+
+                // Verificar módulos activos primero
+                const modulesRes = await fetch(`${baseUrl}/modules/active`);
+                if (modulesRes.ok) {
+                    const activeModules = await modulesRes.json();
+                    if (!activeModules.includes('appointments')) {
+                        setIsModuleActive(false);
+                        // Si NO es super admin, cortamos el flujo aquí
+                        if (currentUser?.role !== 'super_admin') {
+                            setLoading(false);
+                            return;
+                        }
+                    }
+                }
+
+                // Cargar terapias (llega aquí si el módulo está activo O si es super_admin)
                 const res = await fetch(`${baseUrl}/therapies`);
                 if (res.ok) {
                     const data = await res.json();
                     setTherapies(data);
                 }
             } catch (error) {
-                console.error('Error fetching therapies:', error);
+                console.error('Error fetching therapies or modules:', error);
             } finally {
                 setLoading(false);
             }
         };
-        fetchTherapies();
+        fetchContent();
     }, []);
 
     if (loading) {
@@ -30,6 +49,20 @@ const Therapies = () => {
             <Layout>
                 <div className="min-h-screen flex items-center justify-center bg-paper">
                     <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-earth"></div>
+                </div>
+            </Layout>
+        );
+    }
+
+    if (!isModuleActive && currentUser?.role !== 'super_admin') {
+        return (
+            <Layout>
+                <div className="min-h-screen flex flex-col items-center justify-center bg-paper px-4 text-center">
+                    <h2 className="text-4xl font-serif text-earth font-bold mb-4">Sección no disponible</h2>
+                    <p className="text-slate-500 mb-8 max-w-md">Lo sentimos, esta sección se encuentra temporalmente desactivada o no forma parte de los servicios actuales.</p>
+                    <Link to="/" className="bg-earth text-white px-8 py-3 rounded-full font-bold uppercase tracking-widest hover:bg-earth-dark transition-all">
+                        Volver al inicio
+                    </Link>
                 </div>
             </Layout>
         );

@@ -25,11 +25,36 @@ exports.listModules = async (req, res) => {
  */
 exports.getActiveModules = async (req, res) => {
     try {
-        const modules = await Module.findAll({
-            where: { is_active: true },
-            attributes: ['code']
+        // Encontrar al administrador principal de la tienda
+        const storeAdmin = await User.findOne({
+            where: { role: 'admin' },
+            order: [['createdAt', 'ASC']] // O el primer admin creado
         });
-        res.json(modules.map(m => m.code));
+
+        if (!storeAdmin) {
+            // Si no hay admin común (solo super admin), devolvemos activos globales
+            const modules = await Module.findAll({
+                where: { is_active: true },
+                attributes: ['code']
+            });
+            return res.json(modules.map(m => m.code));
+        }
+
+        // Obtener módulos que el admin tiene habilitados actualmente
+        const user = await User.findByPk(storeAdmin.id, {
+            include: [{
+                model: Module,
+                as: 'modules',
+                where: { is_active: true }, // Deben estar activos globalmente también
+                through: {
+                    where: { enabled: true }
+                },
+                attributes: ['code']
+            }]
+        });
+
+        const activeCodes = user && user.modules ? user.modules.map(m => m.code) : [];
+        res.json(activeCodes);
     } catch (error) {
         console.error('Error getting active modules:', error);
         res.status(500).json({ error: error.message });
