@@ -2,7 +2,9 @@ node_modules
 dist
 .env
 npm-debug.log
+*.txt
 .git
 .gitignore
 Dockerfile
 docker-compose.yml
+.vite

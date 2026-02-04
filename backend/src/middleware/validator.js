@@ -30,8 +30,17 @@ const validateProduct = [
     body('price')
         .isFloat({ min: 0 }).withMessage('El precio debe ser un número positivo'),
     body('stock')
-        .optional()
+        .optional({ checkFalsy: true })
         .isInt({ min: 0 }).withMessage('El stock debe ser un número entero positivo'),
+    body('stock_minimo')
+        .optional({ checkFalsy: true })
+        .isInt({ min: 0 }).withMessage('El stock mínimo debe ser un número entero positivo'),
+    body('stock_critico')
+        .optional({ checkFalsy: true })
+        .isInt({ min: 0 }).withMessage('El stock crítico debe ser un número entero positivo'),
+    body('cost_price')
+        .optional({ checkFalsy: true })
+        .isFloat({ min: 0 }).withMessage('El precio de costo debe ser un número positivo'),
     body('category_id')
         .isInt({ min: 1 }).withMessage('Debes seleccionar una categoría válida'),
     handleValidationErrors

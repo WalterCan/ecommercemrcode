@@ -21,6 +21,8 @@ const reportRoutes = require('./routes/reportRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 const patientRoutes = require('./routes/patientRoutes'); // [NEW]
+const supplierRoutes = require('./routes/supplierRoutes'); // [NEW] Compras
+const purchaseRoutes = require('./routes/purchaseRoutes'); // [NEW] Compras
 
 const app = express();
 
@@ -82,6 +84,8 @@ app.use('/api/payments', require('./routes/paymentRoutes')); // [NEW] Pagos Merc
 app.use('/api/module-management', require('./routes/moduleRoutes'));
 app.use('/api/modules', require('./routes/moduleRoutes'));
 app.use('/api/audit-logs', require('./routes/auditRoutes')); // [NEW] Auditoría
+app.use('/api/suppliers', supplierRoutes); // [NEW] Compras
+app.use('/api/purchases', purchaseRoutes); // [NEW] Compras
 
 /**
  * ============================================

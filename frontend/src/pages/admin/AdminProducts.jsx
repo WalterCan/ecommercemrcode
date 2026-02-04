@@ -77,7 +77,7 @@ const AdminProducts = () => {
   );
 
   return (
-    <AdminLayout title="Inventario Sagrado" actions={actions}>
+    <AdminLayout title="Inventario" actions={actions}>
       <div className="p-10">
         {loading ? (
           <div className="py-20 text-center">

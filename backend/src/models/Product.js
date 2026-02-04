@@ -30,6 +30,15 @@ const Product = sequelize.define('Product', {
             min: 0
         }
     },
+    cost_price: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: true,
+        defaultValue: 0,
+        validate: {
+            min: 0
+        },
+        comment: 'Precio de costo/compra del producto'
+    },
     image_url: {
         type: DataTypes.STRING,
         allowNull: true,

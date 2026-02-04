@@ -199,6 +199,22 @@ const ProductDetail = () => {
     };
 
     if (loading) return <div className="min-h-screen bg-paper flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-earth"></div></div>;
+
+    if (!activeModules.includes('ecommerce') && user?.role !== 'super_admin') {
+        return (
+            <div className="bg-paper min-h-screen">
+                <Header onSearch={() => { }} />
+                <main className="py-40 text-center px-4">
+                    <h2 className="text-4xl font-serif text-earth font-bold mb-4">Sección no disponible</h2>
+                    <p className="text-slate-500 mb-8 max-w-md mx-auto">Lo sentimos, la tienda de productos se encuentra temporalmente desactivada.</p>
+                    <Link to="/" className="bg-earth text-white px-8 py-3 rounded-full font-bold uppercase tracking-widest hover:bg-earth-dark transition-all">
+                        Volver al inicio
+                    </Link>
+                </main>
+            </div>
+        );
+    }
+
     if (!product) return <div className="min-h-screen bg-paper text-center py-20">Producto no encontrado</div>;
 
     return (
@@ -335,8 +351,8 @@ const ProductDetail = () => {
                     </div>
                 )}
 
-                {/* SECCIÓN DE RESEÑAS (Condicional) */}
-                {activeModules.includes('reviews') && (
+                {/* SECCIÓN DE RESEÑAS (Visible siempre o condicional a ecommerce) */}
+                {true && (
                     <div className="mt-20 border-t border-beige-dark/10 pt-20 animate-fade-in">
                         <div className="max-w-4xl mx-auto">
                             <h2 className="text-3xl font-serif mb-12 text-center underline decoration-earth/30">Reseñas de Clientes</h2>

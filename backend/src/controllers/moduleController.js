@@ -31,13 +31,17 @@ exports.getActiveModules = async (req, res) => {
             order: [['createdAt', 'ASC']] // O el primer admin creado
         });
 
+        console.log('Store Admin found:', storeAdmin ? storeAdmin.email : 'NONE');
+
         if (!storeAdmin) {
             // Si no hay admin común (solo super admin), devolvemos activos globales
             const modules = await Module.findAll({
                 where: { is_active: true },
                 attributes: ['code']
             });
-            return res.json(modules.map(m => m.code));
+            const codes = modules.map(m => m.code);
+            console.log('Falling back to global active modules:', codes);
+            return res.json(codes);
         }
 
         // Obtener módulos que el admin tiene habilitados actualmente
@@ -54,6 +58,7 @@ exports.getActiveModules = async (req, res) => {
         });
 
         const activeCodes = user && user.modules ? user.modules.map(m => m.code) : [];
+        console.log('Active codes for admin:', activeCodes);
         res.json(activeCodes);
     } catch (error) {
         console.error('Error getting active modules:', error);

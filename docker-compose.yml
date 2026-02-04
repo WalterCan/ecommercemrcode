@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Base de Datos MySQL
   db_ecommerce:
@@ -30,7 +28,13 @@ services:
       - DB_PASSWORD=root_password
       - DB_NAME=ecommercemrcode
       - FRONTEND_URL=http://localhost:5176
-      - NODE_OPTIONS=--max-old-space-size=2048
+      - NODE_OPTIONS=--max-old-space-size=4096
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 2G
     volumes:
       - ./backend:/app
       - /app/node_modules # Evita sobreescribir node_modules del contenedor
@@ -52,7 +56,13 @@ services:
     environment:
       - VITE_API_URL=http://localhost:3002/api # URL para que el navegador llame al backend
       - VITE_MP_PUBLIC_KEY=${MERCADOPAGO_PUBLIC_KEY}
-      - NODE_OPTIONS=--max-old-space-size=2048
+      - NODE_OPTIONS=--max-old-space-size=4096
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 2G
     depends_on:
       - backend
 

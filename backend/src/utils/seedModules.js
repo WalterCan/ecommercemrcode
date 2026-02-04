@@ -63,6 +63,14 @@ async function seedModules() {
                 default_enabled: false
             },
             {
+                code: 'purchases',
+                name: 'Gestión de Compras',
+                description: 'Control de proveedores, facturas de compra y reabastecimiento de stock',
+                icon: '📦',
+                is_active: true,
+                default_enabled: false
+            },
+            {
                 code: 'settings',
                 name: 'Ajustes del Sitio',
                 description: 'Gestión de colores, imágenes, logos y configuración general',

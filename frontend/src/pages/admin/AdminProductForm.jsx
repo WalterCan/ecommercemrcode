@@ -16,13 +16,12 @@ const AdminProductForm = () => {
         name: '',
         description: '',
         price: '',
-        stock: '',
-        stock_minimo: 10,
-        stock_critico: 3,
+        cost_price: '',
         category_id: '',
         image_url: '',
         featured: false
     });
+    const [margin, setMargin] = useState('');
     const [categories, setCategories] = useState([]);
     const [selectedFile, setSelectedFile] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -60,10 +59,17 @@ const AdminProductForm = () => {
                     stock: data.stock,
                     stock_minimo: data.stock_minimo || 10,
                     stock_critico: data.stock_critico || 3,
+                    cost_price: data.cost_price || 0,
                     category_id: data.category_id || '',
                     image_url: data.image_url || '',
                     featured: data.featured || false
                 });
+
+                // Calcular margen inicial si existen precios
+                if (data.cost_price && data.price && parseFloat(data.cost_price) > 0) {
+                    const marg = ((parseFloat(data.price) - parseFloat(data.cost_price)) / parseFloat(data.cost_price)) * 100;
+                    setMargin(marg.toFixed(2));
+                }
             } else {
                 showToast('Error al cargar el producto', 'error');
                 navigate('/admin/products');
@@ -76,11 +82,53 @@ const AdminProductForm = () => {
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: type === 'checkbox' ? checked : value
-        }));
+        const val = type === 'checkbox' ? checked : value;
+
+        let newFormData = { ...formData, [name]: val };
+
+        // Lógica de cálculo automática
+        if (name === 'cost_price') {
+            // Si cambia costo y hay margen, calcular precio
+            if (margin && val) {
+                const cost = parseFloat(val);
+                const marg = parseFloat(margin);
+                const price = cost * (1 + marg / 100);
+                newFormData.price = price.toFixed(2);
+            } else if (newFormData.price && val) {
+                // Si cambia costo y hay precio, recalcular margen
+                const cost = parseFloat(val);
+                const price = parseFloat(newFormData.price);
+                if (cost > 0) {
+                    const marg = ((price - cost) / cost) * 100;
+                    setMargin(marg.toFixed(2));
+                }
+            }
+        } else if (name === 'price') {
+            // Si cambia precio y hay costo, calcular margen
+            if (newFormData.cost_price && val) {
+                const cost = parseFloat(newFormData.cost_price);
+                const price = parseFloat(val);
+                if (cost > 0) {
+                    const marg = ((price - cost) / cost) * 100;
+                    setMargin(marg.toFixed(2));
+                }
+            }
+        }
+
+        setFormData(newFormData);
     };
+
+    const handleMarginChange = (e) => {
+        const val = e.target.value;
+        setMargin(val);
+        if (formData.cost_price && val) {
+            const cost = parseFloat(formData.cost_price);
+            const marg = parseFloat(val);
+            const price = cost * (1 + marg / 100);
+            setFormData(prev => ({ ...prev, price: price.toFixed(2) }));
+        }
+    };
+
 
     const handleFileChange = (e) => {
         if (e.target.files && e.target.files[0]) {
@@ -101,10 +149,14 @@ const AdminProductForm = () => {
             const data = new FormData();
             data.append('name', formData.name);
             data.append('description', formData.description);
-            data.append('price', formData.price);
-            data.append('stock', formData.stock);
-            data.append('stock_minimo', formData.stock_minimo);
-            data.append('stock_critico', formData.stock_critico);
+            data.append('price', parseFloat(formData.price) || 0);
+            data.append('stock', parseInt(formData.stock) || 0);
+
+            // Sanitizar campos opcionales
+            data.append('stock_minimo', parseInt(formData.stock_minimo) || 0);
+            data.append('stock_critico', parseInt(formData.stock_critico) || 0);
+            data.append('cost_price', parseFloat(formData.cost_price) || 0);
+
             data.append('category_id', formData.category_id);
             data.append('featured', formData.featured ? '1' : '0');
 
@@ -115,16 +167,26 @@ const AdminProductForm = () => {
                 // data.append('image_url', 'some_default_url');
             }
 
+            const token = localStorage.getItem('token');
             const response = await fetch(url, {
                 method,
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
                 body: data
             });
+
+            const result = await response.json();
 
             if (response.ok) {
                 showToast(isEditing ? 'Producto actualizado exitosamente' : 'Producto creado exitosamente', 'success');
                 navigate('/admin/products');
             } else {
-                showToast('Error al guardar el producto', 'error');
+                // Mostrar error específico si viene del backend (ej: validación)
+                const errorMsg = result.error || result.message || 'Error al guardar el producto';
+                // Si hay detalles de validación, mostrar el primero
+                const details = result.details ? `: ${result.details[0].msg}` : '';
+                showToast(`${errorMsg}${details}`, 'error');
             }
         } catch (error) {
             console.error('Error saving product:', error);
@@ -173,65 +235,104 @@ const AdminProductForm = () => {
                             />
                         </div>
 
-                        <div>
-                            <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Precio</label>
-                            <div className="relative">
-                                <span className="absolute left-3 top-3 text-slate-400">$</span>
-                                <input
-                                    type="number"
-                                    name="price"
-                                    value={formData.price}
-                                    onChange={handleChange}
-                                    required
-                                    min="0"
-                                    step="0.01"
-                                    className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 pl-8 focus:outline-none focus:border-earth focus:ring-1 focus:ring-earth transition-all"
-                                />
+                        {/* Bloque de Precios con Margen */}
+                        <div className="col-span-2 grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div>
+                                <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Precio de Costo</label>
+                                <div className="relative">
+                                    <span className="absolute left-3 top-3 text-slate-400">$</span>
+                                    <input
+                                        type="number"
+                                        name="cost_price"
+                                        value={formData.cost_price}
+                                        onChange={handleChange}
+                                        required
+                                        min="0"
+                                        step="0.01"
+                                        className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 pl-8 focus:outline-none focus:border-earth focus:ring-1 focus:ring-earth transition-all"
+                                        placeholder="0.00"
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Margen (%)</label>
+                                <div className="relative">
+                                    <input
+                                        type="number"
+                                        value={margin}
+                                        onChange={handleMarginChange}
+                                        min="0"
+                                        step="0.1"
+                                        className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 focus:outline-none focus:border-earth focus:ring-1 focus:ring-earth transition-all text-center font-bold text-earth"
+                                        placeholder="%"
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Precio de Venta</label>
+                                <div className="relative">
+                                    <span className="absolute left-3 top-3 text-slate-400">$</span>
+                                    <input
+                                        type="number"
+                                        name="price"
+                                        value={formData.price}
+                                        onChange={handleChange}
+                                        required
+                                        min="0"
+                                        step="0.01"
+                                        className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 pl-8 focus:outline-none focus:border-earth focus:ring-1 focus:ring-earth transition-all font-bold text-xl"
+                                        placeholder="0.00"
+                                    />
+                                </div>
                             </div>
                         </div>
 
-                        <div>
-                            <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Stock Actual</label>
-                            <input
-                                type="number"
-                                name="stock"
-                                value={formData.stock}
-                                onChange={handleChange}
-                                required
-                                min="0"
-                                className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 focus:outline-none focus:border-earth focus:ring-1 focus:ring-earth transition-all"
-                            />
-                        </div>
+                        {/* Stock en nueva fila */}
+                        <div className="col-span-2 grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-beige-dark/5">
+                            <div>
+                                <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Stock Actual</label>
+                                <input
+                                    type="number"
+                                    name="stock"
+                                    value={formData.stock}
+                                    onChange={handleChange}
+                                    required
+                                    min="0"
+                                    className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 focus:outline-none focus:border-earth focus:ring-1 focus:ring-earth transition-all"
+                                />
+                            </div>
 
-                        <div>
-                            <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Stock Mínimo</label>
-                            <input
-                                type="number"
-                                name="stock_minimo"
-                                value={formData.stock_minimo}
-                                onChange={handleChange}
-                                required
-                                min="0"
-                                className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 focus:outline-none focus:border-earth focus:ring-1 focus:ring-earth transition-all"
-                                placeholder="10"
-                            />
-                            <p className="text-xs text-slate-500 mt-1">Alerta cuando el stock llegue a este nivel</p>
-                        </div>
+                            <div>
+                                <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Stock Mínimo</label>
+                                <input
+                                    type="number"
+                                    name="stock_minimo"
+                                    value={formData.stock_minimo}
+                                    onChange={handleChange}
+                                    required
+                                    min="0"
+                                    className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 focus:outline-none focus:border-earth focus:ring-1 focus:ring-earth transition-all"
+                                    placeholder="10"
+                                />
+                                <p className="text-[10px] text-slate-400 mt-1">Nivel de alerta</p>
+                            </div>
 
-                        <div>
-                            <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Stock Crítico</label>
-                            <input
-                                type="number"
-                                name="stock_critico"
-                                value={formData.stock_critico}
-                                onChange={handleChange}
-                                required
-                                min="0"
-                                max={formData.stock_minimo}
-                                className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 focus:outline-none focus:border-earth focus:ring-1 focus:ring-earth transition-all"
-                                placeholder="3"
-                            />
-                            <p className="text-xs text-slate-500 mt-1">Debe ser menor que el stock mínimo</p>
+                            <div>
+                                <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Stock Crítico</label>
+                                <input
+                                    type="number"
+                                    name="stock_critico"
+                                    value={formData.stock_critico}
+                                    onChange={handleChange}
+                                    required
+                                    min="0"
+                                    className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 focus:outline-none focus:border-earth focus:ring-1 focus:ring-earth transition-all"
+                                    placeholder="3"
+                                />
+                                <p className="text-[10px] text-slate-400 mt-1">Nivel crítico</p>
+                            </div>
                         </div>
 
                         <div>
@@ -323,8 +424,8 @@ const AdminProductForm = () => {
                     </div>
 
                 </form>
-            </div>
-        </AdminLayout>
+            </div >
+        </AdminLayout >
     );
 };
 

@@ -16,8 +16,9 @@ export default defineConfig({
             }
         },
         watch: {
-            usePolling: true, // Importante para Docker en Windows
-            ignored: ['**/node_modules/**', '**/dist/**', '**/.git/**']
+            usePolling: true,
+            interval: 500, // Menos frecuente para ahorrar CPU/Memoria
+            ignored: ['**/node_modules/**', '**/dist/**', '**/.git/**', '**/public/**']
         },
         hmr: {
             host: 'localhost',

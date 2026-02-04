@@ -29,6 +29,7 @@ import ReservarTurno from './pages/ReservarTurno';
 import Therapies from './pages/Therapies'; // [NEW] Público
 import ConfirmAppointment from './pages/ConfirmAppointment';
 import PaymentStatus from './pages/PaymentStatus';
+import LandingPage from './pages/LandingPage';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -47,6 +48,10 @@ import AdminReports from './pages/admin/AdminReports';
 import AdminPatients from './pages/admin/AdminPatients'; // [NEW]
 import AdminCalendar from './pages/admin/AdminCalendar';
 import AdminAppointmentHistory from './pages/admin/AdminAppointmentHistory';
+import AdminSuppliers from './pages/admin/AdminSuppliers';
+import AdminPurchases from './pages/admin/AdminPurchases';
+import AdminPurchaseForm from './pages/admin/AdminPurchaseForm';
+import AdminPurchaseDetail from './pages/admin/AdminPurchaseDetail';
 import AdminTherapies from './pages/admin/AdminTherapies'; // [NEW]
 import AdminAvailability from './pages/admin/AdminAvailability'; // [NEW]
 import AdminReminders from './pages/admin/AdminReminders'; // [NEW] Recordatorios
@@ -101,7 +106,47 @@ const PageTitleHandler = () => {
     return null;
 };
 
+const HomeSelector = ({ activeModules }) => {
+    const { user } = useAuth();
+    const isModuleActive = activeModules.includes('ecommerce');
+    const isSuperAdmin = user?.role === 'super_admin';
+
+    if (isModuleActive || isSuperAdmin) {
+        return <Home />;
+    }
+    return <LandingPage />;
+};
+
 function App() {
+    const [activeModules, setActiveModules] = React.useState([]);
+    const [loadingModules, setLoadingModules] = React.useState(true);
+
+    React.useEffect(() => {
+        const fetchModules = async () => {
+            try {
+                const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
+                const res = await fetch(`${baseUrl}/modules/active`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setActiveModules(data);
+                }
+            } catch (error) {
+                console.error('Error fetching modules in App:', error);
+            } finally {
+                setLoadingModules(false);
+            }
+        };
+        fetchModules();
+    }, []);
+
+    if (loadingModules) {
+        return (
+            <div className="min-h-screen bg-paper flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-earth"></div>
+            </div>
+        );
+    }
+
     return (
         <AuthProvider>
             <SettingsProvider>
@@ -114,7 +159,10 @@ function App() {
                                     <ToastContainer />
                                     <Routes>
                                         {/* Public Routes */}
-                                        <Route path="/" element={<Home />} />
+                                        <Route
+                                            path="/"
+                                            element={<HomeSelector activeModules={activeModules} />}
+                                        />
                                         <Route path="/product/:id" element={<ProductDetail />} />
                                         <Route path="/productos" element={<Products />} />
                                         <Route path="/nosotros" element={<About />} />
@@ -328,6 +376,48 @@ function App() {
                                             }
 
                                         />
+                                        {/* Módulo de Compras (Inventory) */}
+                                        <Route
+                                            path="/admin/suppliers"
+                                            element={
+                                                <AdminRoute>
+                                                    <ModuleRoute moduleCode="purchases" moduleName="Gestión de Compras">
+                                                        <AdminSuppliers />
+                                                    </ModuleRoute>
+                                                </AdminRoute>
+                                            }
+                                        />
+                                        <Route
+                                            path="/admin/purchases"
+                                            element={
+                                                <AdminRoute>
+                                                    <ModuleRoute moduleCode="purchases" moduleName="Gestión de Compras">
+                                                        <AdminPurchases />
+                                                    </ModuleRoute>
+                                                </AdminRoute>
+                                            }
+                                        />
+                                        <Route
+                                            path="/admin/purchases/new"
+                                            element={
+                                                <AdminRoute>
+                                                    <ModuleRoute moduleCode="purchases" moduleName="Gestión de Compras">
+                                                        <AdminPurchaseForm />
+                                                    </ModuleRoute>
+                                                </AdminRoute>
+                                            }
+                                        />
+                                        <Route
+                                            path="/admin/purchases/:id"
+                                            element={
+                                                <AdminRoute>
+                                                    <ModuleRoute moduleCode="purchases" moduleName="Gestión de Compras">
+                                                        <AdminPurchaseDetail />
+                                                    </ModuleRoute>
+                                                </AdminRoute>
+                                            }
+                                        />
+
                                         <Route
                                             path="/admin/therapies"
                                             element={

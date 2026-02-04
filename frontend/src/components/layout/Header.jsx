@@ -99,9 +99,13 @@ const Header = ({ onSearch }) => {
             <div className="container mx-auto px-4 py-4 flex items-center justify-between">
                 {/* Lado izquierdo: Navegación */}
                 <nav className="flex items-center gap-8">
-                    <Link to="/" className="text-xs font-bold uppercase tracking-widest text-slate-600 hover:text-earth transition-colors">Inicio</Link>
-                    <Link to="/productos" className="text-xs font-bold uppercase tracking-widest text-slate-600 hover:text-earth transition-colors">Productos</Link>
-                    <Link to="/nosotros" className="text-xs font-bold uppercase tracking-widest text-slate-600 hover:text-earth transition-colors">Nosotros</Link>
+                    {(activeModules.includes('ecommerce') || user?.role === 'super_admin') && (
+                        <>
+                            <Link to="/" className="text-xs font-bold uppercase tracking-widest text-slate-600 hover:text-earth transition-colors">Inicio</Link>
+                            <Link to="/productos" className="text-xs font-bold uppercase tracking-widest text-slate-600 hover:text-earth transition-colors">Productos</Link>
+                            <Link to="/nosotros" className="text-xs font-bold uppercase tracking-widest text-slate-600 hover:text-earth transition-colors">Nosotros</Link>
+                        </>
+                    )}
                     {(activeModules.includes('appointments') || user?.role === 'super_admin') && (
                         <Link to="/terapias" className="text-xs font-bold uppercase tracking-widest text-slate-600 hover:text-earth transition-colors">Terapias</Link>
                     )}
@@ -146,56 +150,60 @@ const Header = ({ onSearch }) => {
 
                 {/* Lado derecho: Búsqueda y Carrito */}
                 <div className="flex items-center gap-4">
-                    <div className="relative hidden sm:block">
-                        <input
-                            type="text"
-                            placeholder="Buscar..."
-                            value={searchTerm}
-                            onFocus={handleInputFocus}
-                            onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                            onChange={(e) => handleSearchChange(e.target.value)}
-                            className="bg-beige/30 border-none rounded-full px-4 py-1.5 text-sm focus:ring-1 focus:ring-earth/30 w-40 md:w-60"
-                        />
-                        {/* Dropdown de Sugerencias */}
-                        {showSuggestions && suggestions.length > 0 && (
-                            <div className="absolute top-full right-0 mt-2 w-72 bg-white rounded-2xl shadow-xl border border-beige-dark/10 overflow-hidden z-[100]">
-                                <div className="py-2">
-                                    {suggestions.map(p => (
-                                        <Link
-                                            key={p.id}
-                                            to={`/product/${p.id}`}
-                                            className="flex items-center gap-3 px-4 py-2 hover:bg-beige-light/30 transition-colors"
-                                            onClick={() => setShowSuggestions(false)}
-                                        >
-                                            <div className="w-10 h-10 rounded-lg overflow-hidden bg-paper flex-shrink-0">
-                                                <img src={formatImageUrl(p.image_url)} alt={p.name} className="w-full h-full object-cover" />
-                                            </div>
-                                            <div className="flex-1 overflow-hidden">
-                                                <p className="text-xs font-bold text-slate-700 truncate">{p.name}</p>
-                                                <p className="text-[10px] text-earth font-bold">${parseFloat(p.price).toLocaleString('es-AR')}</p>
-                                            </div>
-                                        </Link>
-                                    ))}
-                                </div>
-                                <div className="bg-paper p-2 border-t border-beige-dark/5">
-                                    <Link to="/productos" className="block text-center text-[10px] font-bold uppercase tracking-widest text-earth hover:underline">Ver todos los productos</Link>
-                                </div>
+                    {(activeModules.includes('ecommerce') || user?.role === 'super_admin') && (
+                        <>
+                            <div className="relative hidden sm:block">
+                                <input
+                                    type="text"
+                                    placeholder="Buscar..."
+                                    value={searchTerm}
+                                    onFocus={handleInputFocus}
+                                    onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                                    onChange={(e) => handleSearchChange(e.target.value)}
+                                    className="bg-beige/30 border-none rounded-full px-4 py-1.5 text-sm focus:ring-1 focus:ring-earth/30 w-40 md:w-60"
+                                />
+                                {/* Dropdown de Sugerencias */}
+                                {showSuggestions && suggestions.length > 0 && (
+                                    <div className="absolute top-full right-0 mt-2 w-72 bg-white rounded-2xl shadow-xl border border-beige-dark/10 overflow-hidden z-[100]">
+                                        <div className="py-2">
+                                            {suggestions.map(p => (
+                                                <Link
+                                                    key={p.id}
+                                                    to={`/product/${p.id}`}
+                                                    className="flex items-center gap-3 px-4 py-2 hover:bg-beige-light/30 transition-colors"
+                                                    onClick={() => setShowSuggestions(false)}
+                                                >
+                                                    <div className="w-10 h-10 rounded-lg overflow-hidden bg-paper flex-shrink-0">
+                                                        <img src={formatImageUrl(p.image_url)} alt={p.name} className="w-full h-full object-cover" />
+                                                    </div>
+                                                    <div className="flex-1 overflow-hidden">
+                                                        <p className="text-xs font-bold text-slate-700 truncate">{p.name}</p>
+                                                        <p className="text-[10px] text-earth font-bold">${parseFloat(p.price).toLocaleString('es-AR')}</p>
+                                                    </div>
+                                                </Link>
+                                            ))}
+                                        </div>
+                                        <div className="bg-paper p-2 border-t border-beige-dark/5">
+                                            <Link to="/productos" className="block text-center text-[10px] font-bold uppercase tracking-widest text-earth hover:underline">Ver todos los productos</Link>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
-                        )}
-                    </div>
-                    <button
-                        onClick={toggleCart}
-                        className="relative p-2 text-slate-600 hover:text-earth"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                        </svg>
-                        {cartCount > 0 && (
-                            <span className="absolute top-1 right-1 bg-terracotta text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center animate-pulse">
-                                {cartCount}
-                            </span>
-                        )}
-                    </button>
+                            <button
+                                onClick={toggleCart}
+                                className="relative p-2 text-slate-600 hover:text-earth"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                </svg>
+                                {cartCount > 0 && (
+                                    <span className="absolute top-1 right-1 bg-terracotta text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center animate-pulse">
+                                        {cartCount}
+                                    </span>
+                                )}
+                            </button>
+                        </>
+                    )}
 
                     {/* Botón de Mis Turnos (Solo Logueados) */}
                     {user && activeModules.includes('appointments') && (

@@ -47,7 +47,7 @@ export const CartProvider = ({ children }) => {
             );
         } else {
             // Si no existe, lo añadimos con cantidad 1
-            showToast(`${product.name} añadido a tu colección sagrada.`, 'success');
+            showToast(`${product.name} agregado al carrito.`, 'success');
             setCartItems(prevItems => [...prevItems, { ...product, quantity: 1 }]);
         }
 
