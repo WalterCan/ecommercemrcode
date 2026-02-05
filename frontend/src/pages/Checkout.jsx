@@ -130,7 +130,8 @@ const Checkout = () => {
                 name: item.name,
                 price: item.price,
                 quantity: item.quantity,
-                image_url: item.image_url
+                image_url: item.image_url,
+                variant: item.variant || null
             }));
 
             const orderData = {

@@ -31,46 +31,56 @@ export const CartProvider = ({ children }) => {
 
     // Función para añadir un producto al carrito
     const addToCart = (product) => {
-        const existingItem = cartItems.find((item) => item.id === product.id);
+        // Generar un ID único para el item en el carrito (Producto + Variante)
+        const cartItemId = product.variant
+            ? `${product.id}-${product.variant.id}`
+            : `${product.id}`;
+
+        const existingItem = cartItems.find((item) => item.uid === cartItemId);
 
         if (existingItem) {
             // Verificar si hay stock suficiente para añadir uno más
-            if (existingItem.quantity >= product.stock) {
-                showToast(`Lo sentimos, solo hay ${product.stock} unidades disponibles de este objeto sagrado.`, 'warning');
+            const currentStock = product.variant ? product.variant.stock : product.stock;
+
+            // Si el stock es 0 o indefinido, asumimos que no hay límite (o manejamos error), 
+            // pero si hay stock definido, lo respetamos.
+            if (currentStock !== undefined && existingItem.quantity >= currentStock) {
+                showToast(`Lo sentimos, solo hay ${currentStock} unidades disponibles.`, 'warning');
                 return;
             }
 
             setCartItems(prevItems =>
                 prevItems.map((item) =>
-                    item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+                    item.uid === cartItemId ? { ...item, quantity: item.quantity + 1 } : item
                 )
             );
         } else {
-            // Si no existe, lo añadimos con cantidad 1
-            showToast(`${product.name} agregado al carrito.`, 'success');
-            setCartItems(prevItems => [...prevItems, { ...product, quantity: 1 }]);
+            // Si no existe, lo añadimos con cantidad 1 y su UID
+            showToast(`${product.name} ${product.variant ? `(${product.variant.name})` : ''} agregado al carrito.`, 'success');
+            setCartItems(prevItems => [...prevItems, { ...product, uid: cartItemId, quantity: 1 }]);
         }
 
         setIsCartOpen(true);
     };
 
     // Función para eliminar un producto o reducir cantidad
-    const removeFromCart = (productId) => {
+    const removeFromCart = (uid) => {
         setCartItems((prevItems) =>
-            prevItems.filter((item) => item.id !== productId)
+            prevItems.filter((item) => item.uid !== uid)
         );
     };
 
     // Cambiar cantidad de un item
-    const updateQuantity = (productId, amount) => {
-        const item = cartItems.find(i => i.id === productId);
+    const updateQuantity = (uid, amount) => {
+        const item = cartItems.find(i => i.uid === uid);
         if (!item) return;
 
         const newQuantity = item.quantity + amount;
+        const currentStock = item.variant ? item.variant.stock : item.stock;
 
         // Verificar stock máximo
-        if (amount > 0 && newQuantity > item.stock) {
-            showToast(`Lo sentimos, solo hay ${item.stock} unidades disponibles.`, 'warning');
+        if (amount > 0 && currentStock !== undefined && newQuantity > currentStock) {
+            showToast(`Lo sentimos, solo hay ${currentStock} unidades disponibles.`, 'warning');
             return;
         }
 
@@ -78,7 +88,7 @@ export const CartProvider = ({ children }) => {
 
         setCartItems((prevItems) =>
             prevItems.map((item) =>
-                item.id === productId ? { ...item, quantity: newQuantity } : item
+                item.uid === uid ? { ...item, quantity: newQuantity } : item
             )
         );
     };

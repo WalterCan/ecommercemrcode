@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Order = require('../models/Order');
 const Product = require('../models/Product');
+const ProductVariant = require('../models/ProductVariant'); // [NEW] Importar modelo de variantes
 const Coupon = require('../models/Coupon');
 const sequelize = require('../config/db');
 const { createPaymentPreference, getPaymentInfo } = require('../services/mercadopagoService');
@@ -104,6 +105,9 @@ router.post('/', orderLimiter, validateOrder, async (req, res) => {
         // ============================================
         // VALIDACIÓN Y ACTUALIZACIÓN DE STOCK
         // ============================================
+        // ============================================
+        // VALIDACIÓN Y ACTUALIZACIÓN DE STOCK
+        // ============================================
         for (const item of items) {
             const product = await Product.findByPk(item.id, { transaction: t });
 
@@ -112,19 +116,44 @@ router.post('/', orderLimiter, validateOrder, async (req, res) => {
                 return res.status(404).json({ error: `El producto ${item.name} ya no existe en nuestro catálogo` });
             }
 
-            if (product.stock < item.quantity) {
-                await t.rollback();
-                return res.status(400).json({
-                    error: `Stock insuficiente para ${item.name}`,
-                    available: product.stock,
-                    requested: item.quantity
-                });
-            }
+            // [NEW] Lógica de Variantes
+            if (item.variant) {
+                const variant = await ProductVariant.findByPk(item.variant.id, { transaction: t });
+                if (!variant) {
+                    await t.rollback();
+                    return res.status(404).json({ error: `La variante ${item.variant.name} de ${item.name} ya no existe` });
+                }
 
-            // Decrementar stock
-            await product.update({
-                stock: product.stock - item.quantity
-            }, { transaction: t });
+                if (variant.stock < item.quantity) {
+                    await t.rollback();
+                    return res.status(400).json({
+                        error: `Stock insuficiente para ${item.name} (${variant.name})`,
+                        available: variant.stock,
+                        requested: item.quantity
+                    });
+                }
+
+                // Decrementar stock de variante
+                await variant.update({
+                    stock: variant.stock - item.quantity
+                }, { transaction: t });
+
+            } else {
+                // Lógica Estándar (Producto sin variante)
+                if (product.stock < item.quantity) {
+                    await t.rollback();
+                    return res.status(400).json({
+                        error: `Stock insuficiente para ${item.name}`,
+                        available: product.stock,
+                        requested: item.quantity
+                    });
+                }
+
+                // Decrementar stock de producto base
+                await product.update({
+                    stock: product.stock - item.quantity
+                }, { transaction: t });
+            }
         }
 
         // ============================================
@@ -260,10 +289,18 @@ router.put('/:id', async (req, res) => {
         if (previousStatus !== 'cancelled' && newStatus === 'cancelled') {
             console.log(`📦 Devolviendo stock por cancelación del pedido #${order.id}`);
             for (const item of order.items) {
-                const product = await Product.findByPk(item.id, { transaction: t });
-                if (product) {
-                    await product.update({ stock: product.stock + item.quantity }, { transaction: t });
-                    console.log(`   - ${product.name}: +${item.quantity}`);
+                if (item.variant) {
+                    const variant = await ProductVariant.findByPk(item.variant.id, { transaction: t });
+                    if (variant) {
+                        await variant.update({ stock: variant.stock + item.quantity }, { transaction: t });
+                        console.log(`   - ${item.name} (${variant.name}): +${item.quantity}`);
+                    }
+                } else {
+                    const product = await Product.findByPk(item.id, { transaction: t });
+                    if (product) {
+                        await product.update({ stock: product.stock + item.quantity }, { transaction: t });
+                        console.log(`   - ${product.name}: +${item.quantity}`);
+                    }
                 }
             }
         }
@@ -272,16 +309,29 @@ router.put('/:id', async (req, res) => {
         if (previousStatus === 'cancelled' && newStatus !== 'cancelled') {
             console.log(`📦 Restaurando stock por re-activación del pedido #${order.id}`);
             for (const item of order.items) {
-                const product = await Product.findByPk(item.id, { transaction: t });
-                if (!product || product.stock < item.quantity) {
-                    await t.rollback();
-                    return res.status(400).json({
-                        success: false,
-                        error: `Stock insuficiente para restaurar el pedido. Producto: ${item.name}`
-                    });
+                if (item.variant) {
+                    const variant = await ProductVariant.findByPk(item.variant.id, { transaction: t });
+                    if (!variant || variant.stock < item.quantity) {
+                        await t.rollback();
+                        return res.status(400).json({
+                            success: false,
+                            error: `Stock insuficiente para restaurar el pedido. Variante: ${item.name} - ${item.variant.name}`
+                        });
+                    }
+                    await variant.update({ stock: variant.stock - item.quantity }, { transaction: t });
+                    console.log(`   - ${item.name} (${variant.name}): -${item.quantity}`);
+                } else {
+                    const product = await Product.findByPk(item.id, { transaction: t });
+                    if (!product || product.stock < item.quantity) {
+                        await t.rollback();
+                        return res.status(400).json({
+                            success: false,
+                            error: `Stock insuficiente para restaurar el pedido. Producto: ${item.name}`
+                        });
+                    }
+                    await product.update({ stock: product.stock - item.quantity }, { transaction: t });
+                    console.log(`   - ${product.name}: -${item.quantity}`);
                 }
-                await product.update({ stock: product.stock - item.quantity }, { transaction: t });
-                console.log(`   - ${product.name}: -${item.quantity}`);
             }
         }
 
@@ -353,9 +403,16 @@ router.delete('/:id', async (req, res) => {
         if (order.order_status !== 'cancelled') {
             console.log(`📦 Devolviendo stock por eliminación del pedido #${order.id}`);
             for (const item of order.items) {
-                const product = await Product.findByPk(item.id, { transaction: t });
-                if (product) {
-                    await product.update({ stock: product.stock + item.quantity }, { transaction: t });
+                if (item.variant) {
+                    const variant = await ProductVariant.findByPk(item.variant.id, { transaction: t });
+                    if (variant) {
+                        await variant.update({ stock: variant.stock + item.quantity }, { transaction: t });
+                    }
+                } else {
+                    const product = await Product.findByPk(item.id, { transaction: t });
+                    if (product) {
+                        await product.update({ stock: product.stock + item.quantity }, { transaction: t });
+                    }
                 }
             }
         }

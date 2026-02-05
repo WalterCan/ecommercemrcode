@@ -110,8 +110,12 @@ Category.hasMany(Product, {
 
 // Definir asociaciones (se pueden mover a index.js o relationships.js si crece)
 const ProductImage = require('./ProductImage');
+const ProductVariant = require('./ProductVariant');
 
 Product.hasMany(ProductImage, { as: 'images', foreignKey: 'product_id', onDelete: 'CASCADE' });
 ProductImage.belongsTo(Product, { foreignKey: 'product_id' });
+
+Product.hasMany(ProductVariant, { as: 'variants', foreignKey: 'product_id', onDelete: 'CASCADE' });
+ProductVariant.belongsTo(Product, { foreignKey: 'product_id' });
 
 module.exports = Product;

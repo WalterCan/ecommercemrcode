@@ -26,6 +26,8 @@ const AdminProductForm = () => {
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [gallery, setGallery] = useState([]); // Array of { id, image_url }
     const [deletedImageIds, setDeletedImageIds] = useState([]);
+    // Estado para Variantes
+    const [variants, setVariants] = useState([]); // Array of { id?, name, additional_price, stock }
     const [loading, setLoading] = useState(false);
     const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
@@ -79,6 +81,11 @@ const AdminProductForm = () => {
                 if (data.cost_price && data.price && parseFloat(data.cost_price) > 0) {
                     const marg = ((parseFloat(data.price) - parseFloat(data.cost_price)) / parseFloat(data.cost_price)) * 100;
                     setMargin(marg.toFixed(2));
+                }
+
+                // Cargar variantes si existen
+                if (data.variants && Array.isArray(data.variants)) {
+                    setVariants(data.variants);
                 }
             } else {
                 showToast('Error al cargar el producto', 'error');
@@ -163,6 +170,21 @@ const AdminProductForm = () => {
         }
     };
 
+    // --- Manejo de Variantes ---
+    const addVariant = () => {
+        setVariants([...variants, { name: '', additional_price: '', stock: '' }]);
+    };
+
+    const removeVariant = (index) => {
+        setVariants(variants.filter((_, i) => i !== index));
+    };
+
+    const handleVariantChange = (index, field, value) => {
+        const newVariants = [...variants];
+        newVariants[index][field] = value;
+        setVariants(newVariants);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -195,6 +217,11 @@ const AdminProductForm = () => {
 
             if (deletedImageIds.length > 0) {
                 data.append('deleted_images', JSON.stringify(deletedImageIds));
+            }
+
+            // Variantes
+            if (variants.length > 0) {
+                data.append('variants', JSON.stringify(variants));
             }
 
             const token = localStorage.getItem('token');
@@ -363,6 +390,74 @@ const AdminProductForm = () => {
                                 />
                                 <p className="text-[10px] text-slate-400 mt-1">Nivel crítico</p>
                             </div>
+                        </div>
+
+                        {/* Variants Section */}
+                        <div className="col-span-2 pt-6 border-t border-beige-dark/5">
+                            <div className="flex justify-between items-center mb-4">
+                                <label className="block text-xs font-bold uppercase tracking-widest text-slate-500">Variantes de Producto</label>
+                                <button
+                                    type="button"
+                                    onClick={addVariant}
+                                    className="text-xs font-bold text-earth hover:text-earth-dark uppercase tracking-wide flex items-center gap-1"
+                                >
+                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
+                                    Agregar Variante
+                                </button>
+                            </div>
+
+                            {variants.length > 0 ? (
+                                <div className="space-y-3">
+                                    {variants.map((variant, index) => (
+                                        <div key={index} className="grid grid-cols-12 gap-3 items-end bg-paper p-4 rounded-xl border border-beige-dark/10">
+                                            <div className="col-span-5">
+                                                <label className="block text-[10px] font-bold text-slate-400 mb-1">Nombre (Ej: 50ml, XL)</label>
+                                                <input
+                                                    type="text"
+                                                    value={variant.name}
+                                                    onChange={(e) => handleVariantChange(index, 'name', e.target.value)}
+                                                    className="w-full bg-white border border-beige-dark/10 rounded-lg p-2 text-sm focus:border-earth focus:ring-1 focus:ring-earth outline-none"
+                                                    placeholder="Nombre de variante"
+                                                />
+                                            </div>
+                                            <div className="col-span-3">
+                                                <label className="block text-[10px] font-bold text-slate-400 mb-1">Precio Extra ($)</label>
+                                                <input
+                                                    type="number"
+                                                    value={variant.additional_price}
+                                                    onChange={(e) => handleVariantChange(index, 'additional_price', e.target.value)}
+                                                    className="w-full bg-white border border-beige-dark/10 rounded-lg p-2 text-sm focus:border-earth focus:ring-1 focus:ring-earth outline-none"
+                                                    placeholder="0.00"
+                                                />
+                                            </div>
+                                            <div className="col-span-3">
+                                                <label className="block text-[10px] font-bold text-slate-400 mb-1">Stock Variante</label>
+                                                <input
+                                                    type="number"
+                                                    value={variant.stock}
+                                                    onChange={(e) => handleVariantChange(index, 'stock', e.target.value)}
+                                                    className="w-full bg-white border border-beige-dark/10 rounded-lg p-2 text-sm focus:border-earth focus:ring-1 focus:ring-earth outline-none"
+                                                    placeholder="0"
+                                                />
+                                            </div>
+                                            <div className="col-span-1 flex justify-center pb-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeVariant(index)}
+                                                    className="text-red-400 hover:text-red-600 transition-colors"
+                                                    title="Eliminar variante"
+                                                >
+                                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-sm text-slate-400 italic bg-paper p-4 rounded-xl border border-dashed border-beige-dark/20 text-center">
+                                    No hay variantes creadas. Haz clic en "Agregar Variante" para crear opciones como talles o pesos.
+                                </p>
+                            )}
                         </div>
 
                         <div>

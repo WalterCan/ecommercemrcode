@@ -1,6 +1,7 @@
 const Product = require('../models/Product');
 const ProductImage = require('../models/ProductImage');
 const Category = require('../models/Category');
+const ProductVariant = require('../models/ProductVariant');
 const fs = require('fs');
 const path = require('path');
 
@@ -32,9 +33,37 @@ exports.createProduct = async (req, res) => {
             await Promise.all(imagePromises);
         }
 
-        // Devolver producto con sus imágenes
+        // Manejo de Variantes
+        if (req.body.variants) {
+            let variantsData = [];
+            try {
+                // Puede venir como string JSON (FormData) o objeto directo (JSON body)
+                variantsData = typeof req.body.variants === 'string'
+                    ? JSON.parse(req.body.variants)
+                    : req.body.variants;
+
+                if (Array.isArray(variantsData) && variantsData.length > 0) {
+                    const variantPromises = variantsData.map(variant => {
+                        return ProductVariant.create({
+                            product_id: product.id,
+                            name: variant.name,
+                            additional_price: variant.additional_price || 0,
+                            stock: variant.stock || 0
+                        });
+                    });
+                    await Promise.all(variantPromises);
+                }
+            } catch (e) {
+                console.error('Error parsing variants:', e);
+            }
+        }
+
+        // Devolver producto con sus imágenes y variantes
         const finalProduct = await Product.findByPk(product.id, {
-            include: [{ model: ProductImage, as: 'images' }]
+            include: [
+                { model: ProductImage, as: 'images' },
+                { model: ProductVariant, as: 'variants' }
+            ]
         });
 
         res.status(201).json(finalProduct);
@@ -103,11 +132,69 @@ exports.updateProduct = async (req, res) => {
             }
         }
 
+        // Manejo de Variantes
+        if (req.body.variants) {
+            let variantsData = [];
+            try {
+                // Parseo seguro
+                variantsData = typeof req.body.variants === 'string'
+                    ? JSON.parse(req.body.variants)
+                    : req.body.variants;
+
+                if (Array.isArray(variantsData)) {
+                    // 1. Obtener variantes existentes
+                    const existingVariants = await ProductVariant.findAll({ where: { product_id: product.id } });
+                    const existingIds = existingVariants.map(v => v.id);
+
+                    // 2. Identificar variantes a borrar, actualizar y crear
+                    const incomingIds = variantsData
+                        .filter(v => v.id) // Los que tienen ID
+                        .map(v => parseInt(v.id));
+
+                    const toDelete = existingIds.filter(id => !incomingIds.includes(id));
+                    const toUpdate = variantsData.filter(v => v.id && existingIds.includes(parseInt(v.id)));
+                    const toCreate = variantsData.filter(v => !v.id);
+
+                    // 3. Ejecutar acciones
+                    // DELETE
+                    if (toDelete.length > 0) {
+                        await ProductVariant.destroy({ where: { id: toDelete } });
+                    }
+
+                    // UPDATE
+                    const updatePromises = toUpdate.map(v => {
+                        return ProductVariant.update({
+                            name: v.name,
+                            additional_price: v.additional_price || 0,
+                            stock: v.stock || 0
+                        }, { where: { id: v.id } });
+                    });
+
+                    // CREATE
+                    const createPromises = toCreate.map(v => {
+                        return ProductVariant.create({
+                            product_id: product.id,
+                            name: v.name,
+                            additional_price: v.additional_price || 0,
+                            stock: v.stock || 0
+                        });
+                    });
+
+                    await Promise.all([...updatePromises, ...createPromises]);
+                }
+            } catch (e) {
+                console.error('Error updating variants:', e);
+            }
+        }
+
         await product.update(productData);
 
         // Devolver producto actualizado
         const updatedProduct = await Product.findByPk(product.id, {
-            include: [{ model: ProductImage, as: 'images' }]
+            include: [
+                { model: ProductImage, as: 'images' },
+                { model: ProductVariant, as: 'variants' }
+            ]
         });
 
         res.json(updatedProduct);

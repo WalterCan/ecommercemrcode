@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Product = require('../models/Product');
 const ProductImage = require('../models/ProductImage');
+const ProductVariant = require('../models/ProductVariant');
 const Category = require('../models/Category');
 const { validateProduct } = require('../middleware/validator');
 const { protect, admin } = require('../middleware/authMiddleware');
@@ -116,7 +117,8 @@ router.get('/:id', async (req, res) => {
         const product = await Product.findByPk(req.params.id, {
             include: [
                 { model: Category, as: 'category' },
-                { model: ProductImage, as: 'images' }
+                { model: ProductImage, as: 'images' },
+                { model: ProductVariant, as: 'variants' }
             ]
         });
         if (!product) return res.status(404).json({ message: 'Producto no encontrado' });
