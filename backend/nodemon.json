@@ -1,9 +1,13 @@
 {
     "ignore": [
-        "whatsapp_sessions/*",
-        "uploads/*",
-        "node_modules/*",
-        ".git/*"
+        "**/whatsapp_sessions/**",
+        "**/node_modules/**",
+        "**/.git/**"
+    ],
+    "watch": [
+        "src",
+        "index.js",
+        ".env"
     ],
     "ext": "js,json"
 }

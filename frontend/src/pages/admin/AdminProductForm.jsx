@@ -23,7 +23,9 @@ const AdminProductForm = () => {
     });
     const [margin, setMargin] = useState('');
     const [categories, setCategories] = useState([]);
-    const [selectedFile, setSelectedFile] = useState(null);
+    const [selectedFiles, setSelectedFiles] = useState([]);
+    const [gallery, setGallery] = useState([]); // Array of { id, image_url }
+    const [deletedImageIds, setDeletedImageIds] = useState([]);
     const [loading, setLoading] = useState(false);
     const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
@@ -64,6 +66,14 @@ const AdminProductForm = () => {
                     image_url: data.image_url || '',
                     featured: data.featured || false
                 });
+
+                // Cargar galería si existe
+                if (data.images && data.images.length > 0) {
+                    setGallery(data.images);
+                } else if (data.image_url) {
+                    // Si no hay array de imágenes pero hay image_url (legacy), mostrarla como parte de la galería inicial
+                    setGallery([{ id: 'legacy', image_url: data.image_url }]);
+                }
 
                 // Calcular margen inicial si existen precios
                 if (data.cost_price && data.price && parseFloat(data.cost_price) > 0) {
@@ -131,8 +141,25 @@ const AdminProductForm = () => {
 
 
     const handleFileChange = (e) => {
-        if (e.target.files && e.target.files[0]) {
-            setSelectedFile(e.target.files[0]);
+        if (e.target.files && e.target.files.length > 0) {
+            // Convertir FileList a Array y añadir a los existentes
+            const newFiles = Array.from(e.target.files);
+            setSelectedFiles(prev => [...prev, ...newFiles]);
+        }
+    };
+
+    const removeSelectedFile = (index) => {
+        setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+    };
+
+    const removeExistingImage = (imageId) => {
+        if (imageId === 'legacy') {
+            // Caso especial para imagen legacy no migrada a tabla
+            setGallery(prev => prev.filter(img => img.id !== 'legacy'));
+            // También la marcamos para posible limpieza si hiciera falta, aunque el controlador manejará la nueva principal
+        } else {
+            setDeletedImageIds(prev => [...prev, imageId]);
+            setGallery(prev => prev.filter(img => img.id !== imageId));
         }
     };
 
@@ -160,11 +187,14 @@ const AdminProductForm = () => {
             data.append('category_id', formData.category_id);
             data.append('featured', formData.featured ? '1' : '0');
 
-            if (selectedFile) {
-                data.append('image', selectedFile);
-            } else if (!isEditing && !formData.image_url) {
-                // Optional: Handle case where no image is provided for new product
-                // data.append('image_url', 'some_default_url');
+            if (selectedFiles.length > 0) {
+                selectedFiles.forEach(file => {
+                    data.append('images', file);
+                });
+            }
+
+            if (deletedImageIds.length > 0) {
+                data.append('deleted_images', JSON.stringify(deletedImageIds));
             }
 
             const token = localStorage.getItem('token');
@@ -352,50 +382,56 @@ const AdminProductForm = () => {
                         </div>
 
                         <div className="col-span-2">
-                            <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Imagen del Producto</label>
+                            <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">Galería de Imágenes</label>
 
-                            {/* Preview de la imagen actual cuando se está editando */}
-                            {isEditing && formData.image_url && !selectedFile && (
-                                <div className="mb-4 p-4 bg-beige-light/30 rounded-xl border border-beige-dark/10">
-                                    <p className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">Imagen Actual</p>
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-20 h-20 rounded-lg overflow-hidden bg-white border border-beige-dark/20 flex-shrink-0">
-                                            <img
-                                                src={formatImageUrl(formData.image_url)}
-                                                alt="Preview actual"
-                                                className="w-full h-full object-cover"
-                                            />
-                                        </div>
-                                        <div className="flex-1">
-                                            <p className="text-sm font-medium text-slate-700 mb-1">
-                                                {formData.image_url.startsWith('http')
-                                                    ? 'Imagen externa'
-                                                    : formData.image_url.split('/').pop()}
-                                            </p>
+                            {/* Galería Existente y Previews Nuevos */}
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                                {/* Imágenes Existentes de la BD */}
+                                {gallery.map((img) => (
+                                    <div key={img.id} className="relative aspect-square group rounded-xl overflow-hidden border border-beige-dark/20">
+                                        <img src={formatImageUrl(img.image_url)} alt="Product" className="w-full h-full object-cover" />
+                                        <button
+                                            type="button"
+                                            onClick={() => removeExistingImage(img.id)}
+                                            className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                        >
+                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                        </button>
+                                        <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-[10px] p-1 text-center">
+                                            Guardada
                                         </div>
                                     </div>
-                                </div>
-                            )}
+                                ))}
 
-                            <div className="flex items-center justify-center w-full">
-                                <label htmlFor="dropzone-file" className="flex flex-col items-center justify-center w-full h-32 border-2 border-beige-dark/20 border-dashed rounded-xl cursor-pointer bg-paper hover:bg-beige-light/50 transition-all">
-                                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                        <svg className="w-8 h-8 mb-4 text-slate-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
-                                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2" />
+                                {/* Previews de Nuevos Archivos Seleccionados */}
+                                {selectedFiles.map((file, index) => (
+                                    <div key={index} className="relative aspect-square group rounded-xl overflow-hidden border-2 border-earth/30">
+                                        <img src={URL.createObjectURL(file)} alt="Preview" className="w-full h-full object-cover" />
+                                        <button
+                                            type="button"
+                                            onClick={() => removeSelectedFile(index)}
+                                            className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-100 transition-opacity"
+                                        >
+                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                        </button>
+                                        <div className="absolute bottom-0 left-0 right-0 bg-earth text-white text-[10px] p-1 text-center">
+                                            Nueva
+                                        </div>
+                                    </div>
+                                ))}
+
+                                {/* Botón de Subida */}
+                                <label className="flex flex-col items-center justify-center aspect-square border-2 border-beige-dark/20 border-dashed rounded-xl cursor-pointer bg-paper hover:bg-beige-light/50 transition-all group">
+                                    <div className="flex flex-col items-center justify-center pt-5 pb-6 text-center">
+                                        <svg className="w-8 h-8 mb-2 text-slate-400 group-hover:text-earth transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
                                         </svg>
-                                        <p className="text-sm text-slate-500"><span className="font-bold">Haz clic para subir</span> o arrastra y suelta</p>
-                                        <p className="text-xs text-slate-400">SVG, PNG, JPG (MAX. 5MB)</p>
+                                        <p className="text-xs text-slate-500 font-bold group-hover:text-earth">Añadir Fotos</p>
                                     </div>
-                                    <input id="dropzone-file" type="file" className="hidden" onChange={handleFileChange} accept="image/*" />
+                                    <input type="file" className="hidden" onChange={handleFileChange} accept="image/*" multiple />
                                 </label>
                             </div>
-                            {selectedFile && (
-                                <div className="mt-3 p-3 bg-earth/10 rounded-lg border border-earth/20">
-                                    <p className="text-sm font-bold text-earth">
-                                        ✓ Nuevo archivo seleccionado: {selectedFile.name}
-                                    </p>
-                                </div>
-                            )}
+                            <p className="text-[10px] text-slate-400 italic">* Puedes subir múltiples imágenes. La primera imagen de la lista será la principal.</p>
                         </div>
 
                         <div className="col-span-2 flex items-center gap-3 p-4 bg-beige-light/30 rounded-xl">

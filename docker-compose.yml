@@ -28,13 +28,15 @@ services:
       - DB_PASSWORD=root_password
       - DB_NAME=ecommercemrcode
       - FRONTEND_URL=http://localhost:5176
-      - NODE_OPTIONS=--max-old-space-size=4096
+      - NODE_OPTIONS=--max-old-space-size=2048
+      - PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+      - PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
     deploy:
       resources:
         limits:
-          memory: 4G
+          memory: 1.5G
         reservations:
-          memory: 2G
+          memory: 512M
     volumes:
       - ./backend:/app
       - /app/node_modules # Evita sobreescribir node_modules del contenedor
@@ -56,13 +58,15 @@ services:
     environment:
       - VITE_API_URL=http://localhost:3002/api # URL para que el navegador llame al backend
       - VITE_MP_PUBLIC_KEY=${MERCADOPAGO_PUBLIC_KEY}
-      - NODE_OPTIONS=--max-old-space-size=4096
+      - NODE_OPTIONS=--max-old-space-size=2048
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
     deploy:
       resources:
         limits:
-          memory: 4G
+          memory: 1.5G
         reservations:
-          memory: 2G
+          memory: 512M
     depends_on:
       - backend
 

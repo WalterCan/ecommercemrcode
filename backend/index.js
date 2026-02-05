@@ -50,7 +50,7 @@ async function startServer() {
         // ============================================
         // SINCRONIZACIÓN DE MODELOS CON LA BASE DE DATOS
         // ============================================
-        await sequelize.sync({ alter: true });
+        await sequelize.sync(); // alter: true eliminado para evitar error "Too many keys"
         console.log('✅ Modelos sincronizados con la base de datos.');
 
         // ============================================

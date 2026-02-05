@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react'
 // https://vitejs.dev/config/
 export default defineConfig({
     plugins: [react()],
-    cacheDir: './node_modules/.vite',
+    // cacheDir removed to use default avoiding path issues
     server: {
         host: true,
         port: 5173,
@@ -17,12 +17,13 @@ export default defineConfig({
         },
         watch: {
             usePolling: true,
-            interval: 500, // Menos frecuente para ahorrar CPU/Memoria
-            ignored: ['**/node_modules/**', '**/dist/**', '**/.git/**', '**/public/**']
+            interval: 2000,
+            binaryInterval: 3000,
+            ignored: ['**/node_modules/**', '**/dist/**', '**/.git/**', '**/public/**', '**/.DS_Store', '**/coverage/**']
         },
         hmr: {
             host: 'localhost',
-            clientPort: 5176 // Puerto expuesto en docker-compose
+            clientPort: 5176
         }
     },
     optimizeDeps: {

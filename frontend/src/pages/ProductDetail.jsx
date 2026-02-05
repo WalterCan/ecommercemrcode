@@ -23,10 +23,51 @@ const ProductDetail = () => {
 
     // Estados principales
     const [product, setProduct] = useState(null);
+    const [selectedImage, setSelectedImage] = useState(null);
     const [relatedProducts, setRelatedProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [settings, setSettings] = useState({});
     const [activeModules, setActiveModules] = useState([]); // [NEW] Verificación de módulos
+
+    // Ref para carrusel
+    const galleryParams = React.useRef(null);
+
+    // Calcular galería de imágenes
+    const gallery = React.useMemo(() => {
+        if (!product) return [];
+        let imgs = [];
+        if (product.images && product.images.length > 0) {
+            imgs = product.images.map(img => img.image_url);
+        }
+        if (product.image_url && !imgs.includes(product.image_url)) {
+            imgs.unshift(product.image_url);
+        }
+        return imgs;
+    }, [product]);
+
+    const navigateGallery = (direction) => {
+        if (!gallery.length) return;
+
+        const currentIndex = gallery.indexOf(selectedImage || gallery[0]);
+        let newIndex;
+
+        if (direction === 'left') {
+            newIndex = currentIndex === 0 ? gallery.length - 1 : currentIndex - 1;
+        } else {
+            newIndex = currentIndex === gallery.length - 1 ? 0 : currentIndex + 1;
+        }
+
+        setSelectedImage(gallery[newIndex]);
+
+        // Scroll automático para seguir la selección
+        if (galleryParams.current) {
+            const thumbnailWidth = 96; // 80px width + 16px gap approx
+            galleryParams.current.scrollTo({
+                left: newIndex * thumbnailWidth,
+                behavior: 'smooth'
+            });
+        }
+    };
 
     // Estados de Reserva (Solo para Servicios)
     const [selectedDate, setSelectedDate] = useState(null);
@@ -58,6 +99,12 @@ const ProductDetail = () => {
 
                 const prodData = await prodRes.json();
                 setProduct(prodData);
+                // Inicializar imagen seleccionada con la principal
+                if (prodData.image_url) {
+                    setSelectedImage(prodData.image_url);
+                } else if (prodData.images && prodData.images.length > 0) {
+                    setSelectedImage(prodData.images[0].image_url);
+                }
 
                 // Relacionados
                 const allData = await allRes.json();
@@ -229,9 +276,54 @@ const ProductDetail = () => {
                 </nav>
 
                 <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-start mb-20">
-                    {/* Imagen */}
-                    <div className="aspect-square bg-white rounded-[40px] overflow-hidden shadow-2xl border border-beige-dark/10">
-                        <img src={formatImageUrl(product.image_url)} alt={product.name} className="w-full h-full object-cover" />
+                    {/* Galería de Imágenes */}
+                    <div className="space-y-4">
+                        {/* Imagen Principal */}
+                        <div className="aspect-square bg-white rounded-[40px] overflow-hidden shadow-2xl border border-beige-dark/10 relative group">
+                            <img
+                                src={formatImageUrl(selectedImage || product.image_url)}
+                                alt={product.name}
+                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            />
+                        </div>
+
+                        {/* Carrusel de Miniaturas (Solo si hay más de 1 imagen) */}
+                        {/* Carrusel de Miniaturas (Solo si hay más de 1 imagen) */}
+                        {gallery.length > 1 && (
+                            <div className="relative group/gallery">
+                                <button
+                                    onClick={() => navigateGallery('left')}
+                                    className="absolute left-0 top-1/2 -translate-y-1/2 z-20 p-2 bg-white/80 hover:bg-white rounded-full shadow-lg border border-gray-200 transition-transform hover:scale-110"
+                                >
+                                    <svg className="w-5 h-5 text-earth" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
+                                </button>
+
+                                <div
+                                    ref={galleryParams}
+                                    className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide scroll-smooth px-1"
+                                >
+                                    {gallery.map((img, idx) => (
+                                        <button
+                                            key={idx}
+                                            onClick={() => setSelectedImage(img)}
+                                            className={`
+                                                relative w-20 h-20 flex-shrink-0 rounded-2xl overflow-hidden border-2 transition-all
+                                                ${selectedImage === img ? 'border-earth ring-2 ring-earth/30' : 'border-beige-dark/10 hover:border-earth/50'}
+                                            `}
+                                        >
+                                            <img src={formatImageUrl(img)} alt={`View ${idx}`} className="w-full h-full object-cover" />
+                                        </button>
+                                    ))}
+                                </div>
+
+                                <button
+                                    onClick={() => navigateGallery('right')}
+                                    className="absolute right-0 top-1/2 -translate-y-1/2 z-20 p-2 bg-white/80 hover:bg-white rounded-full shadow-lg border border-gray-200 transition-transform hover:scale-110"
+                                >
+                                    <svg className="w-5 h-5 text-earth" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
+                                </button>
+                            </div>
+                        )}
                     </div>
 
                     {/* Info */}
