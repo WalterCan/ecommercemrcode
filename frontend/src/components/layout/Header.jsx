@@ -159,8 +159,8 @@ const Header = ({ onSearch }) => {
                     )}
                 </nav>
 
-                {/* Logo Central */}
-                <div className="flex-1 flex justify-center md:justify-center absolute left-1/2 transform -translate-x-1/2 md:static md:transform-none md:left-auto">
+                {/* Logo Central (Absolutamente centrado en Desktop) */}
+                <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-auto flex justify-center">
                     <Link to="/" className="text-2xl font-serif tracking-tighter font-bold flex items-center justify-center">
                         {(settings.site_logo_url && settings.site_logo_url !== 'null' && settings.site_logo_url !== '') ? (
                             <img
@@ -227,6 +227,7 @@ const Header = ({ onSearch }) => {
                                     </div>
                                 )}
                             </div>
+
                             <button
                                 onClick={toggleCart}
                                 className="relative p-2 text-slate-600 hover:text-earth"

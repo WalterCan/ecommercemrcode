@@ -173,18 +173,35 @@ function App() {
                                         <Route path="/contacto" element={<Contact />} />
 
                                         {/* Rutas de E-commerce (Protegidas por módulo) */}
-                                        {(activeModules.includes('ecommerce') || activeModules.includes('web')) && (
-                                            // Nota: Si 'web' está activo, permitimos 'products' porque Home puede usarlo, 
-                                            // pero si queremos estricto, quitamos 'activeModules.includes('web')'
-                                            // El usuario pidió separar. Si solo es WEB, no debería haber productos.
-                                            // Corrijo: SOLO si 'ecommerce' está activo.
-                                            <>
-                                                <Route path="/product/:id" element={<ProductDetail />} />
-                                                <Route path="/productos" element={activeModules.includes('ecommerce') ? <Products /> : <Navigate to="/" />} />
-                                                <Route path="/checkout" element={activeModules.includes('ecommerce') ? <Checkout /> : <Navigate to="/" />} />
-                                                <Route path="/order-confirmation/:orderId" element={activeModules.includes('ecommerce') ? <OrderConfirmation /> : <Navigate to="/" />} />
-                                            </>
-                                        )}
+                                        <Route path="/productos" element={
+                                            <ModuleRoute moduleCode="ecommerce" moduleName="Tienda">
+                                                <Products />
+                                            </ModuleRoute>
+                                        } />
+                                        <Route path="/product/:id" element={
+                                            <ModuleRoute moduleCode="ecommerce" moduleName="Tienda">
+                                                <ProductDetail />
+                                            </ModuleRoute>
+                                        } />
+                                        <Route path="/checkout" element={
+                                            <ModuleRoute moduleCode="ecommerce" moduleName="Tienda">
+                                                <PrivateRoute>
+                                                    <Checkout />
+                                                </PrivateRoute>
+                                            </ModuleRoute>
+                                        } />
+                                        <Route path="/order-confirmation/:orderId" element={
+                                            <ModuleRoute moduleCode="ecommerce" moduleName="Tienda">
+                                                <PrivateRoute>
+                                                    <OrderConfirmation />
+                                                </PrivateRoute>
+                                            </ModuleRoute>
+                                        } />
+                                        <Route path="/payment/status" element={
+                                            <ModuleRoute moduleCode="ecommerce" moduleName="Tienda">
+                                                <PaymentStatus />
+                                            </ModuleRoute>
+                                        } />
                                         <Route path="/login" element={<Login />} />
                                         <Route path="/registro" element={<Register />} />
                                         <Route path="/forgot-password" element={<ForgotPassword />} />
