@@ -13,6 +13,18 @@ const Login = () => {
     const { showToast } = useToast();
     const navigate = useNavigate();
     const location = useLocation();
+    const { user } = useAuth(); // Destructure user from useAuth
+
+    // Redirect if already logged in
+    React.useEffect(() => {
+        if (user) {
+            if (user.role === 'admin' || user.role === 'super_admin') {
+                navigate('/admin');
+            } else {
+                navigate('/');
+            }
+        }
+    }, [user, navigate]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();

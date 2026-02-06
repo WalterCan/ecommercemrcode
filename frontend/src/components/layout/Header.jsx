@@ -16,6 +16,7 @@ const Header = ({ onSearch }) => {
     const [suggestions, setSuggestions] = useState([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [activeModules, setActiveModules] = useState([]); // [NEW]
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [settings, setSettings] = useState({
         announcement_active: 'false',
         announcement_text: '',
@@ -75,6 +76,9 @@ const Header = ({ onSearch }) => {
         }
     };
 
+    // Cerrar menú móvil al cambiar de ruta
+    const closeMobileMenu = () => setMobileMenuOpen(false);
+
     return (
         <header className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-beige-dark/20">
             {/* Barra superior de anuncios */}
@@ -96,19 +100,52 @@ const Header = ({ onSearch }) => {
                 </div>
             )}
 
-            <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-                {/* Lado izquierdo: Navegación */}
-                <nav className="flex items-center gap-8">
-                    {(activeModules.includes('ecommerce') || user?.role === 'super_admin') && (
-                        <>
+            <div className="container mx-auto px-4 py-4 flex items-center justify-between relative">
+
+                {/* Botón Hamburguesa (Móvil) */}
+                <button
+                    className="md:hidden p-2 text-slate-600 hover:text-earth transition-colors focus:outline-none"
+                    onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                >
+                    {mobileMenuOpen ? (
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                    ) : (
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                    )}
+                </button>
+
+                {/* Lado izquierdo: Navegación (Escritorio) */}
+                <nav className="hidden md:flex items-center gap-8">
+                    {/* Links del Sitio Web (Inicio, Nosotros) */}
+                    {((activeModules.includes('web') || activeModules.includes('ecommerce')) &&
+                        (settings.web_show_home === 'true' || settings.web_show_home === true || user?.role === 'super_admin')) && (
                             <Link to="/" className="text-xs font-bold uppercase tracking-widest text-slate-600 hover:text-earth transition-colors">Inicio</Link>
-                            <Link to="/productos" className="text-xs font-bold uppercase tracking-widest text-slate-600 hover:text-earth transition-colors">Productos</Link>
+                        )}
+
+                    {((activeModules.includes('web') || activeModules.includes('ecommerce')) &&
+                        (settings.web_show_about === 'true' || settings.web_show_about === true || user?.role === 'super_admin')) && (
                             <Link to="/nosotros" className="text-xs font-bold uppercase tracking-widest text-slate-600 hover:text-earth transition-colors">Nosotros</Link>
-                        </>
-                    )}
-                    {(activeModules.includes('appointments') || user?.role === 'super_admin') && (
-                        <Link to="/terapias" className="text-xs font-bold uppercase tracking-widest text-slate-600 hover:text-earth transition-colors">Terapias</Link>
-                    )}
+                        )}
+
+                    {/* Link Contacto (Nuevo) */}
+                    {((activeModules.includes('web') || activeModules.includes('ecommerce')) &&
+                        (settings.web_show_contact === 'true' || settings.web_show_contact === true || user?.role === 'super_admin')) && (
+                            <Link to="/contacto" className="text-xs font-bold uppercase tracking-widest text-slate-600 hover:text-earth transition-colors">Contacto</Link>
+                        )}
+
+                    {/* Links de E-commerce (Productos) */}
+                    {(
+                        (activeModules.includes('ecommerce') || user?.role === 'super_admin') &&
+                        (settings.web_show_products === 'true' || settings.web_show_products === true || user?.role === 'super_admin')
+                    ) && (
+                            <Link to="/productos" className="text-xs font-bold uppercase tracking-widest text-slate-600 hover:text-earth transition-colors">Productos</Link>
+                        )}
+                    {(
+                        (activeModules.includes('appointments') || user?.role === 'super_admin') &&
+                        (settings.web_show_therapies === 'true' || settings.web_show_therapies === true || user?.role === 'super_admin')
+                    ) && (
+                            <Link to="/terapias" className="text-xs font-bold uppercase tracking-widest text-slate-600 hover:text-earth transition-colors">Terapias</Link>
+                        )}
                     {(user?.role === 'admin' || user?.role === 'super_admin') && (
                         <Link
                             to="/admin"
@@ -122,22 +159,23 @@ const Header = ({ onSearch }) => {
                     )}
                 </nav>
 
-                <div className="flex-1 flex justify-center">
+                {/* Logo Central */}
+                <div className="flex-1 flex justify-center md:justify-center absolute left-1/2 transform -translate-x-1/2 md:static md:transform-none md:left-auto">
                     <Link to="/" className="text-2xl font-serif tracking-tighter font-bold flex items-center justify-center">
                         {(settings.site_logo_url && settings.site_logo_url !== 'null' && settings.site_logo_url !== '') ? (
                             <img
                                 src={formatImageUrl(settings.site_logo_url)}
                                 alt="Logo"
-                                className="h-10 md:h-12 w-auto object-contain"
+                                className="h-8 md:h-12 w-auto object-contain"
                             />
                         ) : (
                             <div className="flex flex-col items-center leading-none">
-                                <span style={{ color: settings.site_name_color || '#1e293b' }}>
+                                <span style={{ color: settings.site_name_color || '#1e293b' }} className="text-lg md:text-2xl">
                                     {settings.site_name || 'TIENDA HOLÍSTICA'}
                                 </span>
                                 {settings.site_tagline && (
                                     <span
-                                        className="text-[10px] uppercase tracking-[0.2em] mt-1 font-sans"
+                                        className="text-[8px] md:text-[10px] uppercase tracking-[0.2em] mt-1 font-sans hidden sm:block"
                                         style={{ color: settings.site_tagline_color || '#64748b' }}
                                     >
                                         {settings.site_tagline}
@@ -149,10 +187,10 @@ const Header = ({ onSearch }) => {
                 </div>
 
                 {/* Lado derecho: Búsqueda y Carrito */}
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 md:gap-4 ml-auto">
                     {(activeModules.includes('ecommerce') || user?.role === 'super_admin') && (
                         <>
-                            <div className="relative hidden sm:block">
+                            <div className="relative hidden lg:block">
                                 <input
                                     type="text"
                                     placeholder="Buscar..."
@@ -205,23 +243,10 @@ const Header = ({ onSearch }) => {
                         </>
                     )}
 
-                    {/* Botón de Mis Turnos (Solo Logueados) */}
-                    {user && activeModules.includes('appointments') && (
-                        <Link
-                            to="/mis-turnos"
-                            className="p-2 text-slate-600 hover:text-earth transition-colors"
-                            title="Mis Turnos"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                        </Link>
-                    )}
-
-                    {/* Botón de Cuenta */}
+                    {/* Botón de Cuenta (Icono) */}
                     <Link
                         to={user ? '/perfil' : '/login'}
-                        className="p-2 text-slate-600 hover:text-earth transition-colors"
+                        className="p-2 text-slate-600 hover:text-earth transition-colors hidden md:block"
                         title={user ? `Hola, ${user.name || 'Usuario'}` : 'Iniciar Sesión'}
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -230,6 +255,87 @@ const Header = ({ onSearch }) => {
                     </Link>
                 </div>
             </div>
+
+            {/* Menú Móvil Fullscreen */}
+            <div
+                className={`fixed inset-0 z-[50] w-screen h-screen transform transition-transform duration-300 ease-in-out md:hidden flex flex-col pt-24 px-8 !bg-white bg-opacity-100 ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}
+            >
+                {/* Botón Cerrar Menú */}
+                <button
+                    className="absolute top-6 right-6 p-2 text-slate-600 hover:text-earth transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                >
+                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+
+                {/* Search en Móvil */}
+                <div className="mb-8">
+                    <input
+                        type="text"
+                        placeholder="Buscar productos..."
+                        value={searchTerm}
+                        onChange={(e) => handleSearchChange(e.target.value)}
+                        className="w-full bg-beige/30 border-none rounded-xl px-4 py-3 text-lg focus:ring-1 focus:ring-earth/30"
+                    />
+                    {/* Lista sugerencias móvil */}
+                    {showSuggestions && suggestions.length > 0 && (
+                        <div className="mt-2 bg-white rounded-xl shadow-lg border border-beige-dark/10 overflow-hidden">
+                            {suggestions.map(p => (
+                                <Link
+                                    key={p.id}
+                                    to={`/product/${p.id}`}
+                                    className="flex items-center gap-3 px-4 py-3 border-b border-gray-50 last:border-0"
+                                    onClick={() => { setShowSuggestions(false); closeMobileMenu(); }}
+                                >
+                                    <div className="w-12 h-12 rounded-lg overflow-hidden bg-paper flex-shrink-0">
+                                        <img src={formatImageUrl(p.image_url)} alt={p.name} className="w-full h-full object-cover" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-bold text-slate-700">{p.name}</p>
+                                    </div>
+                                </Link>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                <nav className="flex flex-col gap-6 text-center">
+                    {((activeModules.includes('web') || activeModules.includes('ecommerce')) &&
+                        (settings.web_show_home === 'true' || settings.web_show_home === true || user?.role === 'super_admin')) && (
+                            <Link to="/" onClick={closeMobileMenu} className="text-xl font-serif font-bold text-slate-700 hover:text-earth">Inicio</Link>
+                        )}
+                    {((activeModules.includes('web') || activeModules.includes('ecommerce')) &&
+                        (settings.web_show_about === 'true' || settings.web_show_about === true || user?.role === 'super_admin')) && (
+                            <Link to="/nosotros" onClick={closeMobileMenu} className="text-xl font-serif font-bold text-slate-700 hover:text-earth">Nosotros</Link>
+                        )}
+                    {((activeModules.includes('web') || activeModules.includes('ecommerce')) &&
+                        (settings.web_show_contact === 'true' || settings.web_show_contact === true || user?.role === 'super_admin')) && (
+                            <Link to="/contacto" onClick={closeMobileMenu} className="text-xl font-serif font-bold text-slate-700 hover:text-earth">Contacto</Link>
+                        )}
+                    {(
+                        (activeModules.includes('ecommerce') || user?.role === 'super_admin') &&
+                        (settings.web_show_products === 'true' || settings.web_show_products === true || user?.role === 'super_admin')
+                    ) && (
+                            <Link to="/productos" onClick={closeMobileMenu} className="text-xl font-serif font-bold text-slate-700 hover:text-earth">Productos</Link>
+                        )}
+                    {(
+                        (activeModules.includes('appointments') || user?.role === 'super_admin') &&
+                        (settings.web_show_therapies === 'true' || settings.web_show_therapies === true || user?.role === 'super_admin')
+                    ) && (
+                            <Link to="/terapias" onClick={closeMobileMenu} className="text-xl font-serif font-bold text-slate-700 hover:text-earth">Terapias</Link>
+                        )}
+                    {(user?.role === 'admin' || user?.role === 'super_admin') && (
+                        <Link to="/admin" onClick={closeMobileMenu} className="text-xl font-serif font-bold text-earth mt-4">Panel de Administración</Link>
+                    )}
+
+                    <div className="w-12 h-0.5 bg-earth/20 mx-auto my-2"></div>
+
+                    <Link to={user ? '/perfil' : '/login'} onClick={closeMobileMenu} className="text-lg font-bold text-slate-500 hover:text-earth">
+                        {user ? 'Mi Cuenta' : 'Iniciar Sesión / Registrarse'}
+                    </Link>
+                </nav>
+            </div>
+
         </header>
     );
 };

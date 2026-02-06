@@ -242,8 +242,8 @@ const AdminLayout = ({ children, title, actions }) => {
 
             {/* Main Content Area */}
             <main className="flex-1 flex flex-col overflow-hidden">
-                <header className="h-20 bg-white border-b border-beige-dark/10 px-10 flex items-center justify-between sticky top-0 z-10 shrink-0">
-                    <h2 className="text-xl font-serif text-slate-800">{title}</h2>
+                <header className="min-h-[5rem] h-auto bg-white border-b border-beige-dark/10 px-4 md:px-10 py-3 flex flex-wrap md:flex-nowrap items-center justify-between gap-4 sticky top-0 z-10 shrink-0">
+                    <h2 className="text-lg md:text-xl font-serif text-slate-800 break-words max-w-full">{title}</h2>
 
                     <div className="flex items-center gap-6">
                         {actions}

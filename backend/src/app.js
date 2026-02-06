@@ -86,6 +86,7 @@ app.use('/api/modules', require('./routes/moduleRoutes'));
 app.use('/api/audit-logs', require('./routes/auditRoutes')); // [NEW] Auditoría
 app.use('/api/suppliers', supplierRoutes); // [NEW] Compras
 app.use('/api/purchases', purchaseRoutes); // [NEW] Compras
+app.use('/api/contact', require('./routes/contactRoutes')); // [NEW] Contacto Web
 
 /**
  * ============================================

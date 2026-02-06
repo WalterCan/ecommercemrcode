@@ -187,9 +187,8 @@ const ClientAppointments = () => {
     }, {});
 
     return (
-        <>
+        <Layout>
             <SEO title="Mis Turnos" description="Gestiona tus próximas citas" />
-            <Header />
 
             <div className="min-h-screen bg-gradient-to-br from-beige-light via-paper to-beige-light/50 py-20">
                 <div className="container mx-auto px-4 max-w-6xl">
@@ -408,7 +407,7 @@ const ClientAppointments = () => {
                     </div>
                 </div>
             )}
-        </>
+        </Layout>
     );
 };
 

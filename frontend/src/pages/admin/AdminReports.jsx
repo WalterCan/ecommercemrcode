@@ -4,9 +4,14 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 
 const AdminReports = () => {
-    const { logout } = useAuth();
+    const { logout, user } = useAuth();
     const { showToast } = useToast();
     const [loading, setLoading] = useState(false);
+
+    const hasModule = (moduleCode) => {
+        if (user?.role === 'super_admin') return true;
+        return user?.modules?.some(m => m.code === moduleCode);
+    };
 
     const downloadReport = async (type) => {
         setLoading(true);
@@ -42,11 +47,12 @@ const AdminReports = () => {
         }
     };
 
-    const reportCards = [
+    const allReports = [
         {
             id: 'sales',
             title: 'Reporte de Ventas',
-            description: 'Descarga un archivo Excel con el historial detallado de todas las ventas, incluyendo clientes, montos y estados.',
+            description: 'Historial detallado de todas las ventas, incluyendo clientes, montos y estados.',
+            module: 'ecommerce',
             icon: (
                 <svg className="w-12 h-12 text-earth" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -57,7 +63,8 @@ const AdminReports = () => {
         {
             id: 'stock',
             title: 'Reporte de Stock',
-            description: 'Obtén un estado actual del inventario, con niveles de stock, precios y alertas de stock crítico.',
+            description: 'Estado actual del inventario, con niveles de stock, precios y alertas de stock crítico.',
+            module: 'ecommerce',
             icon: (
                 <svg className="w-12 h-12 text-moss" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -68,21 +75,68 @@ const AdminReports = () => {
         {
             id: 'customers',
             title: 'Reporte de Clientes',
-            description: 'Lista completa de clientes registrados, con sus datos de contacto y fecha de registro.',
+            description: 'Lista completa de clientes registrados, con sus datos de contacto.',
+            module: 'ecommerce',
             icon: (
                 <svg className="w-12 h-12 text-terracotta" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>
             ),
             color: 'bg-terracotta/10'
+        },
+        {
+            id: 'suppliers',
+            title: 'Reporte de Proveedores',
+            description: 'Listado de proveedores activos con su información fiscal y datos de contacto.',
+            module: 'purchases',
+            icon: (
+                <span className="text-4xl">🏢</span>
+            ),
+            color: 'bg-orange-100'
+        },
+        {
+            id: 'purchases',
+            title: 'Reporte de Compras',
+            description: 'Historial detallado de compras, incluyendo precios, artículos y proveedores.',
+            module: 'purchases',
+            icon: (
+                <svg className="w-12 h-12 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+            ),
+            color: 'bg-orange-100'
+        },
+        {
+            id: 'turns',
+            title: 'Reporte de Turnos',
+            description: 'Historial de turnos agendados, estados y profesionales asignados.',
+            module: 'appointments',
+            icon: (
+                <svg className="w-12 h-12 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+            ),
+            color: 'bg-purple-100'
+        },
+        {
+            id: 'therapies',
+            title: 'Reporte de Terapias',
+            description: 'Resumen de sesiones de terapia realizadas y pacientes atendidos.',
+            module: 'appointments',
+            icon: (
+                <span className="text-4xl">🧘</span>
+            ),
+            color: 'bg-blue-100'
         }
     ];
 
+    const visibleReports = allReports.filter(report => hasModule(report.module));
+
     return (
         <AdminLayout title="Reportes y Estadísticas">
-            <div className="p-10 container mx-auto max-w-6xl">
+            <div className="p-4 md:p-10 container mx-auto max-w-6xl">
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {reportCards.map((card) => (
+                    {visibleReports.map((card) => (
                         <div key={card.id} className="bg-white rounded-3xl p-8 border border-beige-dark/10 shadow-sm hover:shadow-md transition-all flex flex-col items-center text-center group">
                             <div className={`${card.color} w-24 h-24 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
                                 {card.icon}

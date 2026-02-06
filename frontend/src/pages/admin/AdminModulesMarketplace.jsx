@@ -39,7 +39,7 @@ const AdminModulesMarketplace = () => {
 
     const handleRequestModule = (moduleName) => {
         const message = `Hola! Me gustaría solicitar información sobre el módulo: ${moduleName}`;
-        const whatsappUrl = `https://wa.me/5491122334455?text=${encodeURIComponent(message)}`;
+        const whatsappUrl = `https://wa.me/5493412763219?text=${encodeURIComponent(message)}`;
         window.open(whatsappUrl, '_blank');
     };
 

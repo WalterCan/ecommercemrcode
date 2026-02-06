@@ -63,6 +63,12 @@ router.put('/', upload.any(), async (req, res) => {
                     settingsUpdates.products_detail_attr1_image_url = `/uploads/${file.filename}`;
                 } else if (file.fieldname === 'attr2_image') {
                     settingsUpdates.products_detail_attr2_image_url = `/uploads/${file.filename}`;
+                } else if (file.fieldname === 'card1_image') {
+                    settingsUpdates.home_card_1_image_url = `/uploads/${file.filename}`;
+                } else if (file.fieldname === 'card2_image') {
+                    settingsUpdates.home_card_2_image_url = `/uploads/${file.filename}`;
+                } else if (file.fieldname === 'card3_image') {
+                    settingsUpdates.home_card_3_image_url = `/uploads/${file.filename}`;
                 }
             });
         }

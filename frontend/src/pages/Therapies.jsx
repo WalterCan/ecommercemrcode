@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
 import { useAuth } from '../context/AuthContext';
+import { useSettings } from '../context/SettingsContext';
 import { formatImageUrl } from '../utils/imageConfig';
 
 const Therapies = () => {
     const { user: currentUser } = useAuth();
+    const { settings } = useSettings();
     const [therapies, setTherapies] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isModuleActive, setIsModuleActive] = useState(true);
@@ -148,14 +150,14 @@ const Therapies = () => {
                             </div>
                             <div className="shrink-0">
                                 <a
-                                    href="https://wa.me/5491122334455"
+                                    href={`https://wa.me/${settings.whatsapp_number || '5493412763219'}?text=${encodeURIComponent('Hola! Me interesa solicitar información sobre las terapias.')}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-3 bg-white text-slate-900 px-8 py-4 rounded-full font-bold uppercase tracking-widest hover:bg-beige transition-all group shadow-xl"
+                                    className="inline-flex items-center gap-2 bg-earth hover:bg-earth-dark text-white px-6 py-3 rounded-xl font-bold transition-all shadow-lg shadow-earth/20 transform hover:-translate-y-1"
                                 >
-                                    <span>Contactar por WhatsApp</span>
-                                    <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="group-hover:translate-x-1 transition-transform">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                                    <span>Consultar por WhatsApp</span>
+                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
                                 </a>
                             </div>

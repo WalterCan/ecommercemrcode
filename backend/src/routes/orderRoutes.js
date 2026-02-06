@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Order = require('../models/Order');
 const Product = require('../models/Product');
-const ProductVariant = require('../models/ProductVariant'); // [NEW] Importar modelo de variantes
+const ProductVariant = require('../models/ProductVariant');
 const Coupon = require('../models/Coupon');
 const sequelize = require('../config/db');
 const { createPaymentPreference, getPaymentInfo } = require('../services/mercadopagoService');
@@ -10,18 +10,34 @@ const { sendOrderMessage } = require('../services/whatsappService');
 const emailService = require('../services/emailService');
 const { validateOrder } = require('../middleware/validator');
 const { orderLimiter } = require('../middleware/rateLimiter');
-
-// ============================================
-// RUTAS DE ÓRDENES
-// ============================================
+const { Op } = require('sequelize');
 
 /**
  * GET /api/orders
- * Obtener todos los pedidos (para admin)
+ * Obtener todos los pedidos (para admin) con filtros opcionales de fecha
  */
 router.get('/', async (req, res) => {
     try {
+        const { startDate, endDate } = req.query;
+        const whereClause = {};
+
+        // Filtro por fecha
+        if (startDate || endDate) {
+            whereClause.created_at = {};
+            if (startDate) {
+                const start = new Date(startDate);
+                start.setHours(0, 0, 0, 0);
+                whereClause.created_at[Op.gte] = start;
+            }
+            if (endDate) {
+                const end = new Date(endDate);
+                end.setHours(23, 59, 59, 999);
+                whereClause.created_at[Op.lte] = end;
+            }
+        }
+
         const orders = await Order.findAll({
+            where: whereClause,
             order: [['created_at', 'DESC']]
         });
         res.json(orders);

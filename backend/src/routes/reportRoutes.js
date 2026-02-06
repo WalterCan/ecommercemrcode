@@ -15,7 +15,7 @@ const isAdmin = (req, res, next) => {
 
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
-        if (decoded.role !== 'admin') {
+        if (decoded.role !== 'admin' && decoded.role !== 'super_admin') {
             return res.status(403).json({ message: 'Acceso denegado: Se requieren permisos de administrador' });
         }
         req.user = decoded;
@@ -28,5 +28,9 @@ const isAdmin = (req, res, next) => {
 router.get('/sales', isAdmin, reportController.getSalesReport);
 router.get('/stock', isAdmin, reportController.getStockReport);
 router.get('/customers', isAdmin, reportController.getCustomersReport);
+router.get('/suppliers', isAdmin, reportController.getSuppliersReport);
+router.get('/turns', isAdmin, reportController.getTurnsReport);
+router.get('/therapies', isAdmin, reportController.getTherapiesReport);
+router.get('/purchases', isAdmin, reportController.getPurchasesReport);
 
 module.exports = router;

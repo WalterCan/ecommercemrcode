@@ -62,7 +62,7 @@ const AdminPurchaseDetail = () => {
             title={`Detalle de Compra #${purchase.id}`}
             actions={<Link to="/admin/purchases" className="text-slate-500 hover:text-earth text-sm font-bold">Volver al listado</Link>}
         >
-            <div className="p-10 max-w-5xl mx-auto w-full space-y-6">
+            <div className="p-4 md:p-10 max-w-5xl mx-auto w-full space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {/* Info General */}
                     <div className="bg-white p-8 rounded-3xl shadow-sm border border-beige-dark/10 md:col-span-2 space-y-4">
@@ -116,39 +116,41 @@ const AdminPurchaseDetail = () => {
 
                 {/* Tabla de Items */}
                 <div className="bg-white rounded-3xl shadow-sm border border-beige-dark/10 overflow-hidden">
-                    <table className="w-full text-left">
-                        <thead className="bg-beige-light/30 border-b border-beige-dark/10">
-                            <tr>
-                                <th className="px-8 py-5 text-xs font-bold uppercase tracking-widest text-slate-500">Producto</th>
-                                <th className="px-8 py-5 text-xs font-bold uppercase tracking-widest text-slate-500 text-center">Cantidad</th>
-                                <th className="px-8 py-5 text-xs font-bold uppercase tracking-widest text-slate-500 text-right">Costo Unit.</th>
-                                <th className="px-8 py-5 text-xs font-bold uppercase tracking-widest text-slate-500 text-right">Subtotal</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-beige-dark/5">
-                            {purchase.items?.map(item => (
-                                <tr key={item.id}>
-                                    <td className="px-8 py-4">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-10 h-10 rounded-lg overflow-hidden bg-beige-light flex-shrink-0 border border-beige-dark/10">
-                                                <img src={formatImageUrl(item.product?.image_url)} className="w-full h-full object-cover" alt="" />
-                                            </div>
-                                            <span className="font-bold text-slate-700 text-sm">{item.product?.name}</span>
-                                        </div>
-                                    </td>
-                                    <td className="px-8 py-4 text-center font-bold text-slate-600">
-                                        {item.quantity}
-                                    </td>
-                                    <td className="px-8 py-4 text-right text-slate-500 text-sm">
-                                        ${parseFloat(item.unit_cost).toLocaleString('es-AR')}
-                                    </td>
-                                    <td className="px-8 py-4 text-right font-bold text-slate-800">
-                                        ${(item.quantity * item.unit_cost).toLocaleString('es-AR')}
-                                    </td>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left min-w-[600px]">
+                            <thead className="bg-beige-light/30 border-b border-beige-dark/10">
+                                <tr>
+                                    <th className="px-8 py-5 text-xs font-bold uppercase tracking-widest text-slate-500">Producto</th>
+                                    <th className="px-8 py-5 text-xs font-bold uppercase tracking-widest text-slate-500 text-center">Cantidad</th>
+                                    <th className="px-8 py-5 text-xs font-bold uppercase tracking-widest text-slate-500 text-right">Costo Unit.</th>
+                                    <th className="px-8 py-5 text-xs font-bold uppercase tracking-widest text-slate-500 text-right">Subtotal</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody className="divide-y divide-beige-dark/5">
+                                {purchase.items?.map(item => (
+                                    <tr key={item.id}>
+                                        <td className="px-8 py-4">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-10 h-10 rounded-lg overflow-hidden bg-beige-light flex-shrink-0 border border-beige-dark/10">
+                                                    <img src={formatImageUrl(item.product?.image_url)} className="w-full h-full object-cover" alt="" />
+                                                </div>
+                                                <span className="font-bold text-slate-700 text-sm">{item.product?.name}</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-8 py-4 text-center font-bold text-slate-600">
+                                            {item.quantity}
+                                        </td>
+                                        <td className="px-8 py-4 text-right text-slate-500 text-sm">
+                                            ${parseFloat(item.unit_cost).toLocaleString('es-AR')}
+                                        </td>
+                                        <td className="px-8 py-4 text-right font-bold text-slate-800">
+                                            ${(item.quantity * item.unit_cost).toLocaleString('es-AR')}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </AdminLayout>

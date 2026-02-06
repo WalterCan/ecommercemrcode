@@ -47,7 +47,7 @@ const About = () => {
                 const modulesRes = await fetch(`${baseUrl}/modules/active`);
                 if (modulesRes.ok) {
                     const activeModules = await modulesRes.json();
-                    if (!activeModules.includes('ecommerce')) {
+                    if (!activeModules.includes('ecommerce') && !activeModules.includes('web')) {
                         setIsModuleActive(false);
                     }
                 }

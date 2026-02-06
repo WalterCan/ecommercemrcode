@@ -14,21 +14,45 @@ const AdminOrders = () => {
     const [filterStatus, setFilterStatus] = useState('all');
     const [filterPayment, setFilterPayment] = useState('all');
 
+    // Date Filters
+    const [dateRange, setDateRange] = useState({
+        startDate: '',
+        endDate: ''
+    });
+
+    // Pagination
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 5;
+
     useEffect(() => {
         fetchOrders();
     }, []);
 
     const fetchOrders = async () => {
+        setLoading(true);
         try {
             const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
-            const response = await fetch(`${baseUrl}/orders`);
+
+            // Build query params
+            const params = new URLSearchParams();
+            if (dateRange.startDate) params.append('startDate', dateRange.startDate);
+            if (dateRange.endDate) params.append('endDate', dateRange.endDate);
+
+            const response = await fetch(`${baseUrl}/orders?${params.toString()}`);
             const data = await response.json();
             setOrders(data);
+            setCurrentPage(1); // Reset to first page on new fetch
         } catch (error) {
             console.error('Error fetching orders:', error);
+            showToast('Error al cargar pedidos', 'error');
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleFilterSubmit = (e) => {
+        e.preventDefault();
+        fetchOrders();
     };
 
     const updateOrderStatus = async (orderId, field, value) => {
@@ -108,52 +132,104 @@ const AdminOrders = () => {
         return labels[method] || method;
     };
 
-    // Filtrar pedidos
+    // Filtrar pedidos (Status & Payment Local Filter)
     const filteredOrders = orders.filter(order => {
         const matchStatus = filterStatus === 'all' || order.order_status === filterStatus;
         const matchPayment = filterPayment === 'all' || order.payment_status === filterPayment;
         return matchStatus && matchPayment;
     });
 
+    // Pagination Logic
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = filteredOrders.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
+
+    const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
     return (
         <AdminLayout title="Gestión de Pedidos">
-            <div className="p-10">
+            <div className="p-8">
                 {/* Filtros */}
-                <div className="bg-white p-6 rounded-3xl shadow-sm border border-beige-dark/10 mb-8 max-w-4xl">
-                    <div className="grid md:grid-cols-2 gap-6">
-                        <div>
-                            <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">
-                                Estado del Pedido
-                            </label>
-                            <select
-                                value={filterStatus}
-                                onChange={(e) => setFilterStatus(e.target.value)}
-                                className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 focus:outline-none focus:border-earth text-sm"
+                <div className="bg-white p-6 rounded-3xl shadow-sm border border-beige-dark/10 mb-8 w-full">
+                    <div className="flex flex-col gap-6">
+                        {/* Date Filters Form */}
+                        <form onSubmit={handleFilterSubmit} className="flex flex-col md:flex-row items-end gap-4 border-b border-beige-dark/10 pb-6">
+                            <div className="w-full md:w-auto flex-1">
+                                <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-1">Desde Fecha</label>
+                                <input
+                                    type="date"
+                                    value={dateRange.startDate}
+                                    onChange={(e) => setDateRange({ ...dateRange, startDate: e.target.value })}
+                                    className="bg-paper border border-beige-dark/20 rounded-xl p-2 w-full focus:outline-none focus:border-earth text-sm"
+                                />
+                            </div>
+                            <div className="w-full md:w-auto flex-1">
+                                <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-1">Hasta Fecha</label>
+                                <input
+                                    type="date"
+                                    value={dateRange.endDate}
+                                    onChange={(e) => setDateRange({ ...dateRange, endDate: e.target.value })}
+                                    className="bg-paper border border-beige-dark/20 rounded-xl p-2 w-full focus:outline-none focus:border-earth text-sm"
+                                />
+                            </div>
+                            <button
+                                type="submit"
+                                className="bg-earth text-white px-6 py-2 rounded-xl font-bold shadow-lg shadow-earth/20 hover:bg-earth-dark transition-all w-full md:w-auto text-sm h-[38px]"
                             >
-                                <option value="all">Todos</option>
-                                <option value="pending">Pendiente</option>
-                                <option value="processing">Procesando</option>
-                                <option value="shipped">Enviado</option>
-                                <option value="delivered">Entregado</option>
-                                <option value="cancelled">Cancelado</option>
-                            </select>
-                        </div>
+                                Filtrar por Fecha
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setDateRange({ startDate: '', endDate: '' });
+                                    // Trigger fetch without dates is tricky here because state update is async. 
+                                    // A simple reload or effect dependency could work, 
+                                    // but let's just clear inputs and let user click Filter or rely on next effect.
+                                    // For now, simpler to just clear and let user refilter empty.
+                                }}
+                                className="text-slate-400 hover:text-earth text-xs font-bold uppercase tracking-widest px-2 py-2"
+                            >
+                                Limpiar
+                            </button>
+                        </form>
 
-                        <div>
-                            <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">
-                                Estado del Pago
-                            </label>
-                            <select
-                                value={filterPayment}
-                                onChange={(e) => setFilterPayment(e.target.value)}
-                                className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 focus:outline-none focus:border-earth text-sm"
-                            >
-                                <option value="all">Todos</option>
-                                <option value="pending">Pendiente</option>
-                                <option value="approved">Aprobado</option>
-                                <option value="rejected">Rechazado</option>
-                                <option value="refunded">Reembolsado</option>
-                            </select>
+                        {/* Status Filters */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">
+                                    Estado del Pedido
+                                </label>
+                                <select
+                                    value={filterStatus}
+                                    onChange={(e) => { setFilterStatus(e.target.value); setCurrentPage(1); }}
+                                    className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 focus:outline-none focus:border-earth text-sm"
+                                >
+                                    <option value="all">Todos</option>
+                                    <option value="pending">Pendiente</option>
+                                    <option value="processing">Procesando</option>
+                                    <option value="shipped">Enviado</option>
+                                    <option value="delivered">Entregado</option>
+                                    <option value="cancelled">Cancelado</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">
+                                    Estado del Pago
+                                </label>
+                                <select
+                                    value={filterPayment}
+                                    onChange={(e) => { setFilterPayment(e.target.value); setCurrentPage(1); }}
+                                    className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 focus:outline-none focus:border-earth text-sm"
+                                >
+                                    <option value="all">Todos</option>
+                                    <option value="pending">Pendiente</option>
+                                    <option value="approved">Aprobado</option>
+                                    <option value="rejected">Rechazado</option>
+                                    <option value="refunded">Reembolsado</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -168,9 +244,9 @@ const AdminOrders = () => {
                     </div>
                 ) : (
                     <div className="space-y-6">
-                        {filteredOrders.map((order) => (
-                            <div key={order.id} className="bg-white p-8 rounded-3xl shadow-sm border border-beige-dark/10 hover:shadow-md transition-all">
-                                <div className="grid lg:grid-cols-12 gap-8">
+                        {currentItems.map((order) => (
+                            <div key={order.id} className="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-beige-dark/10 hover:shadow-md transition-all">
+                                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                                     {/* Información Principal */}
                                     <div className="lg:col-span-4">
                                         <div className="flex items-start justify-between mb-4">
@@ -209,7 +285,7 @@ const AdminOrders = () => {
                                     </div>
 
                                     {/* Productos */}
-                                    <div className="lg:col-span-5 border-x border-beige-dark/10 px-8">
+                                    <div className="lg:col-span-5 lg:border-x lg:border-beige-dark/10 lg:px-8 border-t border-b border-beige-dark/10 py-6 lg:py-0">
                                         <h4 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4">Productos</h4>
                                         <div className="space-y-3 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
                                             {order.items.map((item, idx) => (
@@ -277,6 +353,35 @@ const AdminOrders = () => {
                                 </div>
                             </div>
                         ))}
+
+                        {/* Pagination Controls */}
+                        {filteredOrders.length > itemsPerPage && (
+                            <div className="flex justify-center items-center gap-2 p-6 border-t border-beige-dark/10 bg-gray-50 rounded-3xl">
+                                <button
+                                    onClick={() => paginate(currentPage - 1)}
+                                    disabled={currentPage === 1}
+                                    className="p-2 rounded-lg border border-beige-dark/20 text-slate-600 hover:bg-paper disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    &lt;
+                                </button>
+                                {Array.from({ length: totalPages }, (_, i) => (
+                                    <button
+                                        key={i + 1}
+                                        onClick={() => paginate(i + 1)}
+                                        className={`w-8 h-8 rounded-lg text-sm font-bold ${currentPage === i + 1 ? 'bg-earth text-white' : 'text-slate-600 hover:bg-paper'}`}
+                                    >
+                                        {i + 1}
+                                    </button>
+                                ))}
+                                <button
+                                    onClick={() => paginate(currentPage + 1)}
+                                    disabled={currentPage === totalPages}
+                                    className="p-2 rounded-lg border border-beige-dark/20 text-slate-600 hover:bg-paper disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    &gt;
+                                </button>
+                            </div>
+                        )}
                     </div>
                 )}
             </div>

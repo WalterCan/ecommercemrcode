@@ -171,19 +171,39 @@ exports.getCategoryStats = async (req, res) => {
 /**
  * Obtener estadísticas de ingresos por terapias
  */
+/**
+ * Obtener estadísticas de ingresos por terapias
+ */
 exports.getTherapyStats = async (req, res) => {
     try {
+        const { startDate, endDate } = req.query;
+
+        // Construir filtro de fecha
+        const dateFilter = {};
+        if (startDate && endDate) {
+            const end = new Date(endDate);
+            end.setHours(23, 59, 59, 999); // Incluir todo el día final
+            dateFilter.date = {
+                [Op.between]: [new Date(startDate), end]
+            };
+        }
+
         // Ingresos Totales de terapias (Confirmadas o Completadas)
         const totalIncome = await Appointment.sum('paid_amount', {
             where: {
-                status: { [Op.in]: ['confirmed', 'completed'] }
+                status: { [Op.in]: ['confirmed', 'completed'] },
+                ...dateFilter
             }
         });
 
         // Ingresos Pendientes (Scheduled con monto por pagar)
+        // Nota: Para pendientes, quizás queramos ver futuros, pero si filtramos por fecha histórica,
+        // mostrar pendientes de esa fecha tiene sentido (turnos que quedaron scheduled en el pasado sin pagar)
+        // o futuros si el rango incluye futuro.
         const pendingIncomeRaw = await Appointment.findAll({
             where: {
-                status: 'scheduled'
+                status: 'scheduled',
+                ...dateFilter
             },
             attributes: [
                 [sequelize.literal('SUM(price_amount - paid_amount)'), 'pending']
@@ -195,7 +215,8 @@ exports.getTherapyStats = async (req, res) => {
         // Cantidad de sesiones realizadas/por realizar
         const totalSessions = await Appointment.count({
             where: {
-                status: { [Op.in]: ['scheduled', 'confirmed', 'completed'] }
+                status: { [Op.in]: ['scheduled', 'confirmed', 'completed'] },
+                ...dateFilter
             }
         });
 
@@ -213,7 +234,8 @@ exports.getTherapyStats = async (req, res) => {
             }],
             where: {
                 status: { [Op.in]: ['confirmed', 'completed'] },
-                therapy_type_id: { [Op.ne]: null }
+                therapy_type_id: { [Op.ne]: null },
+                ...dateFilter
             },
             group: ['therapy_type_id', 'therapy.id', 'therapy.name']
         });
@@ -238,12 +260,25 @@ exports.getTherapyStats = async (req, res) => {
 };
 
 /**
- * Gráfico de ingresos por terapias (Últimos 30 días)
+ * Gráfico de ingresos por terapias (Últimos 30 días o Rango seleccionado)
  */
 exports.getTherapySalesChart = async (req, res) => {
     try {
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        const { startDate, endDate } = req.query;
+        let dateFilter = {};
+
+        if (startDate && endDate) {
+            const end = new Date(endDate);
+            end.setHours(23, 59, 59, 999);
+            dateFilter.date = {
+                [Op.between]: [new Date(startDate), end]
+            };
+        } else {
+            // Default: últimos 30 días
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            dateFilter.date = { [Op.gte]: thirtyDaysAgo };
+        }
 
         const incomeData = await Appointment.findAll({
             attributes: [
@@ -252,7 +287,7 @@ exports.getTherapySalesChart = async (req, res) => {
                 [sequelize.fn('COUNT', sequelize.col('id')), 'count']
             ],
             where: {
-                date: { [Op.gte]: thirtyDaysAgo },
+                ...dateFilter,
                 status: { [Op.in]: ['confirmed', 'completed'] }
             },
             group: [sequelize.fn('DATE', sequelize.col('date'))],

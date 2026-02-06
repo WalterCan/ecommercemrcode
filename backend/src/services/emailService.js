@@ -210,6 +210,35 @@ class EmailService {
     }
 
     /**
+     * Enviar mensaje de contacto desde la web
+     */
+    async sendContactMessage({ to, name, email, subject, message }) {
+        try {
+            const config = await this.getConfig();
+            const html = await this.loadTemplate('contactMessage', {
+                name,
+                email,
+                subject,
+                message,
+                date: new Date().toLocaleDateString('es-AR', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+            });
+
+            // Si no se especifica 'to', usar el email del sistema (admin)
+            const recipient = to || config.auth.user;
+
+            return await this.sendEmail({
+                to: recipient,
+                subject: `[Contacto Web] ${subject} - ${name}`,
+                html,
+                text: `Nuevo mensaje de contacto:\n\nNombre: ${name}\nEmail: ${email}\nAsunto: ${subject}\n\nMensaje:\n${message}`
+            });
+        } catch (error) {
+            console.error('Error sending contact message:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    /**
      * Helpers para nombres legibles
      */
     getPaymentMethodName(method) {

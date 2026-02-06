@@ -19,6 +19,11 @@ const Product = sequelize.define('Product', {
             notEmpty: true
         }
     },
+    custom_code: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        comment: 'Código EAN, SKU o código interno alfanumérico'
+    },
     description: {
         type: DataTypes.TEXT,
         allowNull: false

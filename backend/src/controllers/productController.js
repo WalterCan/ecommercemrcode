@@ -6,6 +6,71 @@ const fs = require('fs');
 const path = require('path');
 
 /**
+ * Obtener todos los productos
+ */
+exports.getAllProducts = async (req, res) => {
+    try {
+        const products = await Product.findAll({
+            include: [
+                { model: Category, as: 'category' },
+                { model: ProductImage, as: 'images' },
+                { model: ProductVariant, as: 'variants' }
+            ],
+            order: [['createdAt', 'DESC']]
+        });
+        res.json(products);
+    } catch (error) {
+        console.error('Error fetching products:', error);
+        res.status(500).json({ message: 'Error al obtener productos' });
+    }
+};
+
+/**
+ * Obtener producto por ID
+ */
+exports.getProductById = async (req, res) => {
+    try {
+        const product = await Product.findByPk(req.params.id, {
+            include: [
+                { model: Category, as: 'category' },
+                { model: ProductImage, as: 'images' },
+                { model: ProductVariant, as: 'variants' }
+            ]
+        });
+
+        if (!product) {
+            return res.status(404).json({ message: 'Producto no encontrado' });
+        }
+
+        res.json(product);
+    } catch (error) {
+        console.error('Error fetching product:', error);
+        res.status(500).json({ message: 'Error al obtener el producto' });
+    }
+};
+
+/**
+ * Obtener productos destacados
+ */
+exports.getFeaturedProducts = async (req, res) => {
+    try {
+        const products = await Product.findAll({
+            where: { featured: true },
+            include: [
+                { model: Category, as: 'category' },
+                { model: ProductImage, as: 'images' },
+                { model: ProductVariant, as: 'variants' }
+            ],
+            limit: 8
+        });
+        res.json(products);
+    } catch (error) {
+        console.error('Error fetching featured products:', error);
+        res.status(500).json({ message: 'Error al obtener productos destacados' });
+    }
+};
+
+/**
  * Crear nuevo producto con soporte para múltiples imágenes
  */
 exports.createProduct = async (req, res) => {
@@ -86,8 +151,7 @@ exports.updateProduct = async (req, res) => {
 
         // Si se subieron nuevas imágenes
         if (files.length > 0) {
-            // Actualizar la principal si no tenía o si se decide reemplazar (estrategia simple: la primera nueva es la principal si no hay otra lógica)
-            // Para mantener consistencia simple: Si la principal está vacía, poner la primera nueva.
+            // Actualizar la principal si no tenía o si se decide reemplazar
             if (!product.image_url) {
                 productData.image_url = `/uploads/${files[0].filename}`;
             }
@@ -201,5 +265,32 @@ exports.updateProduct = async (req, res) => {
     } catch (error) {
         console.error('Error updating product:', error);
         res.status(500).json({ message: 'Error al actualizar producto', error: error.message });
+    }
+};
+
+/**
+ * Eliminar producto
+ */
+exports.deleteProduct = async (req, res) => {
+    try {
+        const product = await Product.findByPk(req.params.id);
+        if (!product) return res.status(404).json({ message: 'Producto no encontrado' });
+
+        // Eliminar variante, imagenes y archivo fisico si fuera necesario
+        // Por simplicidad, destroy con cascade si está configurado en DB, o manual
+        // Sequelize suele necesitar onDelete: 'CASCADE' en las relaciones. 
+        // Eliminaremos imagen principal simple del disco si es local
+        if (product.image_url && product.image_url.startsWith('/uploads/')) {
+            const filePath = path.join(__dirname, '../../', product.image_url);
+            fs.unlink(filePath, (err) => {
+                if (err) console.error('Error deleting file:', filePath, err);
+            });
+        }
+
+        await product.destroy();
+        res.json({ message: 'Producto eliminado correctamente' });
+    } catch (error) {
+        console.error('Error deleting product:', error);
+        res.status(500).json({ message: 'Error al eliminar producto' });
     }
 };

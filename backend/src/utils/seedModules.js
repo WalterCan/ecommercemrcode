@@ -15,6 +15,14 @@ async function seedModules() {
                 default_enabled: false
             },
             {
+                code: 'web',
+                name: 'Sitio Web Institucional',
+                description: 'Pestañas de Inicio, Nosotros y Contacto',
+                icon: '🌐',
+                is_active: true,
+                default_enabled: true
+            },
+            {
                 code: 'patients',
                 name: 'Gestión de Pacientes',
                 description: 'Administración de pacientes (para terapeutas y profesionales)',

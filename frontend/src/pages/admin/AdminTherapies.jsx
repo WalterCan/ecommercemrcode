@@ -284,15 +284,15 @@ const AdminTherapies = () => {
                         <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-earth mx-auto"></div>
                     </div>
                 ) : (
-                    <div className="bg-white rounded-3xl shadow-sm border border-beige-dark/10 overflow-hidden">
-                        <table className="w-full text-left">
+                    <div className="bg-white rounded-3xl shadow-sm border border-beige-dark/10 overflow-x-auto">
+                        <table className="w-full text-left min-w-[800px]">
                             <thead className="bg-beige-light/30 border-b border-beige-dark/10">
                                 <tr>
-                                    <th className="px-8 py-5 text-xs font-bold uppercase tracking-widest text-slate-500">Terapia</th>
-                                    <th className="px-8 py-5 text-xs font-bold uppercase tracking-widest text-slate-500">Duración</th>
-                                    <th className="px-8 py-5 text-xs font-bold uppercase tracking-widest text-slate-500">Precio</th>
-                                    <th className="px-8 py-5 text-xs font-bold uppercase tracking-widest text-slate-500">Estado</th>
-                                    <th className="px-8 py-5 text-xs font-bold uppercase tracking-widest text-slate-500 text-right">Acciones</th>
+                                    <th className="px-8 py-5 text-xs font-bold uppercase tracking-widest text-slate-500 min-w-[300px]">Terapia</th>
+                                    <th className="px-8 py-5 text-xs font-bold uppercase tracking-widest text-slate-500 min-w-[120px]">Duración</th>
+                                    <th className="px-8 py-5 text-xs font-bold uppercase tracking-widest text-slate-500 min-w-[120px]">Precio</th>
+                                    <th className="px-8 py-5 text-xs font-bold uppercase tracking-widest text-slate-500 min-w-[120px]">Estado</th>
+                                    <th className="px-8 py-5 text-xs font-bold uppercase tracking-widest text-slate-500 text-right min-w-[120px]">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-beige-dark/5">

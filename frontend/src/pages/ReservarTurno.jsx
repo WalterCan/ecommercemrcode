@@ -2,10 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
-import Header from '../components/layout/Header';
-import Footer from '../components/layout/Footer';
-import { format, parse } from 'date-fns';
-import { es } from 'date-fns/locale';
+import Layout from '../components/layout/Layout';
 
 const ReservarTurno = () => {
     const [therapies, setTherapies] = useState([]);
@@ -171,8 +168,7 @@ const ReservarTurno = () => {
     const groupedSlots = groupSlotsByDate(availableSlots);
 
     return (
-        <>
-            <Header />
+        <Layout>
             <div className="min-h-screen bg-gradient-to-br from-beige-light via-paper to-beige-light/50 py-20">
                 <div className="container mx-auto px-4 max-w-5xl">
                     <div className="text-center mb-12">
@@ -395,9 +391,7 @@ const ReservarTurno = () => {
                     </div>
                 </div>
             )}
-
-            <Footer />
-        </>
+        </Layout>
     );
 };
 

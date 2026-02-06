@@ -47,10 +47,13 @@ async function startServer() {
     }
 
     try {
-        // ============================================
         // SINCRONIZACIÓN DE MODELOS CON LA BASE DE DATOS
         // ============================================
-        await sequelize.sync(); // alter: true eliminado para evitar error "Too many keys"
+        // Sincronizar solo Product con alter para agregar la columna custom_code sin romper Categories
+        await Product.sync({ alter: true });
+
+        // Sincronizar el resto sin alterar (para evitar errores "Too many keys" en Categories)
+        await sequelize.sync();
         console.log('✅ Modelos sincronizados con la base de datos.');
 
         // ============================================

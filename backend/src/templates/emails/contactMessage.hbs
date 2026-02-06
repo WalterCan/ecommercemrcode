@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: 'Georgia', serif; color: #333; line-height: 1.6; background-color: #f9f9f9; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 8px; border: 1px solid #e0e0e0; }
+        .header { text-align: center; border-bottom: 2px solid {{accentColor}}; padding-bottom: 20px; margin-bottom: 20px; }
+        .footer { text-align: center; font-size: 12px; color: #888; margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; }
+        .message-box { background-color: #f5f5f5; padding: 15px; border-left: 4px solid {{accentColor}}; border-radius: 4px; font-family: 'Helvetica', sans-serif; font-style: italic; }
+        h2 { color: {{accentColor}}; }
+        .field-label { font-weight: bold; font-size: 11px; text-transform: uppercase; color: #666; letter-spacing: 1px; margin-bottom: 4px; display: block; }
+        .field-value { margin-bottom: 15px; font-size: 15px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>{{siteName}}</h2>
+            <p>Nuevo mensaje de contacto recibido</p>
+        </div>
+        
+        <p>Hola,</p>
+        <p>Has recibido un nuevo mensaje a través del formulario de contacto de tu sitio web.</p>
+        
+        <div style="margin-top: 25px;">
+            <span class="field-label">Nombre del Cliente</span>
+            <div class="field-value">{{name}}</div>
+
+            <span class="field-label">Correo Electrónico</span>
+            <div class="field-value"><a href="mailto:{{email}}" style="color: {{accentColor}}">{{email}}</a></div>
+
+            <span class="field-label">Asunto</span>
+            <div class="field-value">{{subject}}</div>
+
+            <span class="field-label">Mensaje</span>
+            <div class="message-box">
+                {{message}}
+            </div>
+            
+            <span class="field-label">Fecha</span>
+            <div class="field-value">{{date}}</div>
+        </div>
+
+        <div class="footer">
+            <p>{{footerText}}</p>
+            <p>&copy; {{year}} {{siteName}}. Todos los derechos reservados.</p>
+        </div>
+    </div>
+</body>
+</html>

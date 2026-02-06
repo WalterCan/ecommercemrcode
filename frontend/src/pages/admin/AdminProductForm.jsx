@@ -14,6 +14,7 @@ const AdminProductForm = () => {
 
     const [formData, setFormData] = useState({
         name: '',
+        custom_code: '',
         description: '',
         price: '',
         cost_price: '',
@@ -58,6 +59,7 @@ const AdminProductForm = () => {
                 const data = await res.json();
                 setFormData({
                     name: data.name,
+                    custom_code: data.custom_code || '',
                     description: data.description,
                     price: data.price,
                     stock: data.stock,
@@ -197,6 +199,7 @@ const AdminProductForm = () => {
 
             const data = new FormData();
             data.append('name', formData.name);
+            data.append('custom_code', formData.custom_code || '');
             data.append('description', formData.description);
             data.append('price', parseFloat(formData.price) || 0);
             data.append('stock', parseInt(formData.stock) || 0);
@@ -266,7 +269,7 @@ const AdminProductForm = () => {
                 <form onSubmit={handleSubmit} className="bg-white p-8 rounded-3xl shadow-sm border border-beige-dark/10 space-y-6">
 
                     <div className="grid grid-cols-2 gap-6">
-                        <div className="col-span-2">
+                        <div className="col-span-2 md:col-span-1">
                             <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Nombre del Producto</label>
                             <input
                                 type="text"
@@ -276,6 +279,18 @@ const AdminProductForm = () => {
                                 required
                                 className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 focus:outline-none focus:border-earth focus:ring-1 focus:ring-earth transition-all"
                                 placeholder="Ej: Amatista Protectora"
+                            />
+                        </div>
+
+                        <div className="col-span-2 md:col-span-1">
+                            <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Código / EAN <span className="text-[10px] lowercase font-normal text-slate-400">(opcional)</span></label>
+                            <input
+                                type="text"
+                                name="custom_code"
+                                value={formData.custom_code || ''}
+                                onChange={handleChange}
+                                className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 focus:outline-none focus:border-earth focus:ring-1 focus:ring-earth transition-all font-mono text-sm"
+                                placeholder="Ej: A-1234, 779123456"
                             />
                         </div>
 

@@ -4,7 +4,10 @@ import ColorPicker from '../../components/admin/ColorPicker';
 import { useToast } from '../../context/ToastContext';
 import { formatImageUrl } from '../../utils/imageConfig';
 
+import { useAuth } from '../../context/AuthContext'; // [NEW]
+
 const AdminSettings = () => {
+    const { user } = useAuth(); // [NEW]
     const { showToast } = useToast();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -27,7 +30,6 @@ const AdminSettings = () => {
         hero_cta_text: '',
         hero_cta1_link: '',
         hero_cta2_text: '',
-
         hero_cta2_link: '',
         email_host: '',
         email_port: '',
@@ -35,6 +37,10 @@ const AdminSettings = () => {
         email_password: '',
         email_secure: '',
         email_from_name: '',
+        contact_email: '',
+        contact_address: '',
+        contact_city: '',
+        contact_phone: '',
         announcement_active: 'false',
         announcement_text: '',
         announcement_text_color: '#ffffff',
@@ -130,6 +136,33 @@ const AdminSettings = () => {
         footer_tagline: 'Inspirando tu equilibrio natural',
         footer_tagline_color: '#94a3b8',
         footer_copyright_color: '#94a3b8',
+
+        // Tarjetas Home
+        home_cards_active: 'false',
+        home_cards_title: 'Nuestros Servicios',
+        home_cards_title_color: '#1e293b',
+        // Visibilidad Web
+        web_show_home: 'true',
+        web_show_about: 'true',
+        web_show_contact: 'true',
+        web_show_products: 'true', // [NEW]
+        web_show_therapies: 'true', // [NEW]
+        maintenance_mode_active: 'false', // [NEW]
+        home_card_1_title: '',
+        home_card_1_desc: '',
+        home_card_1_icon: '🌱',
+        home_card_1_link: '',
+        home_card_1_image_url: '',
+        home_card_2_title: '',
+        home_card_2_desc: '',
+        home_card_2_icon: '✨',
+        home_card_2_link: '',
+        home_card_2_image_url: '',
+        home_card_3_title: '',
+        home_card_3_desc: '',
+        home_card_3_icon: '🧘',
+        home_card_3_link: '',
+        home_card_3_image_url: '',
     });
     const [heroImageFile, setHeroImageFile] = useState(null);
     const [heroImagePreview, setHeroImagePreview] = useState(null);
@@ -149,7 +182,32 @@ const AdminSettings = () => {
     const [attr1ImagePreview, setAttr1ImagePreview] = useState(null);
     const [attr2ImageFile, setAttr2ImageFile] = useState(null);
     const [attr2ImagePreview, setAttr2ImagePreview] = useState(null);
+    // Home Cards Images
+    const [card1ImageFile, setCard1ImageFile] = useState(null);
+    const [card1ImagePreview, setCard1ImagePreview] = useState(null);
+    const [card2ImageFile, setCard2ImageFile] = useState(null);
+    const [card2ImagePreview, setCard2ImagePreview] = useState(null);
+    const [card3ImageFile, setCard3ImageFile] = useState(null);
+    const [card3ImagePreview, setCard3ImagePreview] = useState(null);
     const [activeTab, setActiveTab] = useState('general');
+    const [activeModules, setActiveModules] = useState([]); // [NEW]
+
+    useEffect(() => {
+        const fetchModules = async () => {
+            try {
+                const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
+                const res = await fetch(`${baseUrl}/modules/active`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setActiveModules(data);
+                }
+            } catch (error) {
+                console.error('Error fetching modules:', error);
+            }
+        };
+        fetchModules();
+        fetchSettings();
+    }, []);
 
     const tabs = [
         { id: 'general', label: 'General', icon: '⚙️' },
@@ -162,13 +220,16 @@ const AdminSettings = () => {
         { id: 'productos', label: 'Productos', icon: '🛍️' },
         { id: 'footer', label: 'Footer', icon: '🦶' },
         { id: 'estilo', label: 'Estilo', icon: '🎨' },
-        { id: 'licencia', label: 'Licencia', icon: '🔑' },
+        { id: 'cards', label: 'Web Inst.', icon: '🌐' },
+        // { id: 'licencia', label: 'Licencia', icon: '🔑' }, // REMOVED
         { id: 'agenda', label: 'Turnos', icon: '📅' },
-    ];
+    ].filter(tab => {
+        // [NEW] Restricción Super Admin para Web Inst.
+        if (tab.id === 'cards' && user?.role !== 'super_admin') return false;
 
-    useEffect(() => {
-        fetchSettings();
-    }, []);
+        if (tab.id === 'agenda' && !activeModules.includes('appointments')) return false;
+        return true;
+    });
 
     const fetchSettings = async () => {
         try {
@@ -266,6 +327,18 @@ const AdminSettings = () => {
             setAttr2ImageFile(null);
             setAttr2ImagePreview(null);
             setSettings(prev => ({ ...prev, products_detail_attr2_image_url: '' }));
+        } else if (type === 'card1') {
+            setCard1ImageFile(null);
+            setCard1ImagePreview(null);
+            setSettings(prev => ({ ...prev, home_card_1_image_url: '' }));
+        } else if (type === 'card2') {
+            setCard2ImageFile(null);
+            setCard2ImagePreview(null);
+            setSettings(prev => ({ ...prev, home_card_2_image_url: '' }));
+        } else if (type === 'card3') {
+            setCard3ImageFile(null);
+            setCard3ImagePreview(null);
+            setSettings(prev => ({ ...prev, home_card_3_image_url: '' }));
         }
     };
 
@@ -292,6 +365,9 @@ const AdminSettings = () => {
             if (productsEmptyImageFile) formData.append('products_empty_image', productsEmptyImageFile);
             if (attr1ImageFile) formData.append('attr1_image', attr1ImageFile);
             if (attr2ImageFile) formData.append('attr2_image', attr2ImageFile);
+            if (card1ImageFile) formData.append('card1_image', card1ImageFile);
+            if (card2ImageFile) formData.append('card2_image', card2ImageFile);
+            if (card3ImageFile) formData.append('card3_image', card3ImageFile);
 
             const response = await fetch(`${baseUrl}/settings`, {
                 method: 'PUT',
@@ -321,6 +397,12 @@ const AdminSettings = () => {
                 setAttr1ImagePreview(null);
                 setAttr2ImageFile(null);
                 setAttr2ImagePreview(null);
+                setCard1ImageFile(null);
+                setCard1ImagePreview(null);
+                setCard2ImageFile(null);
+                setCard2ImagePreview(null);
+                setCard3ImageFile(null);
+                setCard3ImagePreview(null);
             } else {
                 showToast('Error al guardar configuraciones', 'error');
             }
@@ -558,6 +640,64 @@ const AdminSettings = () => {
                                         </div>
                                     </section>
 
+                                    {/* Datos de Contacto */}
+                                    <section className="bg-white p-8 rounded-3xl shadow-sm border border-beige-dark/10 mt-8">
+                                        <h2 className="text-xl font-serif text-earth font-bold mb-6 flex items-center gap-2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                                            </svg>
+                                            Datos de Contacto (Público)
+                                        </h2>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div>
+                                                <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Dirección Física</label>
+                                                <input
+                                                    type="text"
+                                                    name="contact_address"
+                                                    value={settings.contact_address || ''}
+                                                    onChange={handleChange}
+                                                    className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 focus:outline-none focus:border-earth"
+                                                    placeholder="Av. Pellegrini 1234"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Ciudad / Provincia</label>
+                                                <input
+                                                    type="text"
+                                                    name="contact_city"
+                                                    value={settings.contact_city || ''}
+                                                    onChange={handleChange}
+                                                    className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 focus:outline-none focus:border-earth"
+                                                    placeholder="Rosario, Santa Fe"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Teléfono de Contacto</label>
+                                                <input
+                                                    type="text"
+                                                    name="contact_phone"
+                                                    value={settings.contact_phone || ''}
+                                                    onChange={handleChange}
+                                                    className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 focus:outline-none focus:border-earth"
+                                                    placeholder="+54 341 1234567"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Email Visible en Web</label>
+                                                <input
+                                                    type="text"
+                                                    name="contact_email"
+                                                    value={settings.contact_email || ''}
+                                                    onChange={handleChange}
+                                                    className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 focus:outline-none focus:border-earth"
+                                                    placeholder="contacto@ejemplo.com"
+                                                />
+                                                <p className="text-[10px] text-slate-400 mt-1">Si se deja vacío, se usará el configurado en Email (SMTP).</p>
+                                            </div>
+                                        </div>
+                                    </section>
+
                                     {/* Sección Decorativa (Home) */}
                                     <section className="bg-white p-8 rounded-3xl shadow-sm border border-beige-dark/10">
                                         <h2 className="text-xl font-serif text-earth font-bold mb-6 flex items-center gap-2">
@@ -784,6 +924,256 @@ const AdminSettings = () => {
                                     </section>
                                 )
                             }
+
+
+                            {/* Web Settings Tab */}
+                            {
+                                activeTab === 'cards' && (
+                                    <section className="bg-white p-8 rounded-3xl shadow-sm border border-beige-dark/10">
+                                        <h2 className="text-xl font-serif text-earth font-bold mb-6 flex items-center gap-2">
+                                            <span className="p-2 bg-earth/10 rounded-xl text-lg">🌐</span>
+                                            Visibilidad Web y Tarjetas
+                                        </h2>
+
+                                        <div className="space-y-8">
+                                            <div className="p-6 bg-paper/50 rounded-2xl border border-beige-dark/10">
+                                                <h3 className="text-sm font-bold uppercase tracking-widest text-slate-500 mb-6">Visibilidad de Secciones</h3>
+
+                                                <div className="space-y-4">
+                                                    {/* Force Maintenance Mode */}
+                                                    <div className="flex items-center justify-between p-4 bg-red-50 rounded-xl border border-red-100">
+                                                        <div>
+                                                            <span className="block font-medium text-red-800">Modo Mantenimiento (Forzado)</span>
+                                                            <span className="text-xs text-red-600">Si activas esto, el sitio mostrará la pantalla de "Próximamente" a todos (menos al Super Admin).</span>
+                                                        </div>
+                                                        <label className="relative inline-flex items-center cursor-pointer">
+                                                            <input
+                                                                type="checkbox"
+                                                                name="maintenance_mode_active"
+                                                                checked={settings.maintenance_mode_active === 'true' || settings.maintenance_mode_active === true}
+                                                                onChange={(e) => handleChange({ target: { name: 'maintenance_mode_active', value: e.target.checked.toString() } })}
+                                                                className="sr-only peer"
+                                                            />
+                                                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+                                                        </label>
+                                                    </div>
+
+                                                    <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-beige-dark/10">
+                                                        <span className="font-medium text-slate-700">🏠 Mostrar Página de Inicio</span>
+                                                        <label className="relative inline-flex items-center cursor-pointer">
+                                                            <input
+                                                                type="checkbox"
+                                                                name="web_show_home"
+                                                                checked={settings.web_show_home === 'true' || settings.web_show_home === true}
+                                                                onChange={(e) => handleChange({ target: { name: 'web_show_home', value: e.target.checked.toString() } })}
+                                                                className="sr-only peer"
+                                                            />
+                                                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-earth/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-earth"></div>
+                                                        </label>
+                                                    </div>
+
+                                                    <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-beige-dark/10">
+                                                        <span className="font-medium text-slate-700">👥 Mostrar "Nosotros"</span>
+                                                        <label className="relative inline-flex items-center cursor-pointer">
+                                                            <input
+                                                                type="checkbox"
+                                                                name="web_show_about"
+                                                                checked={settings.web_show_about === 'true' || settings.web_show_about === true}
+                                                                onChange={(e) => handleChange({ target: { name: 'web_show_about', value: e.target.checked.toString() } })}
+                                                                className="sr-only peer"
+                                                            />
+                                                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-earth/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-earth"></div>
+                                                        </label>
+                                                    </div>
+
+                                                    <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-beige-dark/10">
+                                                        <span className="font-medium text-slate-700">📞 Mostrar "Contacto"</span>
+                                                        <label className="relative inline-flex items-center cursor-pointer">
+                                                            <input
+                                                                type="checkbox"
+                                                                name="web_show_contact"
+                                                                checked={settings.web_show_contact === 'true' || settings.web_show_contact === true}
+                                                                onChange={(e) => handleChange({ target: { name: 'web_show_contact', value: e.target.checked.toString() } })}
+                                                                className="sr-only peer"
+                                                            />
+                                                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-earth/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-earth"></div>
+                                                        </label>
+                                                    </div>
+
+                                                    <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-beige-dark/10">
+                                                        <span className="font-medium text-slate-700">🛍️ Mostrar "Productos"</span>
+                                                        <label className="relative inline-flex items-center cursor-pointer">
+                                                            <input
+                                                                type="checkbox"
+                                                                name="web_show_products"
+                                                                checked={settings.web_show_products === 'true' || settings.web_show_products === true}
+                                                                onChange={(e) => handleChange({ target: { name: 'web_show_products', value: e.target.checked.toString() } })}
+                                                                className="sr-only peer"
+                                                            />
+                                                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-earth/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-earth"></div>
+                                                        </label>
+                                                    </div>
+
+                                                    <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-beige-dark/10">
+                                                        <span className="font-medium text-slate-700">🧘 Mostrar "Terapias"</span>
+                                                        <label className="relative inline-flex items-center cursor-pointer">
+                                                            <input
+                                                                type="checkbox"
+                                                                name="web_show_therapies"
+                                                                checked={settings.web_show_therapies === 'true' || settings.web_show_therapies === true}
+                                                                onChange={(e) => handleChange({ target: { name: 'web_show_therapies', value: e.target.checked.toString() } })}
+                                                                className="sr-only peer"
+                                                            />
+                                                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-earth/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-earth"></div>
+                                                        </label>
+                                                    </div>
+
+                                                    <p className="text-xs text-slate-500 italic mt-2">
+                                                        💡 Si desactivas "Inicio" (o todo), los visitantes verán una pantalla de "Sitio en Construcción".
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            <div className="p-6 bg-paper/50 rounded-2xl border border-beige-dark/10">
+                                                <div className="flex items-center justify-between mb-6">
+                                                    <h3 className="text-sm font-bold uppercase tracking-widest text-slate-500">Tarjetas Informativas (Home)</h3>
+                                                    <label className="relative inline-flex items-center cursor-pointer">
+                                                        <input
+                                                            type="checkbox"
+                                                            name="home_cards_active"
+                                                            checked={settings.home_cards_active === 'true' || settings.home_cards_active === true}
+                                                            onChange={(e) => handleChange({ target: { name: 'home_cards_active', value: e.target.checked.toString() } })}
+                                                            className="sr-only peer"
+                                                        />
+                                                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-earth/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-earth"></div>
+                                                        <span className="ml-3 text-sm font-medium text-slate-700">Activar Sección</span>
+                                                    </label>
+                                                </div>
+
+                                                <div className={`transition-opacity duration-300 ${settings.home_cards_active === 'true' || settings.home_cards_active === true ? 'opacity-100' : 'opacity-50 pointer-events-none'}`}>
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start mb-8">
+                                                        <div>
+                                                            <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Título de la Sección</label>
+                                                            <input
+                                                                type="text"
+                                                                name="home_cards_title"
+                                                                value={settings.home_cards_title || ''}
+                                                                onChange={handleChange}
+                                                                className="w-full bg-white border border-beige-dark/20 rounded-xl p-3 focus:outline-none focus:border-earth font-serif font-bold text-lg"
+                                                                placeholder="Nuestros Servicios"
+                                                            />
+                                                        </div>
+                                                        <ColorPicker
+                                                            label="Color del Título"
+                                                            name="home_cards_title_color"
+                                                            value={settings.home_cards_title_color}
+                                                            onChange={handleChange}
+                                                        />
+                                                    </div>
+
+                                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                                        {[1, 2, 3].map((num) => (
+                                                            <div key={num} className="bg-white p-4 rounded-xl border border-beige-dark/10 shadow-sm relative">
+                                                                <span className="absolute -top-3 -left-3 bg-earth text-white w-8 h-8 rounded-full flex items-center justify-center font-bold shadow-md">{num}</span>
+
+                                                                <h3 className="font-bold text-earth mb-4 mt-2 text-center">Tarjeta {num}</h3>
+
+                                                                <div className="space-y-4">
+                                                                    <div>
+                                                                        <label className="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">Imagen / Icono</label>
+                                                                        <div className="flex flex-col items-center gap-2">
+                                                                            <div className="w-20 h-20 bg-paper rounded-lg border border-dashed border-slate-300 flex items-center justify-center overflow-hidden relative group">
+                                                                                {(eval(`card${num}ImagePreview`) || settings[`home_card_${num}_image_url`]) ? (
+                                                                                    <>
+                                                                                        <img
+                                                                                            src={eval(`card${num}ImagePreview`) || formatImageUrl(settings[`home_card_${num}_image_url`])}
+                                                                                            alt={`Card ${num}`}
+                                                                                            className="w-full h-full object-cover"
+                                                                                        />
+                                                                                        <button
+                                                                                            type="button"
+                                                                                            onClick={() => handleRemoveIcon(`card${num}`)}
+                                                                                            className="absolute inset-0 bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                                                                            title="Eliminar Imagen"
+                                                                                        >
+                                                                                            ✕
+                                                                                        </button>
+                                                                                    </>
+                                                                                ) : (
+                                                                                    <span className="text-2xl">{settings[`home_card_${num}_icon`] || '❓'}</span>
+                                                                                )}
+                                                                            </div>
+                                                                            <input
+                                                                                type="file"
+                                                                                accept="image/*"
+                                                                                onChange={(e) => handleFileChange(e, `card${num}`)}
+                                                                                className="hidden"
+                                                                                id={`file-card-${num}`}
+                                                                            />
+                                                                            <label htmlFor={`file-card-${num}`} className="text-xs text-earth hover:underline cursor-pointer">
+                                                                                Subir Imagen
+                                                                            </label>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div>
+                                                                        <label className="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">O Icono Emoji</label>
+                                                                        <input
+                                                                            type="text"
+                                                                            name={`home_card_${num}_icon`}
+                                                                            value={settings[`home_card_${num}_icon`] || ''}
+                                                                            onChange={handleChange}
+                                                                            className="w-full bg-paper border border-beige-dark/20 rounded-lg p-2 focus:outline-none focus:border-earth text-center text-xl"
+                                                                            placeholder="🌱"
+                                                                        />
+                                                                    </div>
+
+                                                                    <div>
+                                                                        <label className="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">Título</label>
+                                                                        <input
+                                                                            type="text"
+                                                                            name={`home_card_${num}_title`}
+                                                                            value={settings[`home_card_${num}_title`] || ''}
+                                                                            onChange={handleChange}
+                                                                            className="w-full bg-paper border border-beige-dark/20 rounded-lg p-2 focus:outline-none focus:border-earth font-bold text-sm"
+                                                                            placeholder="Título"
+                                                                        />
+                                                                    </div>
+
+                                                                    <div>
+                                                                        <label className="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">Descripción</label>
+                                                                        <textarea
+                                                                            name={`home_card_${num}_desc`}
+                                                                            value={settings[`home_card_${num}_desc`] || ''}
+                                                                            onChange={handleChange}
+                                                                            rows="3"
+                                                                            className="w-full bg-paper border border-beige-dark/20 rounded-lg p-2 focus:outline-none focus:border-earth text-xs"
+                                                                            placeholder="Descripción breve..."
+                                                                        />
+                                                                    </div>
+
+                                                                    <div>
+                                                                        <label className="block text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">Enlace (Opcional)</label>
+                                                                        <input
+                                                                            type="text"
+                                                                            name={`home_card_${num}_link`}
+                                                                            value={settings[`home_card_${num}_link`] || ''}
+                                                                            onChange={handleChange}
+                                                                            className="w-full bg-paper border border-beige-dark/20 rounded-lg p-2 focus:outline-none focus:border-earth text-xs"
+                                                                            placeholder="/ejemplo"
+                                                                        />
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </section>
+                                )
+                            }
+
                             {/* Agenda Tab */}
                             {
                                 activeTab === 'agenda' && (
@@ -1126,6 +1516,18 @@ const AdminSettings = () => {
                                                     className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 focus:outline-none focus:border-earth focus:ring-1 focus:ring-earth transition-all"
                                                     placeholder="Ej: Tienda Holística"
                                                 />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Email para Contacto Web</label>
+                                                <input
+                                                    type="text"
+                                                    name="contact_email"
+                                                    value={settings.contact_email || ''}
+                                                    onChange={handleChange}
+                                                    className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 focus:outline-none focus:border-earth focus:ring-1 focus:ring-earth transition-all"
+                                                    placeholder="Ej: contacto@tutienda.com"
+                                                />
+                                                <p className="text-[10px] text-slate-400 mt-2 italic">A este correo llegarán los mensajes del formulario de contacto.</p>
                                             </div>
                                             <div>
                                                 <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Seguridad SSL/TLS</label>

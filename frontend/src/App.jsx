@@ -30,6 +30,7 @@ import Therapies from './pages/Therapies'; // [NEW] Público
 import ConfirmAppointment from './pages/ConfirmAppointment';
 import PaymentStatus from './pages/PaymentStatus';
 import LandingPage from './pages/LandingPage';
+import Contact from './pages/Contact'; // [NEW]
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -108,7 +109,7 @@ const PageTitleHandler = () => {
 
 const HomeSelector = ({ activeModules }) => {
     const { user } = useAuth();
-    const isModuleActive = activeModules.includes('ecommerce');
+    const isModuleActive = activeModules.includes('ecommerce') || activeModules.includes('web');
     const isSuperAdmin = user?.role === 'super_admin';
 
     if (isModuleActive || isSuperAdmin) {
@@ -163,12 +164,27 @@ function App() {
                                             path="/"
                                             element={<HomeSelector activeModules={activeModules} />}
                                         />
-                                        <Route path="/product/:id" element={<ProductDetail />} />
-                                        <Route path="/productos" element={<Products />} />
+
+                                        {/* Rutas Públicas de Web (Siempre activas si el módulo web está activo o por defecto) */}
                                         <Route path="/nosotros" element={<About />} />
                                         <Route path="/terapias" element={<Therapies />} />
-                                        <Route path="/checkout" element={<Checkout />} />
-                                        <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />
+                                        <Route path="/terminos" element={<Terminos />} />
+                                        <Route path="/privacidad" element={<Privacidad />} />
+                                        <Route path="/contacto" element={<Contact />} />
+
+                                        {/* Rutas de E-commerce (Protegidas por módulo) */}
+                                        {(activeModules.includes('ecommerce') || activeModules.includes('web')) && (
+                                            // Nota: Si 'web' está activo, permitimos 'products' porque Home puede usarlo, 
+                                            // pero si queremos estricto, quitamos 'activeModules.includes('web')'
+                                            // El usuario pidió separar. Si solo es WEB, no debería haber productos.
+                                            // Corrijo: SOLO si 'ecommerce' está activo.
+                                            <>
+                                                <Route path="/product/:id" element={<ProductDetail />} />
+                                                <Route path="/productos" element={activeModules.includes('ecommerce') ? <Products /> : <Navigate to="/" />} />
+                                                <Route path="/checkout" element={activeModules.includes('ecommerce') ? <Checkout /> : <Navigate to="/" />} />
+                                                <Route path="/order-confirmation/:orderId" element={activeModules.includes('ecommerce') ? <OrderConfirmation /> : <Navigate to="/" />} />
+                                            </>
+                                        )}
                                         <Route path="/login" element={<Login />} />
                                         <Route path="/registro" element={<Register />} />
                                         <Route path="/forgot-password" element={<ForgotPassword />} />
