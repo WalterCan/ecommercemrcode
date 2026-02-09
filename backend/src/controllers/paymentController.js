@@ -1,3 +1,4 @@
+const logger = require('../utils/logger');
 const { MercadoPagoConfig, Preference } = require('mercadopago');
 const Appointment = require('../models/Appointment');
 const Patient = require('../models/Patient');
@@ -100,7 +101,7 @@ exports.createPreference = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error al crear preferencia de MercadoPago:', error);
+        logger.error('Error al crear preferencia de MercadoPago:', error);
         res.status(500).json({ message: 'Error al procesar el pago.', error: error.message });
     }
 };
@@ -158,7 +159,7 @@ exports.handleWebhook = async (req, res) => {
                         }
 
                         await appointment.save();
-                        console.log(`💰 Pago de $${paidAmount} registrado para turno #${appointmentId}`);
+                        logger.info(`💰 Pago de $${paidAmount} registrado para turno #${appointmentId}`);
                     }
                 }
             }
@@ -166,7 +167,7 @@ exports.handleWebhook = async (req, res) => {
 
         res.status(200).send();
     } catch (error) {
-        console.error('Webhook error:', error);
+        logger.error('Webhook error:', error);
         res.status(500).json({ error: error.message });
     }
 };

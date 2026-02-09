@@ -1,3 +1,4 @@
+const logger = require('../utils/logger');
 const AuditLog = require('../models/AuditLog');
 const User = require('../models/User');
 
@@ -23,7 +24,7 @@ const getAuditLogs = async (req, res) => {
 
         res.json(logs);
     } catch (error) {
-        console.error('Error fetching audit logs:', error);
+        logger.error('Error fetching audit logs:', error);
         res.status(500).json({ error: 'Error al obtener logs de auditoría' });
     }
 };

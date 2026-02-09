@@ -1,13 +1,24 @@
 const express = require('express');
 const router = express.Router();
 const Product = require('../models/Product');
-const ProductImage = require('../models/ProductImage');
-const ProductVariant = require('../models/ProductVariant');
 const Category = require('../models/Category');
 const { validateProduct } = require('../middleware/validator');
 const { protect, admin } = require('../middleware/authMiddleware');
+const { cacheMiddleware } = require('../middleware/cache');
 const multer = require('multer');
 const path = require('path');
+
+const {
+    getAllProducts,
+    getProductById,
+    getFeaturedProducts,
+    getAllProductsAdmin,
+    getProductByIdAdmin,
+    createProduct,
+    updateProduct,
+    updateProductStatus,
+    deleteProduct
+} = require('../controllers/productController');
 
 // Configuración de Multer para subir múltiples imágenes
 const storage = multer.diskStorage({
@@ -37,35 +48,32 @@ const upload = multer({
  * Rutas de Productos
  */
 
-// Obtener todos los productos (con sus categorías)
-router.get('/', async (req, res) => {
-    try {
-        const products = await Product.findAll({
-            include: [{ model: Category, as: 'category' }]
-        });
-        res.json(products);
-    } catch (error) {
-        res.status(500).json({ message: 'Error al obtener productos', error: error.message });
-    }
-});
+// --- Rutas Públicas (Solo Activos) ---
 
-// (Rutas de categorías movidas a categoryRoutes.js)
+// Obtener todos los productos (con sus categorías) - Cache 5 minutos
+router.get('/', cacheMiddleware(300), getAllProducts);
 
-// Obtener productos destacados
-router.get('/featured', async (req, res) => {
-    try {
-        const products = await Product.findAll({
-            where: { featured: true },
-            include: [{ model: Category, as: 'category' }]
-        });
-        res.json(products);
-    } catch (error) {
-        res.status(500).json({ message: 'Error al obtener productos destacados', error: error.message });
-    }
-});
+// Obtener productos destacados - Cache 15 minutos
+router.get('/featured', cacheMiddleware(900), getFeaturedProducts);
 
-// Obtener alertas de stock (productos con stock bajo o crítico)
-router.get('/stock-alerts', async (req, res) => {
+// Obtener un producto por ID - Cache 10 minutos
+router.get('/:id', cacheMiddleware(600), getProductById);
+
+
+// --- Rutas Admin (Protegidas, Todo el inventario) ---
+
+// Obtener todos los productos administrables (incluye inactivos)
+router.get('/admin/all', protect, admin, getAllProductsAdmin);
+
+// Obtener detalle de producto administrable
+router.get('/admin/detail/:id', protect, admin, getProductByIdAdmin);
+
+
+// --- Rutas de Stock / Reportes (Manteniendo lógica inline por ahora) ---
+
+// Obtener alertas de stock (productos con stock bajo o crítico) - Cache 3 minutos
+// TODO: Mover a controlador y definir si debe ser público o privado.
+router.get('/stock-alerts', cacheMiddleware(180), async (req, res) => {
     try {
         const { Op } = require('sequelize');
         const products = await Product.findAll({
@@ -91,8 +99,8 @@ router.get('/stock-alerts', async (req, res) => {
     }
 });
 
-// Obtener estadísticas de stock
-router.get('/stock-stats', async (req, res) => {
+// Obtener estadísticas de stock - Cache 3 minutos
+router.get('/stock-stats', cacheMiddleware(180), async (req, res) => {
     try {
         const { Op } = require('sequelize');
 
@@ -111,24 +119,8 @@ router.get('/stock-stats', async (req, res) => {
     }
 });
 
-// Obtener un producto por ID
-router.get('/:id', async (req, res) => {
-    try {
-        const product = await Product.findByPk(req.params.id, {
-            include: [
-                { model: Category, as: 'category' },
-                { model: ProductImage, as: 'images' },
-                { model: ProductVariant, as: 'variants' }
-            ]
-        });
-        if (!product) return res.status(404).json({ message: 'Producto no encontrado' });
-        res.json(product);
-    } catch (error) {
-        res.status(500).json({ message: 'Error al obtener el producto', error: error.message });
-    }
-});
 
-const { createProduct, updateProduct } = require('../controllers/productController');
+// --- CRUD Admin ---
 
 // Creación de Producto
 router.post('/', protect, admin, upload.array('images', 5), validateProduct, createProduct);
@@ -136,18 +128,12 @@ router.post('/', protect, admin, upload.array('images', 5), validateProduct, cre
 // Actualización de Producto
 router.put('/:id', protect, admin, upload.array('images', 5), validateProduct, updateProduct);
 
-// Eliminación de Producto
-router.delete('/:id', protect, admin, async (req, res) => {
-    try {
-        const product = await Product.findByPk(req.params.id);
-        if (!product) return res.status(404).json({ message: 'Producto no encontrado' });
+// Actualización de Estado (Toggle Active)
+router.patch('/:id/status', protect, admin, updateProductStatus);
 
-        await product.destroy();
-        res.json({ message: 'Producto eliminado correctamente' });
-    } catch (error) {
-        res.status(500).json({ message: 'Error al eliminar producto', error: error.message });
-    }
-});
+// Eliminación de Producto
+router.delete('/:id', protect, admin, deleteProduct);
+
 
 // Rutas de Categorías -> Ver categoryRoutes.js
 

@@ -26,6 +26,7 @@
     "express-validator": "^7.3.1",
     "handlebars": "^4.7.8",
     "helmet": "^8.1.0",
+    "ioredis": "^5.9.2",
     "jsonwebtoken": "^9.0.2",
     "mercadopago": "^2.11.0",
     "moment": "^2.30.1",
@@ -37,7 +38,10 @@
     "qrcode": "^1.5.4",
     "qrcode-terminal": "^0.12.0",
     "sequelize": "^6.37.7",
-    "whatsapp-web.js": "^1.34.2"
+    "sharp": "^0.34.5",
+    "whatsapp-web.js": "^1.34.2",
+    "winston": "^3.19.0",
+    "winston-daily-rotate-file": "^5.0.0"
   },
   "devDependencies": {
     "cross-env": "^10.1.0",

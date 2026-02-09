@@ -108,14 +108,9 @@ const PageTitleHandler = () => {
 };
 
 const HomeSelector = ({ activeModules }) => {
-    const { user } = useAuth();
-    const isModuleActive = activeModules.includes('ecommerce') || activeModules.includes('web');
-    const isSuperAdmin = user?.role === 'super_admin';
-
-    if (isModuleActive || isSuperAdmin) {
-        return <Home />;
-    }
-    return <LandingPage />;
+    // Home.jsx ahora maneja internamente el modo de mantenimiento con HomeDevPromo
+    // No necesitamos LandingPage aquí
+    return <Home />;
 };
 
 function App() {
@@ -172,36 +167,20 @@ function App() {
                                         <Route path="/privacidad" element={<Privacidad />} />
                                         <Route path="/contacto" element={<Contact />} />
 
-                                        {/* Rutas de E-commerce (Protegidas por módulo) */}
-                                        <Route path="/productos" element={
-                                            <ModuleRoute moduleCode="ecommerce" moduleName="Tienda">
-                                                <Products />
-                                            </ModuleRoute>
-                                        } />
-                                        <Route path="/product/:id" element={
-                                            <ModuleRoute moduleCode="ecommerce" moduleName="Tienda">
-                                                <ProductDetail />
-                                            </ModuleRoute>
-                                        } />
+                                        {/* Rutas de E-commerce - Productos públicos */}
+                                        <Route path="/productos" element={<Products />} />
+                                        <Route path="/product/:id" element={<ProductDetail />} />
                                         <Route path="/checkout" element={
-                                            <ModuleRoute moduleCode="ecommerce" moduleName="Tienda">
-                                                <PrivateRoute>
-                                                    <Checkout />
-                                                </PrivateRoute>
-                                            </ModuleRoute>
+                                            <PrivateRoute>
+                                                <Checkout />
+                                            </PrivateRoute>
                                         } />
                                         <Route path="/order-confirmation/:orderId" element={
-                                            <ModuleRoute moduleCode="ecommerce" moduleName="Tienda">
-                                                <PrivateRoute>
-                                                    <OrderConfirmation />
-                                                </PrivateRoute>
-                                            </ModuleRoute>
+                                            <PrivateRoute>
+                                                <OrderConfirmation />
+                                            </PrivateRoute>
                                         } />
-                                        <Route path="/payment/status" element={
-                                            <ModuleRoute moduleCode="ecommerce" moduleName="Tienda">
-                                                <PaymentStatus />
-                                            </ModuleRoute>
-                                        } />
+                                        <Route path="/payment/status" element={<PaymentStatus />} />
                                         <Route path="/login" element={<Login />} />
                                         <Route path="/registro" element={<Register />} />
                                         <Route path="/forgot-password" element={<ForgotPassword />} />

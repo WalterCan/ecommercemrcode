@@ -1,3 +1,4 @@
+const logger = require('../utils/logger');
 const Supplier = require('../models/Supplier');
 
 /**

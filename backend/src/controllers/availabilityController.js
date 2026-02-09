@@ -1,3 +1,4 @@
+const logger = require('../utils/logger');
 const Appointment = require('../models/Appointment');
 const TherapyType = require('../models/TherapyType');
 const Patient = require('../models/Patient');
@@ -105,7 +106,7 @@ const createAvailability = async (req, res) => {
 
         res.status(201).json(availability);
     } catch (error) {
-        console.error('Error creating availability:', error);
+        logger.error('Error creating availability:', error);
         res.status(500).json({ error: 'Error al crear disponibilidad' });
     }
 };
@@ -137,7 +138,7 @@ const getAvailableSlots = async (req, res) => {
 
         res.json(slots);
     } catch (error) {
-        console.error('Error fetching available slots:', error);
+        logger.error('Error fetching available slots:', error);
         res.status(500).json({ error: 'Error al cargar horarios disponibles' });
     }
 };
@@ -195,7 +196,7 @@ const getMyAvailability = async (req, res) => {
 
         res.json(slots);
     } catch (error) {
-        console.error('Error fetching my availability:', error);
+        logger.error('Error fetching my availability:', error);
         res.status(500).json({ error: 'Error al cargar mi disponibilidad' });
     }
 };
@@ -232,7 +233,7 @@ const deleteAvailability = async (req, res) => {
         await slot.destroy();
         res.json({ message: 'Disponibilidad eliminada exitosamente' });
     } catch (error) {
-        console.error('Error deleting availability:', error);
+        logger.error('Error deleting availability:', error);
         res.status(500).json({ error: 'Error al eliminar disponibilidad' });
     }
 };

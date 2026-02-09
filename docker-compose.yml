@@ -12,6 +12,17 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
 
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: ecommerce-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+
   # Backend (Node.js)
   backend:
     build: ./backend
@@ -27,6 +38,8 @@ services:
       - DB_USER=root
       - DB_PASSWORD=root_password
       - DB_NAME=ecommercemrcode
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
       - FRONTEND_URL=http://localhost:5176
       - NODE_OPTIONS=--max-old-space-size=2048
       - PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
@@ -42,6 +55,7 @@ services:
       - /app/node_modules # Evita sobreescribir node_modules del contenedor
     depends_on:
       - db_ecommerce
+      - redis
 
   # Frontend (React + Vite)
   frontend:
@@ -72,3 +86,4 @@ services:
 
 volumes:
   mysql_data:
+  redis_data:

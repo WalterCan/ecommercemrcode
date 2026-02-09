@@ -1,3 +1,4 @@
+const logger = require('../utils/logger');
 const Patient = require('../models/Patient');
 const User = require('../models/User');
 const ClinicalRecord = require('../models/ClinicalRecord');
@@ -11,7 +12,7 @@ const getPatients = async (req, res) => {
         });
         res.json(patients);
     } catch (error) {
-        console.error('Error fetching patients:', error);
+        logger.error('Error fetching patients:', error);
         res.status(500).json({ error: 'Error al obtener pacientes' });
     }
 };
@@ -59,7 +60,7 @@ const upsertPatient = async (req, res) => {
 
         res.json({ success: true, patient });
     } catch (error) {
-        console.error('Error saving patient:', error);
+        logger.error('Error saving patient:', error);
         res.status(500).json({ error: 'Error al guardar ficha' });
     }
 };
@@ -84,7 +85,7 @@ const updatePatient = async (req, res) => {
 
         res.json(patient);
     } catch (error) {
-        console.error('Error updating patient:', error);
+        logger.error('Error updating patient:', error);
         res.status(500).json({ error: 'Error al actualizar paciente' });
     }
 };
@@ -133,7 +134,7 @@ const createPatient = async (req, res) => {
 
     } catch (error) {
         await t.rollback();
-        console.error('Error creating full patient:', error);
+        logger.error('Error creating full patient:', error);
         res.status(500).json({ error: error.message || 'Error al crear paciente' });
     }
 };
@@ -155,7 +156,7 @@ const addClinicalRecord = async (req, res) => {
 
         res.status(201).json(record);
     } catch (error) {
-        console.error('Error adding clinical record:', error);
+        logger.error('Error adding clinical record:', error);
         res.status(500).json({ error: 'Error al agregar nota' });
     }
 };
@@ -173,7 +174,7 @@ const updateClinicalRecord = async (req, res) => {
         await auditService.log(req, 'UPDATE', 'ClinicalRecord', record.id, { patient_id: record.patient_id });
         res.json(record);
     } catch (error) {
-        console.error('Error updating clinical record:', error);
+        logger.error('Error updating clinical record:', error);
         res.status(500).json({ error: 'Error al actualizar nota' });
     }
 };
@@ -190,7 +191,7 @@ const deleteClinicalRecord = async (req, res) => {
         await auditService.log(req, 'DELETE', 'ClinicalRecord', recordId, { patient_id: record.patient_id });
         res.json({ message: 'Nota eliminada' });
     } catch (error) {
-        console.error('Error deleting clinical record:', error);
+        logger.error('Error deleting clinical record:', error);
         res.status(500).json({ error: 'Error al eliminar nota' });
     }
 };

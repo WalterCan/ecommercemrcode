@@ -87,6 +87,15 @@ const Home = () => {
     const showHome = settings.web_show_home === 'true' || settings.web_show_home === true;
     const maintenanceForce = settings.maintenance_mode_active === 'true' || settings.maintenance_mode_active === true;
 
+    // DEBUG: Log para verificar settings
+    console.log('🔍 DEBUG Maintenance Mode:', {
+        maintenance_mode_active: settings.maintenance_mode_active,
+        type: typeof settings.maintenance_mode_active,
+        maintenanceForce,
+        user: user?.role,
+        allSettings: settings
+    });
+
     // Check if ALL sections are disabled
     const allDisabled =
         (settings.web_show_home !== 'true' && settings.web_show_home !== true) &&

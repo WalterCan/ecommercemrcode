@@ -1,3 +1,4 @@
+const logger = require('../utils/logger');
 const emailService = require('../services/emailService');
 const Setting = require('../models/Setting');
 
@@ -18,7 +19,7 @@ exports.sendContactEmail = async (req, res) => {
         const toEmail = emailSetting ? emailSetting.value : process.env.CONTACT_EMAIL || process.env.EMAIL_USER;
 
         if (!toEmail) {
-            console.warn('No contact email configured. Defaulting to sender.');
+            logger.warn('No contact email configured. Defaulting to sender.');
             // Fallback si no hay configuración: enviar al propio email configurado en el servicio
         }
 
@@ -37,7 +38,7 @@ exports.sendContactEmail = async (req, res) => {
         }
 
     } catch (error) {
-        console.error('Error in sendContactEmail:', error);
+        logger.error('Error in sendContactEmail:', error);
         res.status(500).json({ error: 'Error interno del servidor' });
     }
 };

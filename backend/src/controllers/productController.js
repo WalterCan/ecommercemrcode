@@ -1,3 +1,4 @@
+const logger = require('../utils/logger');
 const Product = require('../models/Product');
 const ProductImage = require('../models/ProductImage');
 const Category = require('../models/Category');
@@ -6,9 +7,78 @@ const fs = require('fs');
 const path = require('path');
 
 /**
- * Obtener todos los productos
+ * Obtener todos los productos (SOLO ACTIVOS para el público)
  */
 exports.getAllProducts = async (req, res) => {
+    try {
+        const products = await Product.findAll({
+            where: { active: true },
+            include: [
+                { model: Category, as: 'category' },
+                { model: ProductImage, as: 'images' },
+                { model: ProductVariant, as: 'variants' }
+            ],
+            order: [['createdAt', 'DESC']]
+        });
+        res.json(products);
+    } catch (error) {
+        logger.error('Error fetching products:', error);
+        res.status(500).json({ message: 'Error al obtener productos' });
+    }
+};
+
+/**
+ * Obtener producto por ID (SOLO SI ESTÁ ACTIVO)
+ */
+exports.getProductById = async (req, res) => {
+    try {
+        const product = await Product.findByPk(req.params.id, {
+            include: [
+                { model: Category, as: 'category' },
+                { model: ProductImage, as: 'images' },
+                { model: ProductVariant, as: 'variants' }
+            ]
+        });
+
+        if (!product || !product.active) {
+            return res.status(404).json({ message: 'Producto no encontrado' });
+        }
+
+        res.json(product);
+    } catch (error) {
+        logger.error('Error fetching product:', error);
+        res.status(500).json({ message: 'Error al obtener el producto' });
+    }
+};
+
+/**
+ * Obtener productos destacados (SOLO ACTIVOS)
+ */
+exports.getFeaturedProducts = async (req, res) => {
+    try {
+        const products = await Product.findAll({
+            where: {
+                featured: true,
+                active: true
+            },
+            include: [
+                { model: Category, as: 'category' },
+                { model: ProductImage, as: 'images' },
+                { model: ProductVariant, as: 'variants' }
+            ],
+            limit: 8
+        });
+        res.json(products);
+    } catch (error) {
+        logger.error('Error fetching featured products:', error);
+        res.status(500).json({ message: 'Error al obtener productos destacados' });
+    }
+};
+
+/**
+ * [ADMIN] Obtener todos los productos (incluidos inactivos)
+ */
+exports.getAllProductsAdmin = async (req, res) => {
     try {
         const products = await Product.findAll({
             include: [
@@ -20,15 +90,15 @@ exports.getAllProducts = async (req, res) => {
         });
         res.json(products);
     } catch (error) {
-        console.error('Error fetching products:', error);
-        res.status(500).json({ message: 'Error al obtener productos' });
+        logger.error('Error fetching admin products:', error);
+        res.status(500).json({ message: 'Error al obtener productos de administración' });
     }
 };
 
 /**
- * Obtener producto por ID
+ * [ADMIN] Obtener producto por ID (sin filtro active)
  */
-exports.getProductById = async (req, res) => {
+exports.getProductByIdAdmin = async (req, res) => {
     try {
         const product = await Product.findByPk(req.params.id, {
             include: [
@@ -44,29 +114,8 @@ exports.getProductById = async (req, res) => {
 
         res.json(product);
     } catch (error) {
-        console.error('Error fetching product:', error);
+        logger.error('Error fetching admin product:', error);
         res.status(500).json({ message: 'Error al obtener el producto' });
-    }
-};
-
-/**
- * Obtener productos destacados
- */
-exports.getFeaturedProducts = async (req, res) => {
-    try {
-        const products = await Product.findAll({
-            where: { featured: true },
-            include: [
-                { model: Category, as: 'category' },
-                { model: ProductImage, as: 'images' },
-                { model: ProductVariant, as: 'variants' }
-            ],
-            limit: 8
-        });
-        res.json(products);
-    } catch (error) {
-        console.error('Error fetching featured products:', error);
-        res.status(500).json({ message: 'Error al obtener productos destacados' });
     }
 };
 
@@ -119,7 +168,7 @@ exports.createProduct = async (req, res) => {
                     await Promise.all(variantPromises);
                 }
             } catch (e) {
-                console.error('Error parsing variants:', e);
+                logger.error('Error parsing variants:', e);
             }
         }
 
@@ -133,7 +182,7 @@ exports.createProduct = async (req, res) => {
 
         res.status(201).json(finalProduct);
     } catch (error) {
-        console.error('Error creating product:', error);
+        logger.error('Error creating product:', error);
         res.status(500).json({ message: 'Error al crear producto', error: error.message });
     }
 };
@@ -190,7 +239,7 @@ exports.updateProduct = async (req, res) => {
                 imagesToDelete.forEach(img => {
                     const filePath = path.join(__dirname, '../../', img.image_url);
                     fs.unlink(filePath, (err) => {
-                        if (err) console.error('Error deleting file:', filePath, err);
+                        if (err) logger.error('Error deleting file:', filePath, err);
                     });
                 });
             }
@@ -247,7 +296,7 @@ exports.updateProduct = async (req, res) => {
                     await Promise.all([...updatePromises, ...createPromises]);
                 }
             } catch (e) {
-                console.error('Error updating variants:', e);
+                logger.error('Error updating variants:', e);
             }
         }
 
@@ -263,8 +312,28 @@ exports.updateProduct = async (req, res) => {
 
         res.json(updatedProduct);
     } catch (error) {
-        console.error('Error updating product:', error);
+        logger.error('Error updating product:', error);
         res.status(500).json({ message: 'Error al actualizar producto', error: error.message });
+    }
+};
+
+/**
+ * Actualizar estado (Activo/Inactivo)
+ */
+exports.updateProductStatus = async (req, res) => {
+    try {
+        const product = await Product.findByPk(req.params.id);
+        if (!product) return res.status(404).json({ message: 'Producto no encontrado' });
+
+        if (typeof req.body.active !== 'boolean') {
+            return res.status(400).json({ message: 'El campo active debe ser booleano' });
+        }
+
+        await product.update({ active: req.body.active });
+        res.json({ message: 'Estado actualizado', active: product.active });
+    } catch (error) {
+        logger.error('Error updating product status:', error);
+        res.status(500).json({ message: 'Error al actualizar estado', error: error.message });
     }
 };
 
@@ -283,14 +352,14 @@ exports.deleteProduct = async (req, res) => {
         if (product.image_url && product.image_url.startsWith('/uploads/')) {
             const filePath = path.join(__dirname, '../../', product.image_url);
             fs.unlink(filePath, (err) => {
-                if (err) console.error('Error deleting file:', filePath, err);
+                if (err) logger.error('Error deleting file:', filePath, err);
             });
         }
 
         await product.destroy();
         res.json({ message: 'Producto eliminado correctamente' });
     } catch (error) {
-        console.error('Error deleting product:', error);
+        logger.error('Error deleting product:', error);
         res.status(500).json({ message: 'Error al eliminar producto' });
     }
 };

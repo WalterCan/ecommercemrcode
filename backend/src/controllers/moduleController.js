@@ -1,3 +1,4 @@
+const logger = require('../utils/logger');
 const Module = require('../models/Module');
 const User = require('../models/User');
 const UserModule = require('../models/UserModule');
@@ -8,13 +9,13 @@ const { Op } = require('sequelize');
  */
 exports.listModules = async (req, res) => {
     try {
-        console.log(`📋 Catálogo de módulos solicitado por usuario ID: ${req.user.id}, Rol: ${req.user.role}`);
+        logger.info(`📋 Catálogo de módulos solicitado por usuario ID: ${req.user.id}, Rol: ${req.user.role}`);
         const modules = await Module.findAll({
             order: [['name', 'ASC']]
         });
         res.json(modules);
     } catch (error) {
-        console.error('Error listing modules:', error);
+        logger.error('Error listing modules:', error);
         res.status(500).json({ error: error.message });
     }
 };
@@ -31,7 +32,7 @@ exports.getActiveModules = async (req, res) => {
             order: [['createdAt', 'ASC']] // O el primer admin creado
         });
 
-        console.log('Store Admin found:', storeAdmin ? storeAdmin.email : 'NONE');
+        logger.info('Store Admin found:', storeAdmin ? storeAdmin.email : 'NONE');
 
         if (!storeAdmin) {
             // Si no hay admin común (solo super admin), devolvemos activos globales
@@ -40,7 +41,7 @@ exports.getActiveModules = async (req, res) => {
                 attributes: ['code']
             });
             const codes = modules.map(m => m.code);
-            console.log('Falling back to global active modules:', codes);
+            logger.info('Falling back to global active modules:', codes);
             return res.json(codes);
         }
 
@@ -58,10 +59,10 @@ exports.getActiveModules = async (req, res) => {
         });
 
         const activeCodes = user && user.modules ? user.modules.map(m => m.code) : [];
-        console.log('Active codes for admin:', activeCodes);
+        logger.info('Active codes for admin:', activeCodes);
         res.json(activeCodes);
     } catch (error) {
-        console.error('Error getting active modules:', error);
+        logger.error('Error getting active modules:', error);
         res.status(500).json({ error: error.message });
     }
 };
@@ -89,7 +90,7 @@ exports.getUserModules = async (req, res) => {
 
         res.json(user.modules || []);
     } catch (error) {
-        console.error('Error getting user modules:', error);
+        logger.error('Error getting user modules:', error);
         res.status(500).json({ error: error.message });
     }
 };
@@ -142,7 +143,7 @@ exports.enableModuleForUser = async (req, res) => {
             userModule
         });
     } catch (error) {
-        console.error('Error enabling module:', error);
+        logger.error('Error enabling module:', error);
         res.status(500).json({ error: error.message });
     }
 };
@@ -179,7 +180,7 @@ exports.disableModuleForUser = async (req, res) => {
             message: `Módulo "${module?.name}" deshabilitado para ${user?.name}`
         });
     } catch (error) {
-        console.error('Error disabling module:', error);
+        logger.error('Error disabling module:', error);
         res.status(500).json({ error: error.message });
     }
 };
@@ -205,7 +206,7 @@ exports.getAllUsersWithModules = async (req, res) => {
 
         res.json(users);
     } catch (error) {
-        console.error('Error getting users with modules:', error);
+        logger.error('Error getting users with modules:', error);
         res.status(500).json({ error: error.message });
     }
 };
@@ -232,7 +233,7 @@ exports.getMyModules = async (req, res) => {
 
         res.json(user.modules || []);
     } catch (error) {
-        console.error('Error getting my modules:', error);
+        logger.error('Error getting my modules:', error);
         res.status(500).json({ error: error.message });
     }
 };
@@ -272,7 +273,7 @@ exports.createUser = async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Error al crear usuario:', error);
+        logger.error('Error al crear usuario:', error);
         res.status(500).json({ message: 'Error interno del servidor', error: error.message });
     }
 };
@@ -312,7 +313,7 @@ exports.updateUserRole = async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Error al actualizar rol:', error);
+        logger.error('Error al actualizar rol:', error);
         res.status(500).json({ message: 'Error interno del servidor', error: error.message });
     }
 };
@@ -346,7 +347,7 @@ exports.toggleUserStatus = async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Error al cambiar estado del usuario:', error);
+        logger.error('Error al cambiar estado del usuario:', error);
         res.status(500).json({ message: 'Error interno del servidor', error: error.message });
     }
 };

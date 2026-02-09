@@ -1,6 +1,7 @@
 const app = require('./src/app');
 const sequelize = require('./src/config/db');
 require('dotenv').config();
+const logger = require('./src/utils/logger');
 
 const PORT = process.env.PORT || 3001;
 
@@ -32,13 +33,13 @@ async function startServer() {
     while (!connected && retries > 0) {
         try {
             await sequelize.authenticate();
-            console.log('✅ Conexión a MySQL establecida correctamente.');
+            logger.info('✅ Conexión a MySQL establecida correctamente.');
             connected = true;
         } catch (error) {
             retries--;
-            console.error(`❌ Error al conectar con la base de datos (${retries} reintentos restantes):`, error.message);
+            logger.error(`❌ Error al conectar con la base de datos (${retries} reintentos restantes): ${error.message}`);
             if (retries === 0) {
-                console.error('❌ No se pudo establecer la conexión tras varios intentos. Saliendo...');
+                logger.error('❌ No se pudo establecer la conexión tras varios intentos. Saliendo...');
                 process.exit(1);
             }
             // Esperar 5 segundos antes de reintentar
@@ -54,21 +55,21 @@ async function startServer() {
 
         // Sincronizar el resto sin alterar (para evitar errores "Too many keys" en Categories)
         await sequelize.sync();
-        console.log('✅ Modelos sincronizados con la base de datos.');
+        logger.info('✅ Modelos sincronizados con la base de datos.');
 
         // ============================================
         // INICIAR SERVIDOR HTTP
         // ============================================
         app.listen(PORT, () => {
-            console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
-            console.log('✅ Rutas de Categorías activas');
-            console.log('📋 Rutas disponibles:');
-            console.log(`   • Health Check: http://localhost:${PORT}/api/health`);
-            console.log(`   • Productos: http://localhost:${PORT}/api/products`);
-            console.log(`   • Pedidos: http://localhost:${PORT}/api/orders`);
-            console.log(`   • WhatsApp: http://localhost:${PORT}/api/whatsapp`);
-            console.log(`   • Ajustes: http://localhost:${PORT}/api/settings`);
-            console.log('\n✨ Perfumería E-commerce lista para recibir pedidos!');
+            logger.info(`🚀 Servidor corriendo en http://localhost:${PORT}`);
+            logger.info('✅ Rutas de Categorías activas');
+            logger.info('📋 Rutas disponibles:');
+            logger.info(`   • Health Check: http://localhost:${PORT}/api/health`);
+            logger.info(`   • Productos: http://localhost:${PORT}/api/products`);
+            logger.info(`   • Pedidos: http://localhost:${PORT}/api/orders`);
+            logger.info(`   • WhatsApp: http://localhost:${PORT}/api/whatsapp`);
+            logger.info(`   • Ajustes: http://localhost:${PORT}/api/settings`);
+            logger.info('\n✨ Perfumería E-commerce lista para recibir pedidos!');
         });
 
         // ============================================
@@ -162,7 +163,7 @@ async function startServer() {
                 defaults: setting
             });
         }
-        console.log('✅ Configuraciones base verificadas/creadas.');
+        logger.info('✅ Configuraciones base verificadas/creadas.');
 
         // ============================================
         // CREAR USUARIO ADMINISTRADOR POR DEFECTO
@@ -181,11 +182,11 @@ async function startServer() {
         // ============================================
         if (process.env.ENABLE_REMINDERS !== 'false') {
             require('./src/jobs/reminderCron');
-            console.log('✅ Cron de recordatorios iniciado');
+            logger.info('✅ Cron de recordatorios iniciado');
         }
 
     } catch (error) {
-        console.error('❌ Error durante la sincronización o inicio del servidor:', error);
+        logger.logError(error, 'Error durante la sincronización o inicio del servidor');
     }
 }
 

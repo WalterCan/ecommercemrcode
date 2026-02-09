@@ -24,6 +24,12 @@ const patientRoutes = require('./routes/patientRoutes'); // [NEW]
 const supplierRoutes = require('./routes/supplierRoutes'); // [NEW] Compras
 const purchaseRoutes = require('./routes/purchaseRoutes'); // [NEW] Compras
 
+// ============================================
+// LOGGING
+// ============================================
+const logger = require('./utils/logger');
+const httpLogger = require('./middleware/httpLogger');
+
 const app = express();
 
 // ============================================
@@ -55,6 +61,10 @@ app.use(cors({
 }));
 
 app.use(express.json());
+
+// HTTP Request Logging
+app.use(httpLogger);
+
 // Ajuste de ruta para uploads (subimos un nivel desde src/app.js hasta root/uploads)
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
@@ -87,6 +97,7 @@ app.use('/api/audit-logs', require('./routes/auditRoutes')); // [NEW] Auditoría
 app.use('/api/suppliers', supplierRoutes); // [NEW] Compras
 app.use('/api/purchases', purchaseRoutes); // [NEW] Compras
 app.use('/api/contact', require('./routes/contactRoutes')); // [NEW] Contacto Web
+app.use('/api/cache', require('./routes/cacheRoutes')); // [NEW] Administración de Cache
 
 /**
  * ============================================

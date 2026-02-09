@@ -29,4 +29,36 @@ export default defineConfig({
     optimizeDeps: {
         force: false,
     },
+    build: {
+        // Optimizaciones de bundle
+        rollupOptions: {
+            output: {
+                // Code splitting manual por chunks
+                manualChunks: {
+                    // Vendor chunks
+                    'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+                    'ui-vendor': ['react-toastify'],
+                    // Admin pages en chunk separado
+                    'admin': [
+                        './src/pages/admin/AdminDashboard.jsx',
+                        './src/pages/admin/AdminProducts.jsx',
+                        './src/pages/admin/AdminOrders.jsx',
+                        './src/pages/admin/AdminSettings.jsx'
+                    ]
+                }
+            }
+        },
+        // Límite de advertencia de tamaño de chunk
+        chunkSizeWarningLimit: 1000,
+        // Minificación
+        minify: 'terser',
+        terserOptions: {
+            compress: {
+                drop_console: true, // Eliminar console.log en producción
+                drop_debugger: true
+            }
+        },
+        // Source maps solo en desarrollo
+        sourcemap: false
+    }
 })

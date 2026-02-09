@@ -1,3 +1,4 @@
+const logger = require('../utils/logger');
 const Appointment = require('../models/Appointment');
 const Patient = require('../models/Patient');
 const User = require('../models/User');
@@ -43,7 +44,7 @@ const getAppointments = async (req, res) => {
 
         res.json(appointments);
     } catch (error) {
-        console.error('Error fetching appointments:', error);
+        logger.error('Error fetching appointments:', error);
         res.status(500).json({ error: 'Error al cargar agenda' });
     }
 };
@@ -64,7 +65,7 @@ const getAvailability = async (req, res) => {
 
         res.json(appointments);
     } catch (error) {
-        console.error('Error fetching availability:', error);
+        logger.error('Error fetching availability:', error);
         res.status(500).json({ error: 'Error al cargar disponibilidad' });
     }
 };
@@ -94,7 +95,7 @@ const getMyAppointments = async (req, res) => {
 
         res.json(appointments);
     } catch (error) {
-        console.error('Error fetching my appointments:', error);
+        logger.error('Error fetching my appointments:', error);
         res.status(500).json({ error: 'Error al cargar mis turnos' });
     }
 };
@@ -151,7 +152,7 @@ const createAppointment = async (req, res) => {
         res.status(201).json({ success: true, appointment });
 
     } catch (error) {
-        console.error('Error creating appointment:', error);
+        logger.error('Error creating appointment:', error);
         res.status(500).json({ error: 'Error al reservar turno' });
     }
 };
@@ -183,7 +184,7 @@ const updateAppointmentStatus = async (req, res) => {
         res.json({ success: true, appointment });
 
     } catch (error) {
-        console.error('Error updating appointment:', error);
+        logger.error('Error updating appointment:', error);
         res.status(500).json({ error: 'Error al actualizar turno' });
     }
 };
@@ -216,7 +217,7 @@ const cancelClientAppointment = async (req, res) => {
 
         res.json({ message: 'Turno cancelado y horario liberado', appointment });
     } catch (error) {
-        console.error('Error cancelling appointment:', error);
+        logger.error('Error cancelling appointment:', error);
         res.status(500).json({ error: 'Error al cancelar turno' });
     }
 };
@@ -305,7 +306,7 @@ const rescheduleAppointment = async (req, res) => {
             appointment: updatedAppointment
         });
     } catch (error) {
-        console.error('Error rescheduling appointment:', error);
+        logger.error('Error rescheduling appointment:', error);
         res.status(500).json({ error: 'Error al reprogramar turno' });
     }
 }
@@ -418,7 +419,7 @@ const bookAppointment = async (req, res) => {
 
         res.json({ message: 'Turno reservado exitosamente', appointment });
     } catch (error) {
-        console.error('Error booking appointment:', error);
+        logger.error('Error booking appointment:', error);
         res.status(500).json({ error: 'Error al reservar turno' });
     }
 };
@@ -446,7 +447,7 @@ const confirmAppointment = async (req, res) => {
 
         res.json({ message: 'Asistencia confirmada exitosamente', appointment });
     } catch (error) {
-        console.error('Error confirming appointment:', error);
+        logger.error('Error confirming appointment:', error);
         res.status(500).json({ error: 'Error al confirmar asistencia' });
     }
 };
@@ -496,7 +497,7 @@ const markBalanceAsPaid = async (req, res) => {
             appointment
         });
     } catch (error) {
-        console.error('Error marking balance as paid:', error);
+        logger.error('Error marking balance as paid:', error);
         res.status(500).json({ error: 'Error al registrar pago' });
     }
 };

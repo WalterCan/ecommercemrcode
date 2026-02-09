@@ -1,3 +1,4 @@
+const logger = require('../utils/logger');
 const ExcelJS = require('exceljs');
 const Order = require('../models/Order');
 const Product = require('../models/Product');
@@ -81,7 +82,7 @@ exports.getPurchasesReport = async (req, res) => {
         await workbook.xlsx.write(res);
         res.end();
     } catch (error) {
-        console.error('Error generating purchases report:', error);
+        logger.error('Error generating purchases report:', error);
         res.status(500).json({ error: 'Error generando reporte de compras' });
     }
 };
@@ -125,7 +126,7 @@ exports.getSuppliersReport = async (req, res) => {
         await workbook.xlsx.write(res);
         res.end();
     } catch (error) {
-        console.error('Error generating suppliers report:', error);
+        logger.error('Error generating suppliers report:', error);
         res.status(500).json({ error: 'Error generando reporte de proveedores' });
     }
 };
@@ -184,7 +185,7 @@ exports.getTurnsReport = async (req, res) => {
         await workbook.xlsx.write(res);
         res.end();
     } catch (error) {
-        console.error('Error generating turns report:', error);
+        logger.error('Error generating turns report:', error);
         res.status(500).json({ error: 'Error generando reporte de turnos' });
     }
 };
@@ -242,7 +243,7 @@ exports.getTherapiesReport = async (req, res) => {
         await workbook.xlsx.write(res);
         res.end();
     } catch (error) {
-        console.error('Error generating therapies report:', error);
+        logger.error('Error generating therapies report:', error);
         res.status(500).json({ error: 'Error generando reporte de terapias' });
     }
 };
@@ -286,7 +287,7 @@ exports.getSalesReport = async (req, res) => {
         await workbook.xlsx.write(res);
         res.end();
     } catch (error) {
-        console.error('Error generating sales report:', error);
+        logger.error('Error generating sales report:', error);
         res.status(500).json({ error: 'Error generando reporte de ventas' });
     }
 };
@@ -333,7 +334,7 @@ exports.getStockReport = async (req, res) => {
         await workbook.xlsx.write(res);
         res.end();
     } catch (error) {
-        console.error('Error generating stock report:', error);
+        logger.error('Error generating stock report:', error);
         res.status(500).json({ error: 'Error generando reporte de stock' });
     }
 };
@@ -373,7 +374,7 @@ exports.getCustomersReport = async (req, res) => {
         await workbook.xlsx.write(res);
         res.end();
     } catch (error) {
-        console.error('Error generating customers report:', error);
+        logger.error('Error generating customers report:', error);
         res.status(500).json({ error: 'Error generando reporte de clientes' });
     }
 };

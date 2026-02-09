@@ -1,3 +1,4 @@
+const logger = require('../utils/logger');
 const TherapyType = require('../models/TherapyType');
 const { Op } = require('sequelize');
 
@@ -19,7 +20,7 @@ const createTherapy = async (req, res) => {
                 icon = parsed.icon;
                 image_url = parsed.image_url;
             } catch (e) {
-                console.error('Error parsing therapy data:', e);
+                logger.error('Error parsing therapy data:', e);
             }
         }
 
@@ -40,7 +41,7 @@ const createTherapy = async (req, res) => {
 
         res.status(201).json(therapy);
     } catch (error) {
-        console.error('Error creating therapy:', error);
+        logger.error('Error creating therapy:', error);
         res.status(500).json({ error: 'Error al crear tipo de terapia' });
     }
 };
@@ -58,7 +59,7 @@ const getTherapies = async (req, res) => {
 
         res.json(therapies);
     } catch (error) {
-        console.error('Error fetching therapies:', error);
+        logger.error('Error fetching therapies:', error);
         res.status(500).json({ error: 'Error al cargar terapias' });
     }
 };
@@ -81,7 +82,7 @@ const getMyTherapies = async (req, res) => {
 
         res.json(therapies);
     } catch (error) {
-        console.error('Error fetching my therapies:', error);
+        logger.error('Error fetching my therapies:', error);
         res.status(500).json({ error: 'Error al cargar mis terapias' });
     }
 };
@@ -106,7 +107,7 @@ const updateTherapy = async (req, res) => {
                 icon = parsed.icon;
                 image_url = parsed.image_url;
             } catch (e) {
-                console.error('Error parsing therapy data:', e);
+                logger.error('Error parsing therapy data:', e);
             }
         }
 
@@ -131,7 +132,7 @@ const updateTherapy = async (req, res) => {
         await therapy.update({ name, description, duration, price, active, icon, image_url });
         res.json(therapy);
     } catch (error) {
-        console.error('Error updating therapy:', error);
+        logger.error('Error updating therapy:', error);
         res.status(500).json({ error: 'Error al actualizar terapia' });
     }
 };
@@ -159,7 +160,7 @@ const deleteTherapy = async (req, res) => {
         await therapy.destroy();
         res.json({ message: 'Terapia eliminada exitosamente' });
     } catch (error) {
-        console.error('Error deleting therapy:', error);
+        logger.error('Error deleting therapy:', error);
         res.status(500).json({ error: 'Error al eliminar terapia' });
     }
 };

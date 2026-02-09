@@ -20,7 +20,8 @@ const AdminProductForm = () => {
         cost_price: '',
         category_id: '',
         image_url: '',
-        featured: false
+        featured: false,
+        active: true // Default visible
     });
     const [margin, setMargin] = useState('');
     const [categories, setCategories] = useState([]);
@@ -54,7 +55,14 @@ const AdminProductForm = () => {
 
     const fetchProduct = async () => {
         try {
-            const res = await fetch(`${baseUrl}/products/${id}`);
+            const token = localStorage.getItem('token');
+            // Usar endpoint de ADMIN para obtener detalle completo (incluso si está inactivo)
+            const res = await fetch(`${baseUrl}/products/admin/detail/${id}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
             if (res.ok) {
                 const data = await res.json();
                 setFormData({
@@ -68,7 +76,8 @@ const AdminProductForm = () => {
                     cost_price: data.cost_price || 0,
                     category_id: data.category_id || '',
                     image_url: data.image_url || '',
-                    featured: data.featured || false
+                    featured: data.featured || false,
+                    active: data.active !== undefined ? data.active : true
                 });
 
                 // Cargar galería si existe
@@ -211,6 +220,7 @@ const AdminProductForm = () => {
 
             data.append('category_id', formData.category_id);
             data.append('featured', formData.featured ? '1' : '0');
+            data.append('active', formData.active ? '1' : '0');
 
             if (selectedFiles.length > 0) {
                 selectedFiles.forEach(file => {
@@ -544,18 +554,37 @@ const AdminProductForm = () => {
                             <p className="text-[10px] text-slate-400 italic">* Puedes subir múltiples imágenes. La primera imagen de la lista será la principal.</p>
                         </div>
 
-                        <div className="col-span-2 flex items-center gap-3 p-4 bg-beige-light/30 rounded-xl">
-                            <input
-                                type="checkbox"
-                                name="featured"
-                                checked={formData.featured}
-                                onChange={handleChange}
-                                id="featured"
-                                className="w-5 h-5 text-earth rounded focus:ring-earth border-gray-300"
-                            />
-                            <label htmlFor="featured" className="text-sm font-bold text-slate-700 cursor-pointer">
-                                Destacar este producto en la página principal
-                            </label>
+                        {/* Toggles Visibility / Featured */}
+                        <div className="col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="flex items-center gap-3 p-4 bg-beige-light/30 rounded-xl">
+                                <input
+                                    type="checkbox"
+                                    name="active"
+                                    checked={formData.active}
+                                    onChange={handleChange}
+                                    id="active"
+                                    className="w-5 h-5 text-green-600 rounded focus:ring-green-600 border-gray-300"
+                                />
+                                <label htmlFor="active" className="text-sm font-bold text-slate-700 cursor-pointer">
+                                    Producto Activo
+                                    <span className="block text-[10px] font-normal text-slate-500">Visible en el catálogo público</span>
+                                </label>
+                            </div>
+
+                            <div className="flex items-center gap-3 p-4 bg-beige-light/30 rounded-xl">
+                                <input
+                                    type="checkbox"
+                                    name="featured"
+                                    checked={formData.featured}
+                                    onChange={handleChange}
+                                    id="featured"
+                                    className="w-5 h-5 text-earth rounded focus:ring-earth border-gray-300"
+                                />
+                                <label htmlFor="featured" className="text-sm font-bold text-slate-700 cursor-pointer">
+                                    Destacar
+                                    <span className="block text-[10px] font-normal text-slate-500">Mostrar en la página de inicio</span>
+                                </label>
+                            </div>
                         </div>
                     </div>
 

@@ -1,3 +1,4 @@
+const logger = require('../utils/logger');
 const { Op } = require('sequelize');
 const Order = require('../models/Order');
 const Product = require('../models/Product');
@@ -42,7 +43,7 @@ exports.getGeneralStats = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error fetching general stats:', error);
+        logger.error('Error fetching general stats:', error);
         res.status(500).json({ message: 'Error al obtener estadísticas generales' });
     }
 };
@@ -72,7 +73,7 @@ exports.getSalesChart = async (req, res) => {
 
         res.json(orders);
     } catch (error) {
-        console.error('Error fetching sales chart:', error);
+        logger.error('Error fetching sales chart:', error);
         res.status(500).json({ message: 'Error al obtener gráfico de ventas' });
     }
 };
@@ -116,7 +117,7 @@ exports.getTopProducts = async (req, res) => {
         res.json(sortedProducts);
 
     } catch (error) {
-        console.error('Error fetching top products:', error);
+        logger.error('Error fetching top products:', error);
         res.status(500).json({ message: 'Error al obtener productos top' });
     }
 };
@@ -132,7 +133,7 @@ exports.getRecentOrders = async (req, res) => {
         });
         res.json(orders);
     } catch (error) {
-        console.error('Error fetching recent orders:', error);
+        logger.error('Error fetching recent orders:', error);
         res.status(500).json({ message: 'Error al obtener pedidos recientes' });
     }
 };
@@ -163,7 +164,7 @@ exports.getCategoryStats = async (req, res) => {
         res.json(formatted);
 
     } catch (error) {
-        console.error('Error fetching category stats:', error);
+        logger.error('Error fetching category stats:', error);
         res.status(500).json({ message: 'Error al obtener estadísticas de categorías' });
     }
 };
@@ -254,7 +255,7 @@ exports.getTherapyStats = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error fetching therapy stats:', error);
+        logger.error('Error fetching therapy stats:', error);
         res.status(500).json({ message: error.message || 'Error al obtener estadísticas de terapias' });
     }
 };
@@ -297,7 +298,7 @@ exports.getTherapySalesChart = async (req, res) => {
 
         res.json(incomeData);
     } catch (error) {
-        console.error('Error fetching therapy income chart:', error);
+        logger.error('Error fetching therapy income chart:', error);
         res.status(500).json({ message: error.message || 'Error al obtener gráfico de ingresos de terapias' });
     }
 };

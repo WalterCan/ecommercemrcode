@@ -4,4 +4,6 @@ node_modules/
 whatsapp_sessions/
 sessions/
 uploads/
+logs/
+backups/
 npm-debug.log
