@@ -3,6 +3,15 @@ FROM node:20-alpine
 # Set working directory
 WORKDIR /app
 
+# Install chromium for whatsapp-web.js (puppeteer)
+RUN apk add --no-cache \
+    chromium \
+    nss \
+    freetype \
+    harfbuzz \
+    ca-certificates \
+    ttf-freefont
+
 # Install dependencies (only production)
 COPY package*.json ./
 RUN npm install --production
