@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  db_ecommerce_prod:
+    image: mysql:8.0
+    container_name: ecommerce-perfumes-db-prod
+    restart: always
+    environment:
+      MYSQL_DATABASE: ecommercemrcode
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root_password}
+    ports:
+      - "3310:3306" # Puerto 3310 para no pisar si hay otro MySQL
+    volumes:
+      - mysql_data_prod:/var/lib/mysql
+
+  redis_prod:
+    image: redis:7-alpine
+    container_name: ecommerce-redis-prod
+    restart: always
+    volumes:
+      - redis_data_prod:/data
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+
+  backend_prod:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    container_name: ecommerce-perfumes-api-prod
+    restart: always
+    ports:
+      - "3002:3000"
+    env_file:
+      - ./backend/.env
+    environment:
+      - PORT=3000
+      - DB_HOST=db_ecommerce_prod
+      - DB_USER=root
+      - DB_PASSWORD=${DB_PASSWORD:-root_password}
+      - DB_NAME=ecommercemrcode
+      - REDIS_HOST=redis_prod
+      - REDIS_PORT=6379
+      # Cambiar esta linea si configuras SSL en tu panel Nginx:
+      - FRONTEND_URL=http://vibrabonito.com.ar
+      - NODE_OPTIONS=--max-old-space-size=2048
+    depends_on:
+      - db_ecommerce_prod
+      - redis_prod
+    volumes:
+      # Montamos la carpeta public para que los archivos subidos persistan
+      - ./backend/src/public:/app/src/public
+
+  frontend_prod:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+      args:
+        # En la build de produccion necesitamos que VITE_API_URL apunte al dominio real (o a la IP si no hay dominio aun)
+        - VITE_API_URL=http://api.vibrabonito.com.ar/api
+    container_name: ecommerce-perfumes-web-prod
+    restart: always
+    ports:
+      - "5176:80" # Expone el puerto 80 del Nginx interno al 5176 del VPS
+    depends_on:
+      - backend_prod
+
+volumes:
+  mysql_data_prod:
+  redis_data_prod:
