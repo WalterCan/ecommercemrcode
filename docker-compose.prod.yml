@@ -55,7 +55,7 @@ services:
       dockerfile: Dockerfile.prod
       args:
         # En la build de produccion necesitamos que VITE_API_URL apunte al dominio real (o a la IP si no hay dominio aun)
-        - VITE_API_URL=http://api.vibrabonito.com.ar/api
+        - VITE_API_URL=https://api.vibrabonito.com.ar/api
     container_name: ecommerce-perfumes-web-prod
     restart: always
     ports:
