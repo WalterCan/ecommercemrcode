@@ -155,6 +155,9 @@ async function startServer() {
             { key: 'about_value_3_image_url', value: '', description: 'Imagen para pilar 3' },
             // Licencia (SaaS)
             { key: 'license_key', value: '', description: 'Clave de licencia para activar módulos Premium (Clínica)' },
+            // Envío
+            { key: 'shipping_enabled', value: 'false', description: 'Activar cobro de envío' },
+            { key: 'shipping_fixed_cost', value: '0', description: 'Costo fijo de envío' },
         ];
 
         for (const setting of defaultSettings) {

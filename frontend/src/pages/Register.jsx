@@ -58,7 +58,7 @@ const Register = () => {
                     <div className="p-8 md:p-12">
                         <div className="text-center mb-10">
                             <h2 className="text-2xl font-serif text-slate-900">Crear Cuenta</h2>
-                            <p className="text-slate-500 mt-2">Únete a nuestra comunidad del bienestar</p>
+                            <p className="text-slate-500 mt-2">Crea tu cuenta para comenzar</p>
                         </div>
 
                         <form onSubmit={handleSubmit} className="space-y-5">

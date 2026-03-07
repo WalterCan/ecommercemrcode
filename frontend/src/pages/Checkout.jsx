@@ -19,6 +19,7 @@ const Checkout = () => {
 
     const [isModuleActive, setIsModuleActive] = useState(true);
     const [loadingModules, setLoadingModules] = useState(true);
+    const [storeSettings, setStoreSettings] = useState(null);
 
     const [formData, setFormData] = useState({
         customer_name: user?.name || '',
@@ -34,23 +35,32 @@ const Checkout = () => {
     });
 
     useEffect(() => {
-        const checkModules = async () => {
+        const checkModulesAndSettings = async () => {
             try {
                 const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
-                const res = await fetch(`${baseUrl}/modules/active`);
-                if (res.ok) {
-                    const activeModules = await res.json();
+                const [modulesRes, settingsRes] = await Promise.all([
+                    fetch(`${baseUrl}/modules/active`),
+                    fetch(`${baseUrl}/settings`)
+                ]);
+
+                if (modulesRes.ok) {
+                    const activeModules = await modulesRes.json();
                     if (!activeModules.includes('ecommerce')) {
                         setIsModuleActive(false);
                     }
                 }
+
+                if (settingsRes.ok) {
+                    const settingsData = await settingsRes.json();
+                    setStoreSettings(settingsData);
+                }
             } catch (error) {
-                console.error('Error checking modules:', error);
+                console.error('Error checking modules or settings:', error);
             } finally {
                 setLoadingModules(false);
             }
         };
-        checkModules();
+        checkModulesAndSettings();
     }, []);
 
     useEffect(() => {
@@ -78,6 +88,18 @@ const Checkout = () => {
             ...formData,
             [e.target.name]: e.target.value
         });
+    };
+
+    const handleShippingChange = (method) => {
+        const cost = method === 'delivery' && storeSettings?.shipping_enabled === 'true'
+            ? parseFloat(storeSettings?.shipping_fixed_cost || 0)
+            : 0;
+
+        setFormData(prev => ({
+            ...prev,
+            shipping_method: method,
+            shipping_cost: cost
+        }));
     };
 
     const handleApplyCoupon = async () => {
@@ -265,15 +287,37 @@ const Checkout = () => {
                                 </div>
                             </div>
 
-                            <h2 className="text-xl font-bold text-slate-700 mb-6 uppercase tracking-wide text-sm mt-8">Datos de Envío</h2>
-                            <div className="grid gap-4">
+                            <h2 className="text-xl font-bold text-slate-700 mb-6 uppercase tracking-wide text-sm mt-8">Datos de Envío / Retiro</h2>
+
+                            {storeSettings?.shipping_enabled === 'true' && (
+                                <div className="grid grid-cols-2 gap-4 mb-6">
+                                    <button
+                                        type="button"
+                                        onClick={() => handleShippingChange('pickup')}
+                                        className={`p-4 rounded-xl border-2 text-left transition-all ${formData.shipping_method === 'pickup' ? 'border-earth bg-earth/5' : 'border-beige-dark/20 hover:border-earth/50'}`}
+                                    >
+                                        <div className="font-bold text-slate-700">Retiro en local</div>
+                                        <div className="text-earth font-bold text-sm mt-1">Gratis</div>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleShippingChange('delivery')}
+                                        className={`p-4 rounded-xl border-2 text-left transition-all ${formData.shipping_method === 'delivery' ? 'border-earth bg-earth/5' : 'border-beige-dark/20 hover:border-earth/50'}`}
+                                    >
+                                        <div className="font-bold text-slate-700">Envío a domicilio</div>
+                                        <div className="text-earth font-bold text-sm mt-1">${parseFloat(storeSettings?.shipping_fixed_cost || 0).toLocaleString('es-AR')}</div>
+                                    </button>
+                                </div>
+                            )}
+
+                            <div className={`grid gap-4 transition-opacity duration-300 ${formData.shipping_method === 'pickup' && storeSettings?.shipping_enabled === 'true' ? 'opacity-50' : 'opacity-100'}`}>
                                 <div>
-                                    <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Dirección</label>
-                                    <input type="text" name="customer_address" value={formData.customer_address} onChange={handleChange} className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 focus:outline-none focus:border-earth" />
+                                    <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Dirección de Envío {formData.shipping_method === 'pickup' && storeSettings?.shipping_enabled === 'true' ? '(Opcional)' : '*'}</label>
+                                    <input type="text" name="customer_address" value={formData.customer_address} onChange={handleChange} required={formData.shipping_method === 'delivery'} className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 focus:outline-none focus:border-earth" />
                                 </div>
                                 <div className="grid md:grid-cols-2 gap-4">
-                                    <input type="text" name="customer_city" value={formData.customer_city} onChange={handleChange} className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 focus:outline-none focus:border-earth" placeholder="Ciudad" />
-                                    <input type="text" name="customer_postal_code" value={formData.customer_postal_code} onChange={handleChange} className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 focus:outline-none focus:border-earth" placeholder="Código Postal" />
+                                    <input type="text" name="customer_city" value={formData.customer_city} onChange={handleChange} required={formData.shipping_method === 'delivery'} className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 focus:outline-none focus:border-earth" placeholder="Ciudad" />
+                                    <input type="text" name="customer_postal_code" value={formData.customer_postal_code} onChange={handleChange} required={formData.shipping_method === 'delivery'} className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 focus:outline-none focus:border-earth" placeholder="Código Postal" />
                                 </div>
                             </div>
 
@@ -307,6 +351,22 @@ const Checkout = () => {
                                         </div>
                                     </div>
                                 ))}
+                            </div>
+                            <div className="border-t border-beige-dark/20 pt-4 mb-4">
+                                <div className="flex justify-between items-center text-sm font-medium text-slate-600 mb-2">
+                                    <span>Subtotal</span>
+                                    <span>${cartTotal.toLocaleString('es-AR')}</span>
+                                </div>
+                                {discountAmount > 0 && (
+                                    <div className="flex justify-between items-center text-sm font-medium text-green-600 mb-2">
+                                        <span>Descuento</span>
+                                        <span>-${discountAmount.toLocaleString('es-AR')}</span>
+                                    </div>
+                                )}
+                                <div className="flex justify-between items-center text-sm font-medium text-slate-600 mb-2">
+                                    <span>Envío {formData.shipping_method === 'pickup' ? '(Retiro)' : ''}</span>
+                                    <span>{formData.shipping_cost > 0 ? `$${formData.shipping_cost.toLocaleString('es-AR')}` : 'Gratis'}</span>
+                                </div>
                             </div>
                             <div className="border-t border-beige-dark/20 pt-4 flex justify-between items-center">
                                 <span className="text-lg font-bold text-slate-800">Total</span>

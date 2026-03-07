@@ -148,6 +148,9 @@ const AdminSettings = () => {
         web_show_products: 'true', // [NEW]
         web_show_therapies: 'true', // [NEW]
         maintenance_mode_active: 'false', // [NEW]
+        // Envío
+        shipping_enabled: 'false',
+        shipping_fixed_cost: '0',
         home_card_1_title: '',
         home_card_1_desc: '',
         home_card_1_icon: '🌱',
@@ -849,6 +852,40 @@ const AdminSettings = () => {
                                                     className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 focus:outline-none focus:border-earth focus:ring-1 focus:ring-earth transition-all"
                                                     placeholder="mi.alias.tienda"
                                                 />
+                                            </div>
+                                        </div>
+
+                                        <div className="mt-12 pt-12 border-t border-beige-dark/10">
+                                            <h2 className="text-xl font-serif text-earth font-bold mb-6 flex items-center gap-2">
+                                                <span className="p-2 bg-green-100 rounded-xl text-lg">🚚</span>
+                                                Costo de Envío
+                                            </h2>
+                                            <div className="space-y-6">
+                                                <div className="flex items-center gap-4">
+                                                    <label className="relative inline-flex items-center cursor-pointer">
+                                                        <input
+                                                            type="checkbox"
+                                                            name="shipping_enabled"
+                                                            checked={settings.shipping_enabled === 'true' || settings.shipping_enabled === true}
+                                                            onChange={(e) => handleChange({ target: { name: 'shipping_enabled', value: e.target.checked.toString() } })}
+                                                            className="sr-only peer"
+                                                        />
+                                                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-earth/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-earth"></div>
+                                                        <span className="ml-3 text-sm font-medium text-slate-700">Habilitar cobro de envío a domicilio</span>
+                                                    </label>
+                                                </div>
+                                                <div className={`transition-opacity duration-300 ${settings.shipping_enabled === 'true' || settings.shipping_enabled === true ? 'opacity-100' : 'opacity-50 pointer-events-none'}`}>
+                                                    <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Costo Fijo de Envío ($)</label>
+                                                    <input
+                                                        type="number"
+                                                        name="shipping_fixed_cost"
+                                                        value={settings.shipping_fixed_cost || ''}
+                                                        onChange={handleChange}
+                                                        className="w-full md:w-1/2 bg-paper border border-beige-dark/20 rounded-xl p-3 focus:outline-none focus:border-earth focus:ring-1 focus:ring-earth transition-all"
+                                                        placeholder="Ej: 5000"
+                                                        min="0"
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
 

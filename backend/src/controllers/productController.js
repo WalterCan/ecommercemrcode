@@ -5,6 +5,7 @@ const Category = require('../models/Category');
 const ProductVariant = require('../models/ProductVariant');
 const fs = require('fs');
 const path = require('path');
+const { invalidateCache } = require('../middleware/cache');
 
 /**
  * Obtener todos los productos (SOLO ACTIVOS para el público)
@@ -172,6 +173,9 @@ exports.createProduct = async (req, res) => {
             }
         }
 
+        // Invalidar cache de productos
+        await invalidateCache('cache:/api/products*');
+
         // Devolver producto con sus imágenes y variantes
         const finalProduct = await Product.findByPk(product.id, {
             include: [
@@ -302,6 +306,9 @@ exports.updateProduct = async (req, res) => {
 
         await product.update(productData);
 
+        // Invalidar cache de productos
+        await invalidateCache('cache:/api/products*');
+
         // Devolver producto actualizado
         const updatedProduct = await Product.findByPk(product.id, {
             include: [
@@ -330,6 +337,10 @@ exports.updateProductStatus = async (req, res) => {
         }
 
         await product.update({ active: req.body.active });
+
+        // Invalidar cache de productos
+        await invalidateCache('cache:/api/products*');
+
         res.json({ message: 'Estado actualizado', active: product.active });
     } catch (error) {
         logger.error('Error updating product status:', error);
@@ -357,6 +368,10 @@ exports.deleteProduct = async (req, res) => {
         }
 
         await product.destroy();
+
+        // Invalidar cache de productos
+        await invalidateCache('cache:/api/products*');
+
         res.json({ message: 'Producto eliminado correctamente' });
     } catch (error) {
         logger.error('Error deleting product:', error);
