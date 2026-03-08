@@ -269,6 +269,85 @@ const Profile = () => {
                                 </form>
                             </div>
 
+                            {/* Cambio de Contraseña */}
+                            <div className="bg-white p-8 rounded-3xl shadow-sm border border-beige-dark/10 mt-6">
+                                <h2 className="text-xl font-serif text-earth font-bold mb-6">Seguridad</h2>
+                                <form
+                                    onSubmit={async (e) => {
+                                        e.preventDefault();
+                                        const current = e.target.currentPassword.value;
+                                        const newPass = e.target.newPassword.value;
+                                        const confirm = e.target.confirmPassword.value;
+
+                                        if (newPass !== confirm) {
+                                            return showToast('Las nuevas contraseñas no coinciden', 'error');
+                                        }
+
+                                        setSaving(true);
+                                        try {
+                                            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
+                                            const token = localStorage.getItem('token');
+                                            const response = await fetch(`${baseUrl}/users/change-password`, {
+                                                method: 'PUT',
+                                                headers: {
+                                                    'Content-Type': 'application/json',
+                                                    'Authorization': `Bearer ${token}`
+                                                },
+                                                body: JSON.stringify({ currentPassword: current, newPassword: newPass })
+                                            });
+
+                                            if (response.ok) {
+                                                showToast('Contraseña actualizada correctamente', 'success');
+                                                e.target.reset();
+                                            } else {
+                                                const data = await response.json();
+                                                showToast(data.message || 'Error al cambiar contraseña', 'error');
+                                            }
+                                        } catch (error) {
+                                            showToast('Error de conexión', 'error');
+                                        } finally {
+                                            setSaving(false);
+                                        }
+                                    }}
+                                    className="space-y-4"
+                                >
+                                    <div>
+                                        <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Contraseña Actual</label>
+                                        <input
+                                            type="password"
+                                            name="currentPassword"
+                                            required
+                                            className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 text-sm focus:outline-none focus:border-earth"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Nueva Contraseña</label>
+                                        <input
+                                            type="password"
+                                            name="newPassword"
+                                            required
+                                            className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 text-sm focus:outline-none focus:border-earth"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Confirmar Nueva Contraseña</label>
+                                        <input
+                                            type="password"
+                                            name="confirmPassword"
+                                            required
+                                            className="w-full bg-paper border border-beige-dark/20 rounded-xl p-3 text-sm focus:outline-none focus:border-earth"
+                                        />
+                                    </div>
+                                    <button
+                                        type="submit"
+                                        disabled={saving}
+                                        className="w-full bg-white text-earth border border-earth py-3 rounded-xl font-bold hover:bg-beige-light transition-all disabled:opacity-50 mt-4 shadow-sm"
+                                    >
+                                        Actualizar Contraseña
+                                    </button>
+                                </form>
+                            </div>
+
                             {/* Módulos Activos */}
                             <div className="bg-white p-8 rounded-3xl shadow-sm border border-beige-dark/10 mt-6">
                                 <h2 className="text-xl font-serif text-earth font-bold mb-4">📦 Mis Módulos Activos</h2>

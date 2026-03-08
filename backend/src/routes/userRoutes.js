@@ -108,4 +108,33 @@ router.get('/orders', authenticateUser, async (req, res) => {
     }
 });
 
+// Actualizar contraseña del usuario
+router.put('/change-password', authenticateUser, async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({ message: 'Se requieren ambas contraseñas' });
+        }
+
+        const user = await User.findByPk(req.userId);
+        if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
+
+        // Verificar contraseña actual
+        const isMatch = await user.validPassword(currentPassword);
+        if (!isMatch) {
+            return res.status(401).json({ message: 'La contraseña actual es incorrecta' });
+        }
+
+        // Actualizar contraseña (el hook beforeUpdate la hasheará)
+        user.password = newPassword;
+        await user.save();
+
+        res.json({ message: 'Contraseña actualizada con éxito' });
+    } catch (error) {
+        console.error('Error changing password:', error);
+        res.status(500).json({ message: 'Error al cambiar la contraseña' });
+    }
+});
+
 module.exports = router;

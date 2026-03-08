@@ -85,6 +85,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/reports', reportRoutes);
 app.api_routes = app.api_routes || {};
 app.use('/api/categories', categoryRoutes);
+app.use('/api/products/categories', categoryRoutes); // Alias para compatibilidad con el frontend
 app.use('/api/patients', patientRoutes); // [NEW] Consultorio
 app.use('/api/appointments', require('./routes/appointmentRoutes')); // [NEW] Agenda
 app.use('/api/therapies', require('./routes/therapyRoutes')); // [NEW] Tipos de Terapia
