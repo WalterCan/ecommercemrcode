@@ -12,12 +12,15 @@ const {
 
 const upload = require('../middleware/uploadMiddleware');
 
+const { requireModule } = require('../middleware/moduleAccess');
+
 // Ruta pública - Ver todas las terapias activas
 router.get('/', getTherapies);
 
 // Rutas protegidas (Requieren autenticación)
 router.use(protect);
 router.use(checkLicense);
+router.use(requireModule('appointments'));
 
 // Rutas de profesional
 router.get('/my-therapies', getMyTherapies); // Ver mis terapias

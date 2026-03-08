@@ -174,11 +174,28 @@ async function startServer() {
         const { createDefaultAdmin } = require('./src/utils/seedAdmin');
         await createDefaultAdmin();
 
-        // ============================================
-        // INICIALIZAR MÓDULOS DEL SISTEMA
-        // ============================================
         const { seedModules } = require('./src/utils/seedModules');
         await seedModules();
+
+        // Asegurar que la licencia esté actualizada (por si se cambió en el código pero ya existía en DB)
+        await Setting.update(
+            { value: 'CLINIC-PRO-2025' },
+            { where: { key: 'license_key' } }
+        );
+
+        // Vincular todos los módulos al usuario administrador (admin@ecommerce.com)
+        const User = require('./src/models/User');
+        const defaultAdmin = await User.findOne({ where: { email: 'admin@ecommerce.com' } });
+        if (defaultAdmin) {
+            const allModules = await Module.findAll({ where: { is_active: true } });
+            for (const mod of allModules) {
+                await UserModule.findOrCreate({
+                    where: { user_id: defaultAdmin.id, module_id: mod.id },
+                    defaults: { enabled: true }
+                });
+            }
+            logger.info('✅ Módulos vinculados al administrador por defecto.');
+        }
 
         // ============================================
         // INICIAR CRON JOB DE RECORDATORIOS

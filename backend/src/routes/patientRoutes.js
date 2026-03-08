@@ -12,9 +12,12 @@ const {
     deleteClinicalRecord
 } = require('../controllers/patientController');
 
+const { requireModule } = require('../middleware/moduleAccess');
+
 // Todas las rutas requieren Liciencia Activa + Autenticación
 router.use(protect);
 router.use(checkLicense);
+router.use(requireModule('patients'));
 
 // Rutas
 router.post('/create', admin, (req, res, next) => {

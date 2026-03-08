@@ -9,9 +9,12 @@ const {
     deleteAvailability
 } = require('../controllers/availabilityController');
 
+const { requireModule } = require('../middleware/moduleAccess');
+
 // Todas las rutas requieren Licencia Activa + Autenticación
 router.use(protect);
 router.use(checkLicense);
+router.use(requireModule('appointments'));
 
 // Rutas públicas (clientes)
 router.get('/', getAvailableSlots); // Ver horarios disponibles
