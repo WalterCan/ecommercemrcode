@@ -38,9 +38,9 @@ services:
       - DB_PASSWORD=${DB_PASSWORD:-root_password}
       - DB_NAME=ecommercemrcode
       - REDIS_HOST=redis_prod
-      - REDIS_PORT=6379
+      - ALLOWED_ORIGINS=https://vibrabonito.com.ar
       # Cambiar esta linea si configuras SSL en tu panel Nginx:
-      - FRONTEND_URL=http://vibrabonito.com.ar
+      - FRONTEND_URL=https://vibrabonito.com.ar
       - NODE_OPTIONS=--max-old-space-size=2048
     depends_on:
       - db_ecommerce_prod
