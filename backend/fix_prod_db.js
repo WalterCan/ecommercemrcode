@@ -15,13 +15,12 @@ async function fixProductionData() {
 
         if (realAdminUser) {
             console.log(`Encontrado ${realAdminEmail}, actualizando contraseña...`);
-            // Hasheamos la contraseña que estaba en texto plano en la BD
-            const hashedPassword = await bcrypt.hash('Palmera1363!', 10);
+            // Pasamos la contraseña en texto plano, el hook beforeUpdate la hasheará
             await realAdminUser.update({ 
-                password: hashedPassword,
+                password: 'Palmera1363!',
                 role: 'admin' // Aseguramos que sea admin
             });
-            console.log(`✅ Contraseña hasheada y rol asegurado para ${realAdminEmail}`);
+            console.log(`✅ Contraseña hasheada correctamente por el modelo y rol asegurado para ${realAdminEmail}`);
 
             // Asignar todos los módulos activos a este admin para que la web funcione
             console.log('Asignando módulos al administrador...');
@@ -44,13 +43,12 @@ async function fixProductionData() {
 
         if (superAdminUser) {
             console.log(`Encontrado ${superAdminEmail}, actualizando credenciales...`);
-            // Le ponemos una contraseña conocida
-            const superHash = await bcrypt.hash('SuperAdmin2024!', 10);
+            // Pasamos clave en texto plano
             await superAdminUser.update({
-                password: superHash,
+                password: 'SuperAdmin2024!',
                 role: 'super_admin' // Aseguramos que sea super_admin
             });
-            console.log(`✅ Contraseña actualizada y rol asegurado para ${superAdminEmail}`);
+            console.log(`✅ Contraseña actualizada correctamente por el modelo y rol asegurado para ${superAdminEmail}`);
         }
 
         console.log('\n=======================================');
