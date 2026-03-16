@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import { formatImageUrl } from '../../utils/imageConfig';
+import { useSettings } from '../../context/SettingsContext';
 
 /**
  * Header minimalista inspirado en Nutrigo.
@@ -11,38 +12,30 @@ import { formatImageUrl } from '../../utils/imageConfig';
 const Header = ({ onSearch }) => {
     const { toggleCart, cartCount } = useCart();
     const { user } = useAuth();
+    const { settings } = useSettings();
     const [searchTerm, setSearchTerm] = useState('');
     const [allProducts, setAllProducts] = useState([]);
     const [suggestions, setSuggestions] = useState([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
-    const [activeModules, setActiveModules] = useState([]); // [NEW]
+    const [activeModules, setActiveModules] = useState([]); 
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const [settings, setSettings] = useState({
-        announcement_active: 'false',
-        announcement_text: '',
-        announcement_link: '',
-        site_logo_url: ''
-    });
+
+    const maintenanceForce = settings.maintenance_mode_active === 'true' || settings.maintenance_mode_active === true;
 
     useEffect(() => {
-        const fetchSettings = async () => {
+        const fetchModules = async () => {
             try {
                 const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
-                const settingsRes = await fetch(`${baseUrl}/settings`);
-                const settingsData = await settingsRes.json();
-                setSettings(prev => ({ ...prev, ...settingsData }));
-
-                // [NEW] Fetch módulos activos
                 const modulesRes = await fetch(`${baseUrl}/modules/active`);
                 if (modulesRes.ok) {
                     const modulesData = await modulesRes.json();
                     setActiveModules(modulesData);
                 }
             } catch (error) {
-                console.error('Error loading settings or modules:', error);
+                console.error('Error loading active modules:', error);
             }
         };
-        fetchSettings();
+        fetchModules();
     }, []);
 
     // Fetch productos para sugerencias (solo si no se han cargado)
@@ -117,33 +110,31 @@ const Header = ({ onSearch }) => {
                 {/* Lado izquierdo: Navegación (Escritorio) */}
                 <nav className="hidden md:flex items-center gap-8">
                     {/* Links del Sitio Web (Inicio, Nosotros) */}
-                    {((activeModules.includes('web') || activeModules.includes('ecommerce')) &&
-                        (settings.web_show_home === 'true' || settings.web_show_home === true || user?.role === 'super_admin')) && (
+                    {(!maintenanceForce && (activeModules.includes('web') || activeModules.includes('ecommerce')) &&
+                        (settings.web_show_home === 'true' || settings.web_show_home === true)) && (
                             <Link to="/" className="text-xs font-bold uppercase tracking-widest text-slate-600 hover:text-earth transition-colors">Inicio</Link>
                         )}
 
-                    {((activeModules.includes('web') || activeModules.includes('ecommerce')) &&
-                        (settings.web_show_about === 'true' || settings.web_show_about === true || user?.role === 'super_admin')) && (
+                    {(!maintenanceForce && (activeModules.includes('web') || activeModules.includes('ecommerce')) &&
+                        (settings.web_show_about === 'true' || settings.web_show_about === true)) && (
                             <Link to="/nosotros" className="text-xs font-bold uppercase tracking-widest text-slate-600 hover:text-earth transition-colors">Nosotros</Link>
                         )}
 
                     {/* Link Contacto (Nuevo) */}
-                    {((activeModules.includes('web') || activeModules.includes('ecommerce')) &&
-                        (settings.web_show_contact === 'true' || settings.web_show_contact === true || user?.role === 'super_admin')) && (
+                    {(!maintenanceForce && (activeModules.includes('web') || activeModules.includes('ecommerce')) &&
+                        (settings.web_show_contact === 'true' || settings.web_show_contact === true)) && (
                             <Link to="/contacto" className="text-xs font-bold uppercase tracking-widest text-slate-600 hover:text-earth transition-colors">Contacto</Link>
                         )}
 
                     {/* Links de E-commerce (Productos) */}
-                    {(
-                        (activeModules.includes('ecommerce') || user?.role === 'super_admin') &&
-                        (settings.web_show_products === 'true' || settings.web_show_products === true || user?.role === 'super_admin')
-                    ) && (
+                    {(!maintenanceForce &&
+                        (activeModules.includes('ecommerce')) &&
+                        (settings.web_show_products === 'true' || settings.web_show_products === true)) && (
                             <Link to="/productos" className="text-xs font-bold uppercase tracking-widest text-slate-600 hover:text-earth transition-colors">Productos</Link>
                         )}
-                    {(
-                        (activeModules.includes('appointments') || user?.role === 'super_admin') &&
-                        (settings.web_show_therapies === 'true' || settings.web_show_therapies === true || user?.role === 'super_admin')
-                    ) && (
+                    {(!maintenanceForce &&
+                        (activeModules.includes('appointments')) &&
+                        (settings.web_show_therapies === 'true' || settings.web_show_therapies === true)) && (
                             <Link to="/terapias" className="text-xs font-bold uppercase tracking-widest text-slate-600 hover:text-earth transition-colors">Terapias</Link>
                         )}
                     {(user?.role === 'admin' || user?.role === 'super_admin') && (
@@ -166,7 +157,12 @@ const Header = ({ onSearch }) => {
                             <img
                                 src={formatImageUrl(settings.site_logo_url)}
                                 alt="Logo"
-                                className="h-8 md:h-12 w-auto object-contain"
+                                className="w-auto object-contain transition-all duration-300"
+                                style={{ 
+                                    height: window.innerWidth < 768 
+                                        ? `${settings.site_logo_height_mobile || 32}px` 
+                                        : `${settings.site_logo_height || 48}px` 
+                                }}
                             />
                         ) : (
                             <div className="flex flex-col items-center leading-none">
@@ -301,28 +297,26 @@ const Header = ({ onSearch }) => {
                 </div>
 
                 <nav className="flex flex-col gap-6 text-center">
-                    {((activeModules.includes('web') || activeModules.includes('ecommerce')) &&
-                        (settings.web_show_home === 'true' || settings.web_show_home === true || user?.role === 'super_admin')) && (
+                    {(!maintenanceForce && (activeModules.includes('web') || activeModules.includes('ecommerce')) &&
+                        (settings.web_show_home === 'true' || settings.web_show_home === true)) && (
                             <Link to="/" onClick={closeMobileMenu} className="text-xl font-serif font-bold text-slate-700 hover:text-earth">Inicio</Link>
                         )}
-                    {((activeModules.includes('web') || activeModules.includes('ecommerce')) &&
-                        (settings.web_show_about === 'true' || settings.web_show_about === true || user?.role === 'super_admin')) && (
+                    {(!maintenanceForce && (activeModules.includes('web') || activeModules.includes('ecommerce')) &&
+                        (settings.web_show_about === 'true' || settings.web_show_about === true)) && (
                             <Link to="/nosotros" onClick={closeMobileMenu} className="text-xl font-serif font-bold text-slate-700 hover:text-earth">Nosotros</Link>
                         )}
-                    {((activeModules.includes('web') || activeModules.includes('ecommerce')) &&
-                        (settings.web_show_contact === 'true' || settings.web_show_contact === true || user?.role === 'super_admin')) && (
+                    {(!maintenanceForce && (activeModules.includes('web') || activeModules.includes('ecommerce')) &&
+                        (settings.web_show_contact === 'true' || settings.web_show_contact === true)) && (
                             <Link to="/contacto" onClick={closeMobileMenu} className="text-xl font-serif font-bold text-slate-700 hover:text-earth">Contacto</Link>
                         )}
-                    {(
-                        (activeModules.includes('ecommerce') || user?.role === 'super_admin') &&
-                        (settings.web_show_products === 'true' || settings.web_show_products === true || user?.role === 'super_admin')
-                    ) && (
+                    {(!maintenanceForce &&
+                        (activeModules.includes('ecommerce')) &&
+                        (settings.web_show_products === 'true' || settings.web_show_products === true)) && (
                             <Link to="/productos" onClick={closeMobileMenu} className="text-xl font-serif font-bold text-slate-700 hover:text-earth">Productos</Link>
                         )}
-                    {(
-                        (activeModules.includes('appointments') || user?.role === 'super_admin') &&
-                        (settings.web_show_therapies === 'true' || settings.web_show_therapies === true || user?.role === 'super_admin')
-                    ) && (
+                    {(!maintenanceForce &&
+                        (activeModules.includes('appointments')) &&
+                        (settings.web_show_therapies === 'true' || settings.web_show_therapies === true)) && (
                             <Link to="/terapias" onClick={closeMobileMenu} className="text-xl font-serif font-bold text-slate-700 hover:text-earth">Terapias</Link>
                         )}
                     {(user?.role === 'admin' || user?.role === 'super_admin') && (

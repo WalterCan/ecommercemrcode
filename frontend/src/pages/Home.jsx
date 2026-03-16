@@ -112,8 +112,8 @@ const Home = () => {
         );
     }
 
-    // Maintenance Mode Logic
-    if ((maintenanceForce || allDisabled) && user?.role !== 'super_admin') {
+    // Maintenance Mode Logic - Ahora afecta a todos para que el Admin pueda verificar
+    if (maintenanceForce || allDisabled) {
         return (
             <div className="bg-slate-950 min-h-screen font-sans">
                 <SEO title="Sitio en Construcción" description="Estamos preparando algo increíble." />

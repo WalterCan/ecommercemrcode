@@ -59,6 +59,8 @@ const AdminSettings = () => {
         theme_background_secondary: '#F7E7CE',
         theme_text_primary: '#1e293b',
         theme_text_secondary: '#64748b',
+        site_logo_height: '48',
+        site_logo_height_mobile: '32',
         // Nosotros
         about_hero_tagline: '',
         about_hero_tagline_color: '#9a3412',
@@ -612,6 +614,30 @@ const AdminSettings = () => {
                                                                 Eliminar Logo Actual
                                                             </button>
                                                         )}
+                                                    </div>
+                                                </div>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                                                    <div>
+                                                        <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Altura del Logo (Desktop - px)</label>
+                                                        <input
+                                                            type="number"
+                                                            name="site_logo_height"
+                                                            value={settings.site_logo_height || '48'}
+                                                            onChange={handleChange}
+                                                            className="w-full bg-white border border-beige-dark/20 rounded-xl p-3 focus:outline-none focus:border-earth text-sm"
+                                                            placeholder="48"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-2">Altura del Logo (Móvil - px)</label>
+                                                        <input
+                                                            type="number"
+                                                            name="site_logo_height_mobile"
+                                                            value={settings.site_logo_height_mobile || '32'}
+                                                            onChange={handleChange}
+                                                            className="w-full bg-white border border-beige-dark/20 rounded-xl p-3 focus:outline-none focus:border-earth text-sm"
+                                                            placeholder="32"
+                                                        />
                                                     </div>
                                                 </div>
                                             </div>

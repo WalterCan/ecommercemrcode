@@ -29,7 +29,13 @@ export const SettingsProvider = ({ children }) => {
         theme_background_color: '#FFFBF5',
         theme_background_secondary: '#F7E7CE',
         theme_text_primary: '#1e293b',
-        theme_text_secondary: '#64748b'
+        theme_text_secondary: '#64748b',
+        web_show_home: 'true',
+        web_show_about: 'true',
+        web_show_contact: 'true',
+        web_show_products: 'true',
+        web_show_therapies: 'true',
+        maintenance_mode_active: 'false'
     });
     const [loading, setLoading] = useState(true);
 

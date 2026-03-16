@@ -1,42 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { formatImageUrl } from '../../utils/imageConfig';
+import { useSettings } from '../../context/SettingsContext';
+import { useAuth } from '../../context/AuthContext';
 
 const Footer = () => {
-    const [settings, setSettings] = useState({
-        social_instagram: '',
-        social_facebook: '',
-        site_logo_url: '',
-        footer_bg_color: '',
-        footer_border_color: '',
-        footer_text_color: '',
-        footer_description: '',
-        footer_title_color: '',
-        footer_tagline: '',
-        footer_tagline_color: '',
-        footer_copyright_color: '',
-    });
+    const { settings } = useSettings();
+    const { user } = useAuth();
 
-    useEffect(() => {
-        const fetchSettings = async () => {
-            try {
-                const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
-                const res = await fetch(`${baseUrl}/settings`);
-                const data = await res.json();
-                setSettings(prev => ({ ...prev, ...data }));
-            } catch (error) {
-                console.error('Error loading settings:', error);
-            }
-        };
-        fetchSettings();
-    }, []);
+    // Verificación de Visibilidad
+    const maintenanceForce = settings.maintenance_mode_active === 'true' || settings.maintenance_mode_active === true;
 
     return (
         <footer
             className="border-t pt-16 pb-8 mt-auto relative z-10 w-full transition-colors duration-300"
             style={{
                 backgroundColor: settings.footer_bg_color || 'var(--color-bg-secondary)',
-                borderColor: settings.footer_border_color || 'var(--color-primary)22'
+                borderColor: settings.footer_border_color || 'rgba(0,0,0,0.1)'
             }}
         >
             <div className="container mx-auto px-4">
@@ -44,15 +24,20 @@ const Footer = () => {
                     {/* Columna 1: Marca y Redes */}
                     <div className="space-y-6">
                         <Link to="/" className="text-2xl font-serif text-earth-dark tracking-tighter font-bold block">
-                            {(settings.site_logo_url && settings.site_logo_url !== 'null') ? (
+                            {(settings.site_logo_url && settings.site_logo_url !== 'null' && settings.site_logo_url !== '') ? (
                                 <img
                                     src={formatImageUrl(settings.site_logo_url)}
                                     alt="Logo"
-                                    className="h-12 w-auto object-contain"
+                                    className="w-auto object-contain transition-all duration-300"
+                                    style={{ 
+                                        height: window.innerWidth < 768 
+                                            ? `${settings.site_logo_height_mobile || 32}px` 
+                                            : `${settings.site_logo_height || 48}px` 
+                                    }}
                                 />
                             ) : (
                                 <span style={{ color: settings.site_name_color || 'inherit' }}>
-                                    {settings.site_name || <>TIENDA<span className="text-earth">HOLÍSTICA</span></>}
+                                    {settings.site_name || 'TIENDA HOLÍSTICA'}
                                 </span>
                             )}
                         </Link>
@@ -119,39 +104,45 @@ const Footer = () => {
                             Navegación
                         </h4>
                         <ul className="space-y-4">
-                            <li>
-                                <Link
-                                    to="/productos"
-                                    className="text-sm hover:underline transition-colors"
-                                    style={{ color: settings.footer_text_color || '#475569' }}
-                                    onMouseEnter={(e) => e.currentTarget.style.color = settings.theme_primary_color || '#8A9A5B'}
-                                    onMouseLeave={(e) => e.currentTarget.style.color = settings.footer_text_color || '#475569'}
-                                >
-                                    Productos
-                                </Link>
-                            </li>
-                            <li>
-                                <Link
-                                    to="/nosotros"
-                                    className="text-sm hover:underline transition-colors"
-                                    style={{ color: settings.footer_text_color || '#475569' }}
-                                    onMouseEnter={(e) => e.currentTarget.style.color = settings.theme_primary_color || '#8A9A5B'}
-                                    onMouseLeave={(e) => e.currentTarget.style.color = settings.footer_text_color || '#475569'}
-                                >
-                                    Nosotros
-                                </Link>
-                            </li>
-                            <li>
-                                <Link
-                                    to="/contacto"
-                                    className="text-sm hover:underline transition-colors"
-                                    style={{ color: settings.footer_text_color || '#475569' }}
-                                    onMouseEnter={(e) => e.currentTarget.style.color = settings.theme_primary_color || '#8A9A5B'}
-                                    onMouseLeave={(e) => e.currentTarget.style.color = settings.footer_text_color || '#475569'}
-                                >
-                                    Contacto
-                                </Link>
-                            </li>
+                            {(!maintenanceForce && (settings.web_show_products === 'true' || settings.web_show_products === true)) && (
+                                <li>
+                                    <Link
+                                        to="/productos"
+                                        className="text-sm hover:underline transition-colors"
+                                        style={{ color: settings.footer_text_color || '#475569' }}
+                                        onMouseEnter={(e) => e.currentTarget.style.color = settings.theme_primary_color || '#8A9A5B'}
+                                        onMouseLeave={(e) => e.currentTarget.style.color = settings.footer_text_color || '#475569'}
+                                    >
+                                        Productos
+                                    </Link>
+                                </li>
+                            )}
+                            {(!maintenanceForce && (settings.web_show_about === 'true' || settings.web_show_about === true)) && (
+                                <li>
+                                    <Link
+                                        to="/nosotros"
+                                        className="text-sm hover:underline transition-colors"
+                                        style={{ color: settings.footer_text_color || '#475569' }}
+                                        onMouseEnter={(e) => e.currentTarget.style.color = settings.theme_primary_color || '#8A9A5B'}
+                                        onMouseLeave={(e) => e.currentTarget.style.color = settings.footer_text_color || '#475569'}
+                                    >
+                                        Nosotros
+                                    </Link>
+                                </li>
+                            )}
+                            {(!maintenanceForce && (settings.web_show_contact === 'true' || settings.web_show_contact === true)) && (
+                                <li>
+                                    <Link
+                                        to="/contacto"
+                                        className="text-sm hover:underline transition-colors"
+                                        style={{ color: settings.footer_text_color || '#475569' }}
+                                        onMouseEnter={(e) => e.currentTarget.style.color = settings.theme_primary_color || '#8A9A5B'}
+                                        onMouseLeave={(e) => e.currentTarget.style.color = settings.footer_text_color || '#475569'}
+                                    >
+                                        Contacto
+                                    </Link>
+                                </li>
+                            )}
                             <li>
                                 <Link
                                     to="/terminos"
