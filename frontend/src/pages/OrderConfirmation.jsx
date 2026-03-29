@@ -4,11 +4,8 @@ import Header from '../components/layout/Header';
 import CartDrawer from '../components/cart/CartDrawer';
 import { initMercadoPago, Wallet } from '@mercadopago/sdk-react';
 
-// Inicializar Mercado Pago con la clave pública del entorno
-// Nota: La clave se obtiene de VITE_MP_PUBLIC_KEY
-if (import.meta.env.VITE_MP_PUBLIC_KEY) {
-    initMercadoPago(import.meta.env.VITE_MP_PUBLIC_KEY);
-}
+// Mercado Pago se inicializa dinámicamente en el componente usando los settings del backend
+
 
 /**
  * Página de Confirmación de Pedido

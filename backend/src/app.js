@@ -23,6 +23,7 @@ const uploadRoutes = require('./routes/uploadRoutes');
 const patientRoutes = require('./routes/patientRoutes'); // [NEW]
 const supplierRoutes = require('./routes/supplierRoutes'); // [NEW] Compras
 const purchaseRoutes = require('./routes/purchaseRoutes'); // [NEW] Compras
+const configRoutes = require('./routes/configRoutes'); // [NEW] Configuración pública
 
 // ============================================
 // LOGGING
@@ -99,6 +100,7 @@ app.use('/api/suppliers', supplierRoutes); // [NEW] Compras
 app.use('/api/purchases', purchaseRoutes); // [NEW] Compras
 app.use('/api/contact', require('./routes/contactRoutes')); // [NEW] Contacto Web
 app.use('/api/cache', require('./routes/cacheRoutes')); // [NEW] Administración de Cache
+app.use('/api/config', configRoutes); // [NEW] Configuración pública
 
 /**
  * ============================================
