@@ -52,7 +52,8 @@ services:
           memory: 512M
     volumes:
       - ./backend:/app
-      - /app/node_modules # Evita sobreescribir node_modules del contenedor
+      - /app/node_modules
+      - ./backend/uploads:/app/uploads
     depends_on:
       - db_ecommerce
       - redis

@@ -8,6 +8,7 @@ export default defineConfig({
     server: {
         host: true,
         port: 5173,
+        allowedHosts: ['vibrabonito.com.ar', 'www.vibrabonito.com.ar', 'vps-5311710-x.dattaweb.com'],
         proxy: {
             '/api': {
                 target: 'http://localhost:3002',

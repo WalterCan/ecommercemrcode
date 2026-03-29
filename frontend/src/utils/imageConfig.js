@@ -8,11 +8,12 @@ export const formatImageUrl = (url) => {
 
     if (url.startsWith('http')) return url;
 
-    // Obtenemos la URL de la API (ej: http://localhost:3002/api)
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
-
-    // Quitamos el "/api" del final para quedarnos con la raíz (http://localhost:3002)
-    const origin = apiUrl.replace(/\/api$/, '');
+    // Si estamos en el navegador, usamos la raíz actual del dominio
+    // Esto asegura que en producción use https://vibrabonito.com.ar/uploads/...
+    // y en desarrollo siga funcionando localmente.
+    const origin = typeof window !== 'undefined' 
+        ? window.location.origin 
+        : (import.meta.env.VITE_API_URL || 'http://localhost:3002/api').replace(/\/api$/, '');
 
     // Nos aseguramos de que la url de la imagen empiece con /
     const cleanPath = url.startsWith('/') ? url : `/${url}`;
