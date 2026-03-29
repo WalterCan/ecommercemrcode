@@ -8,15 +8,18 @@ export const formatImageUrl = (url) => {
 
     if (url.startsWith('http')) return url;
 
-    // Si estamos en el navegador, usamos la raíz actual del dominio
-    // Esto asegura que en producción use https://vibrabonito.com.ar/uploads/...
-    // y en desarrollo siga funcionando localmente.
-    const origin = typeof window !== 'undefined' 
-        ? window.location.origin 
-        : (import.meta.env.VITE_API_URL || 'http://localhost:3002/api').replace(/\/api$/, '');
+    // Usamos la raíz actual del dominio si estamos en el navegador
+    const origin = typeof window !== 'undefined' ? window.location.origin : (import.meta.env.VITE_API_URL || '').replace(/\/api$/, '');
 
-    // Nos aseguramos de que la url de la imagen empiece con /
-    const cleanPath = url.startsWith('/') ? url : `/${url}`;
+    // Limpiamos la ruta: quitamos /uploads inicial si ya lo trae, porque lo pondremos nosotros
+    // o aseguramos que no se duplique si la URL ya es completa.
+    let cleanPath = url;
+    if (url.startsWith('/uploads/')) {
+        cleanPath = url.substring(9); // Quitamos /uploads/
+    } else if (url.startsWith('uploads/')) {
+        cleanPath = url.substring(8); // Quitamos uploads/
+    }
 
-    return `${origin}${cleanPath}`;
+    // Siempre devolvemos la ruta bajo la carpeta /uploads/ del servidor
+    return `${origin}/uploads/${cleanPath}`;
 };
