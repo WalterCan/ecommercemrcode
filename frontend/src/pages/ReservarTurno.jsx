@@ -17,7 +17,7 @@ const ReservarTurno = () => {
     const { showToast } = useToast();
     const { user } = useAuth();
     const navigate = useNavigate();
-    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
 
     useEffect(() => {
         fetchTherapies();

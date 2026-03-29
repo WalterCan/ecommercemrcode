@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
@@ -7,23 +7,43 @@ import { formatImageUrl } from '../../utils/imageConfig';
 /**
  * Carrito Lateral (Side Drawer)
  * Se despliega desde la derecha para mostrar el resumen de compra.
+ * Versión responsive con body scroll lock.
  */
 const CartDrawer = () => {
     const { cartItems, isCartOpen, toggleCart, removeFromCart, updateQuantity, cartSubtotal } = useCart();
     const { user } = useAuth();
 
+    // Bloquear scroll del body cuando el carrito está abierto
+    useEffect(() => {
+        if (isCartOpen) {
+            const scrollY = window.scrollY;
+            document.body.style.position = 'fixed';
+            document.body.style.top = `-${scrollY}px`;
+            document.body.style.width = '100%';
+            document.body.style.overflow = 'hidden';
+            
+            return () => {
+                document.body.style.position = '';
+                document.body.style.top = '';
+                document.body.style.width = '';
+                document.body.style.overflow = '';
+                window.scrollTo(0, scrollY);
+            };
+        }
+    }, [isCartOpen]);
+
     return (
         <>
             {/* Overlay (Fondo oscuro al abrir) */}
             <div
-                className={`fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] transition-opacity duration-300 ${isCartOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+                className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] transition-opacity duration-300 lg:opacity-0 ${isCartOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
                     }`}
                 onClick={toggleCart}
             />
 
             {/* Drawer Panel */}
             <aside
-                className={`fixed top-0 right-0 h-full w-full sm:w-[400px] bg-paper shadow-2xl z-[101] transform transition-transform duration-500 ease-out ${isCartOpen ? 'translate-x-0' : 'translate-x-full'
+                className={`fixed top-0 right-0 h-full w-full max-w-[100vw] sm:max-w-[400px] bg-paper shadow-2xl z-[101] transform transition-transform duration-300 ease-out ${isCartOpen ? 'translate-x-0' : 'translate-x-full'
                     }`}
             >
                 <div className="flex flex-col h-full">

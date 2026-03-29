@@ -76,7 +76,7 @@ const Profile = () => {
 
     const fetchUserModules = async () => {
         try {
-            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002';
             const token = localStorage.getItem('token');
             const response = await fetch(`${baseUrl}/api/module-management/my-modules`, {
                 headers: { 'Authorization': `Bearer ${token}` }

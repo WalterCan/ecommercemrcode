@@ -87,7 +87,7 @@ const AdminProducts = () => {
 
   const toggleFeatured = async (product) => {
     try {
-      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
       const token = localStorage.getItem('token');
       const response = await fetch(`${baseUrl}/products/${product.id}`, {
         method: 'PUT',
@@ -112,7 +112,7 @@ const AdminProducts = () => {
 
   const toggleActive = async (product) => {
     try {
-      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
       const token = localStorage.getItem('token');
       // Usar endpoint específico PATCH para cambiar estado (evita validaciones estrictas de PUT)
       const response = await fetch(`${baseUrl}/products/${product.id}/status`, {
@@ -243,7 +243,7 @@ const AdminProducts = () => {
 
             {/* --- LISTADO DE PRODUCTOS --- */}
             <div className="overflow-x-auto flex-1">
-              <table className="w-full text-left min-w-[900px]">
+              <table className="w-full text-left min-w-[600px] lg:min-w-[900px]">
                 <thead className="bg-beige-light/30 border-b border-beige-dark/10 sticky top-0 z-10 backdrop-blur-sm">
                   <tr>
                     <th className="px-6 py-4 text-xs font-bold uppercase tracking-widest text-slate-500">Producto</th>

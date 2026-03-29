@@ -6,11 +6,13 @@ import { useAuth } from '../../context/AuthContext';
 /**
  * Layout unificado para la administración.
  * Proporciona Sidebar y Header consistentes.
+ * Versión responsive con sidebar oculto en móvil.
  */
 const AdminLayout = ({ children, title, actions }) => {
     const { logout, user } = useAuth();
     const location = useLocation();
     const [settings, setSettings] = useState({ site_logo_url: '', site_name: '' });
+    const [sidebarOpen, setSidebarOpen] = useState(false);
 
     useEffect(() => {
         const fetchSettings = async () => {
@@ -157,10 +159,20 @@ const AdminLayout = ({ children, title, actions }) => {
         return best;
     }, '');
 
+    const closeSidebar = () => setSidebarOpen(false);
+
     return (
         <div className="flex h-screen bg-paper font-sans overflow-hidden">
-            {/* Sidebar Admin */}
-            <aside className="w-64 bg-white border-r border-beige-dark/20 flex flex-col shrink-0">
+            {/* Overlay para móvil cuando el sidebar está abierto */}
+            {sidebarOpen && (
+                <div 
+                    className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+                    onClick={closeSidebar}
+                />
+            )}
+
+            {/* Sidebar Admin - Desktop */}
+            <aside className="hidden lg:flex w-64 bg-white border-r border-beige-dark/20 flex-col shrink-0">
                 <div className="p-8 border-b border-beige-dark/10">
                     <Link to="/" className="flex items-center gap-2">
                         {(settings.site_logo_url && settings.site_logo_url !== 'null') ? (
@@ -186,8 +198,8 @@ const AdminLayout = ({ children, title, actions }) => {
                                 key={item.path}
                                 to={item.path}
                                 className={`flex items-center gap-3 p-3 rounded-xl transition-all text-sm ${isActive
-                                    ? 'bg-beige-light text-earth font-bold shadow-sm'
-                                    : 'text-slate-500 hover:bg-beige-light/50 hover:text-earth'
+                                        ? 'bg-beige-light text-earth font-bold shadow-sm'
+                                        : 'text-slate-500 hover:bg-beige-light/50 hover:text-earth'
                                     }`}
                             >
                                 {item.icon}
@@ -196,14 +208,13 @@ const AdminLayout = ({ children, title, actions }) => {
                         );
                     })}
 
-                    {/* Menú exclusivo para Super Admin */}
                     {user?.role === 'super_admin' && (
                         <>
                             <Link
                                 to="/super-admin/users"
                                 className={`flex items-center gap-3 p-3 rounded-xl transition-all text-sm ${location.pathname === '/super-admin/users'
-                                    ? 'bg-purple-100 text-purple-700 font-bold shadow-sm'
-                                    : 'text-purple-600 hover:bg-purple-50 hover:text-purple-700 border border-purple-200/50'
+                                        ? 'bg-purple-100 text-purple-700 font-bold shadow-sm'
+                                        : 'text-purple-600 hover:bg-purple-50 hover:text-purple-700 border border-purple-200/50'
                                     }`}
                             >
                                 <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -214,8 +225,8 @@ const AdminLayout = ({ children, title, actions }) => {
                             <Link
                                 to="/admin/audit"
                                 className={`flex items-center gap-3 p-3 rounded-xl transition-all text-sm ${location.pathname === '/admin/audit'
-                                    ? 'bg-purple-100 text-purple-700 font-bold shadow-sm'
-                                    : 'text-purple-600 hover:bg-purple-50 hover:text-purple-700 border border-purple-200/50'
+                                        ? 'bg-purple-100 text-purple-700 font-bold shadow-sm'
+                                        : 'text-purple-600 hover:bg-purple-50 hover:text-purple-700 border border-purple-200/50'
                                     }`}
                             >
                                 <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -240,10 +251,111 @@ const AdminLayout = ({ children, title, actions }) => {
                 </div>
             </aside>
 
+            {/* Sidebar Admin - Móvil */}
+            <aside className={`fixed inset-y-0 left-0 w-72 bg-white border-r border-beige-dark/20 flex flex-col shrink-0 transform transition-transform duration-300 z-50 lg:hidden ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+                <div className="p-6 border-b border-beige-dark/10 flex items-center justify-between">
+                    <Link to="/" className="flex items-center gap-2" onClick={closeSidebar}>
+                        {(settings.site_logo_url && settings.site_logo_url !== 'null') ? (
+                            <img
+                                src={formatImageUrl(settings.site_logo_url)}
+                                alt="Logo"
+                                className="h-8 w-auto object-contain"
+                            />
+                        ) : (
+                            <span className="text-xl font-serif text-earth font-bold">
+                                {settings.site_name || 'HOLÍSTICA'}
+                            </span>
+                        )}
+                        <span className="text-slate-400 font-sans text-[10px] tracking-widest uppercase italic pt-1">Admin</span>
+                    </Link>
+                    <button 
+                        onClick={closeSidebar}
+                        className="p-2 text-slate-400 hover:text-slate-600"
+                    >
+                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+                    {filteredMenuItems.map((item) => {
+                        const isActive = item.path === activePath;
+                        return (
+                            <Link
+                                key={item.path}
+                                to={item.path}
+                                onClick={closeSidebar}
+                                className={`flex items-center gap-3 p-3 rounded-xl transition-all text-sm ${isActive
+                                        ? 'bg-beige-light text-earth font-bold shadow-sm'
+                                        : 'text-slate-500 hover:bg-beige-light/50 hover:text-earth'
+                                    }`}
+                            >
+                                {item.icon}
+                                {item.label}
+                            </Link>
+                        );
+                    })}
+
+                    {user?.role === 'super_admin' && (
+                        <>
+                            <Link
+                                to="/super-admin/users"
+                                onClick={closeSidebar}
+                                className={`flex items-center gap-3 p-3 rounded-xl transition-all text-sm ${location.pathname === '/super-admin/users'
+                                        ? 'bg-purple-100 text-purple-700 font-bold shadow-sm'
+                                        : 'text-purple-600 hover:bg-purple-50 hover:text-purple-700 border border-purple-200/50'
+                                    }`}
+                            >
+                                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                </svg>
+                                👑 Gestión Usuarios
+                            </Link>
+                            <Link
+                                to="/admin/audit"
+                                onClick={closeSidebar}
+                                className={`flex items-center gap-3 p-3 rounded-xl transition-all text-sm ${location.pathname === '/admin/audit'
+                                        ? 'bg-purple-100 text-purple-700 font-bold shadow-sm'
+                                        : 'text-purple-600 hover:bg-purple-50 hover:text-purple-700 border border-purple-200/50'
+                                    }`}
+                            >
+                                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                </svg>
+                                🛡️ Auditoría
+                            </Link>
+                        </>
+                    )}
+                </nav>
+
+                <div className="p-4 border-t border-beige-dark/10">
+                    <button
+                        onClick={() => { logout(); closeSidebar(); }}
+                        className="flex items-center gap-3 w-full p-3 rounded-xl text-terracotta hover:bg-terracotta/5 transition-all text-sm font-bold"
+                    >
+                        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        Cerrar Sesión
+                    </button>
+                </div>
+            </aside>
+
             {/* Main Content Area */}
             <main className="flex-1 flex flex-col overflow-hidden">
                 <header className="min-h-[5rem] h-auto bg-white border-b border-beige-dark/10 px-4 md:px-10 py-3 flex flex-wrap md:flex-nowrap items-center justify-between gap-4 sticky top-0 z-10 shrink-0">
-                    <h2 className="text-lg md:text-xl font-serif text-slate-800 break-words max-w-full">{title}</h2>
+                    {/* Botón Hamburguesa para Móvil */}
+                    <button
+                        onClick={() => setSidebarOpen(true)}
+                        className="lg:hidden p-2 text-slate-600 hover:text-earth transition-colors focus:outline-none"
+                    >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+
+                    <h2 className="text-lg md:text-xl font-serif text-slate-800 break-words max-w-full flex-1">{title}</h2>
 
                     <div className="flex items-center gap-6">
                         {actions}

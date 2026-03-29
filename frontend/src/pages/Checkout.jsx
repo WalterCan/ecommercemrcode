@@ -337,7 +337,7 @@ const Checkout = () => {
                     </div>
 
                     <div className="lg:col-span-1">
-                        <div className="bg-white p-8 rounded-2xl shadow-sm border border-beige-dark/10 sticky top-4">
+                        <div className="bg-white p-6 lg:p-8 rounded-2xl shadow-sm border border-beige-dark/10 lg:sticky lg:top-4">
                             <h2 className="text-xl font-bold text-slate-700 mb-6 uppercase tracking-wide text-sm">Resumen</h2>
                             <div className="space-y-4 mb-6">
                                 {cart.map((item) => (
