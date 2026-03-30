@@ -11,7 +11,8 @@ export default defineConfig({
         allowedHosts: ['vibrabonito.com.ar', 'www.vibrabonito.com.ar', 'vps-5311710-x.dattaweb.com'],
         proxy: {
             '/api': {
-                target: 'http://localhost:3002',
+                // Usa el nombre del contenedor de Docker (backend:3000) o localhost para desarrollo sin docker
+                target: process.env.VITE_API_URL_PROXY || 'http://backend:3000',
                 changeOrigin: true,
                 secure: false
             }
