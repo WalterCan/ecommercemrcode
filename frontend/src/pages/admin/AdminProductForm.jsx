@@ -31,7 +31,7 @@ const AdminProductForm = () => {
     // Estado para Variantes
     const [variants, setVariants] = useState([]); // Array of { id?, name, additional_price, stock }
     const [loading, setLoading] = useState(false);
-    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5176/api';
 
     useEffect(() => {
         fetchCategories();

@@ -3,7 +3,7 @@ const router = express.Router();
 const reportController = require('../controllers/reportController');
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'holistica_secret_key_2025';
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // Middleware de autenticación y admin
 const isAdmin = (req, res, next) => {

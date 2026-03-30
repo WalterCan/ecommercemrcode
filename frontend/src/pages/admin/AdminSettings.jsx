@@ -573,7 +573,7 @@ const AdminSettings = () => {
                                                         {(logoPreview || settings.site_logo_url) ? (
                                                             <>
                                                                 <img
-                                                                    src={logoPreview || (settings.site_logo_url?.startsWith('http') ? settings.site_logo_url : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:3002'}${settings.site_logo_url}`)}
+                                                                    src={logoPreview || formatImageUrl(settings.site_logo_url)}
                                                                     alt="Logo Preview"
                                                                     className="w-full h-full object-contain"
                                                                 />
@@ -1747,7 +1747,7 @@ const AdminSettings = () => {
                                                         <div className="h-32 rounded-xl overflow-hidden border border-beige-dark/10 bg-white">
                                                             {(heroImagePreview || settings.hero_image_url) ? (
                                                                 <img
-                                                                    src={heroImagePreview || (settings.hero_image_url?.startsWith('http') ? settings.hero_image_url : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:3002'}${settings.hero_image_url}`)}
+                                                                    src={heroImagePreview || formatImageUrl(settings.hero_image_url)}
                                                                     alt="Hero Preview"
                                                                     className="w-full h-full object-cover"
                                                                 />
@@ -1919,7 +1919,7 @@ const AdminSettings = () => {
                                                         <div className="aspect-[4/5] rounded-2xl overflow-hidden border border-beige-dark/10 bg-white mb-4">
                                                             {(aboutImagePreview || settings.about_mission_image_url) ? (
                                                                 <img
-                                                                    src={aboutImagePreview || (settings.about_mission_image_url?.startsWith('http') ? settings.about_mission_image_url : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:3002'}${settings.about_mission_image_url}`)}
+                                                                    src={aboutImagePreview || formatImageUrl(settings.about_mission_image_url)}
                                                                     alt="Mission Preview"
                                                                     className="w-full h-full object-cover"
                                                                 />

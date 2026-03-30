@@ -1,18 +1,29 @@
 /**
  * Formatea la URL de la imagen para que sea accesible desde el frontend.
- * Si la imagen es una ruta local (comienza con /uploads), le añade la URL del backend.
+ * Funciona tanto en desarrollo local como en producción.
+ * 
+ * Si la imagen es una ruta local (/uploads), usa el mismo dominio del frontend.
  * Si es una URL externa (http...), la devuelve tal cual.
  */
+const getBaseUrl = () => {
+    // Si la API tiene un dominio externo o explícito (ej. http://localhost:3000/api), limpiamos la URL
+    const apiUrl = import.meta.env.VITE_API_URL || '';
+    if (apiUrl && apiUrl.startsWith('http')) {
+        return apiUrl.replace(/\/api\/?$/, ''); // Quita /api al final
+    }
+    
+    // Si VITE_API_URL es "/api" (producción o Nginx local unificado), 
+    // la base de las imágenes es la misma raíz del navegador (vibrabonito.com.ar)
+    return '';
+};
+
 export const formatImageUrl = (url) => {
     if (!url) return 'https://via.placeholder.com/400x400?text=Sin+Imagen';
 
+    // Si ya es una URL externa (http/https), devolverla tal cual
     if (url.startsWith('http')) return url;
 
-    // Usamos la raíz actual del dominio si estamos en el navegador
-    const origin = typeof window !== 'undefined' ? window.location.origin : (import.meta.env.VITE_API_URL || '').replace(/\/api$/, '');
-
-    // Limpiamos la ruta: quitamos /uploads inicial si ya lo trae, porque lo pondremos nosotros
-    // o aseguramos que no se duplique si la URL ya es completa.
+    // Limpiar la ruta: quitar /uploads inicial si ya lo trae
     let cleanPath = url;
     if (url.startsWith('/uploads/')) {
         cleanPath = url.substring(9); // Quitamos /uploads/
@@ -20,6 +31,30 @@ export const formatImageUrl = (url) => {
         cleanPath = url.substring(8); // Quitamos uploads/
     }
 
-    // Siempre devolvemos la ruta bajo la carpeta /uploads/ del servidor
+    // Obtener el dominio base del frontend (mismo dominio para imágenes)
+    const baseUrl = getBaseUrl();
+
+    // Devolver la ruta completa bajo /uploads/
+    return `${baseUrl}/uploads/${cleanPath}`;
+};
+
+/**
+ * Versión alternativa que fuerza el origen del window (útil para algunos casos)
+ * Útil cuando el sitio está en un CDN y las imágenes en otro servidor
+ */
+export const formatImageUrlWithOrigin = (url) => {
+    if (!url) return 'https://via.placeholder.com/400x400?text=Sin+Imagen';
+
+    if (url.startsWith('http')) return url;
+
+    const origin = typeof window !== 'undefined' ? window.location.origin : getBaseUrl();
+    
+    let cleanPath = url;
+    if (url.startsWith('/uploads/')) {
+        cleanPath = url.substring(9);
+    } else if (url.startsWith('uploads/')) {
+        cleanPath = url.substring(8);
+    }
+
     return `${origin}/uploads/${cleanPath}`;
 };

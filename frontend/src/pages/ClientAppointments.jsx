@@ -29,7 +29,7 @@ const ClientAppointments = () => {
 
     const fetchAppointments = async () => {
         try {
-            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5176/api';
             const token = user?.token || localStorage.getItem('token');
 
             const res = await fetch(`${baseUrl}/appointments/my-appointments`, {
@@ -50,7 +50,7 @@ const ClientAppointments = () => {
     const fetchAvailableSlots = async () => {
         setLoadingSlots(true);
         try {
-            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5176/api';
             const token = user?.token || localStorage.getItem('token');
 
             const res = await fetch(`${baseUrl}/availability`, {
@@ -97,7 +97,7 @@ const ClientAppointments = () => {
         if (!window.confirm('¿Seguro que deseas cancelar este turno?')) return;
 
         try {
-            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5176/api';
             const token = user?.token || localStorage.getItem('token');
             const res = await fetch(`${baseUrl}/appointments/my-appointments/${id}/cancel`, {
                 method: 'PUT',
@@ -131,7 +131,7 @@ const ClientAppointments = () => {
         }
 
         try {
-            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5176/api';
             const token = user?.token || localStorage.getItem('token');
 
             const res = await fetch(`${baseUrl}/appointments/my-appointments/${selectedAppointment.id}/reschedule`, {

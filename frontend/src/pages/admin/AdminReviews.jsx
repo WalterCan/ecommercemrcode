@@ -45,7 +45,7 @@ const AdminReviews = () => {
     const handleDelete = async (id) => {
         if (!window.confirm('¿Estás seguro de eliminar esta reseña?')) return;
         try {
-            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5176/api';
             const res = await fetch(`${baseUrl}/reviews/${id}`, { method: 'DELETE' });
             if (res.ok) {
                 showToast('Reseña eliminada', 'success');

@@ -21,7 +21,7 @@ const AdminCategoryForm = () => {
         if (isEditing) {
             const fetchCategory = async () => {
                 try {
-                    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+                    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5176/api';
                     const res = await fetch(`${baseUrl}/categories/${id}`);
                     if (res.ok) {
                         const data = await res.json();
@@ -48,7 +48,7 @@ const AdminCategoryForm = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5176/api';
             const url = isEditing ? `${baseUrl}/categories/${id}` : `${baseUrl}/categories`;
             const method = isEditing ? 'PUT' : 'POST';
 

@@ -12,7 +12,7 @@ const ConfirmAppointment = () => {
     useEffect(() => {
         const confirm = async () => {
             try {
-                const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+                const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5176/api';
                 const res = await fetch(`${baseUrl}/appointments/${id}/confirm`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' }

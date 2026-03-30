@@ -19,7 +19,7 @@ const AdminCategories = () => {
 
     const fetchCategories = async () => {
         try {
-            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5176/api';
             const response = await fetch(`${baseUrl}/categories`);
             const data = await response.json();
             if (Array.isArray(data)) {
@@ -38,7 +38,7 @@ const AdminCategories = () => {
     const handleDelete = async (id) => {
         if (window.confirm('¿Estás seguro de que deseas eliminar esta categoría?')) {
             try {
-                const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+                const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5176/api';
                 const response = await fetch(`${baseUrl}/categories/${id}`, {
                     method: 'DELETE'
                 });

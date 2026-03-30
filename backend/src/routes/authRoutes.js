@@ -7,7 +7,7 @@ const { validateLogin, validateRegister } = require('../middleware/validator');
 const { authLimiter } = require('../middleware/rateLimiter');
 const auditService = require('../services/auditService');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'holistica_secret_key_2025';
+const JWT_SECRET = process.env.JWT_SECRET;
 
 /**
  * Rutas de Autenticación

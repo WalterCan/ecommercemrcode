@@ -46,22 +46,25 @@ services:
       - db_ecommerce_prod
       - redis_prod
     volumes:
-      # Montamos la carpeta public para que los archivos subidos persistan
-      - ./backend/src/public:/app/src/public
+      # Montamos la carpeta uploads para que los archivos subidos persistan
+      - ./backend/uploads:/app/uploads
 
   frontend_prod:
     build:
       context: ./frontend
       dockerfile: Dockerfile.prod
       args:
-        # En la build de produccion necesitamos que VITE_API_URL apunte al dominio real (o a la IP si no hay dominio aun)
-        - VITE_API_URL=https://api.vibrabonito.com.ar/api
+        # Unificado al mismo dominio: www.vibrabonito.com.ar/api
+        - VITE_API_URL=https://www.vibrabonito.com.ar/api
     container_name: ecommerce-perfumes-web-prod
     restart: always
     ports:
       - "5176:80" # Expone el puerto 80 del Nginx interno al 5176 del VPS
     depends_on:
       - backend_prod
+    volumes:
+      # Montar carpeta uploads para persistencia de imágenes
+      - ./backend/uploads:/usr/share/nginx/html/uploads
 
 volumes:
   mysql_data_prod:

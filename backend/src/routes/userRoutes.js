@@ -5,7 +5,7 @@ const Order = require('../models/Order');
 const Patient = require('../models/Patient');
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'holistica_secret_key_2025';
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // Middleware para verificar token de usuario
 const authenticateUser = async (req, res, next) => {
