@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Setting = require('../models/Setting');
 const upload = require('../middleware/uploadMiddleware');
+const { protect, admin } = require('../middleware/authMiddleware');
 
 /**
  * GET /api/settings
@@ -26,7 +27,7 @@ router.get('/', async (req, res) => {
  * PUT /api/settings
  * Actualiza múltiples configuraciones a la vez. Soporta subida de imagen para el hero.
  */
-router.put('/', upload.any(), async (req, res) => {
+router.put('/', protect, admin, upload.any(), async (req, res) => {
     console.log('📦 BODY:', req.body);
     console.log('📂 FILES:', req.files?.map(f => ({ fieldname: f.fieldname, filename: f.filename })));
 
@@ -90,7 +91,5 @@ router.put('/', upload.any(), async (req, res) => {
         });
     }
 });
-
-module.exports = router;
 
 module.exports = router;

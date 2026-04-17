@@ -104,7 +104,7 @@ const Products = () => {
         .filter(product => {
             const matchesCategory = activeCategory === null || product.category_id === activeCategory;
             const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                product.description.toLowerCase().includes(searchQuery.toLowerCase());
+                (product.description || '').toLowerCase().includes(searchQuery.toLowerCase());
             return matchesCategory && matchesSearch;
         })
         .sort((a, b) => {

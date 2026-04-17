@@ -28,7 +28,7 @@ const ProductDetail = () => {
     const [relatedProducts, setRelatedProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [settings, setSettings] = useState({});
-    const [activeModules, setActiveModules] = useState([]); // [NEW] Verificación de módulos
+    const [activeModules, setActiveModules] = useState(null); // null = aún cargando
 
     // Ref para carrusel
     const galleryParams = React.useRef(null);
@@ -215,6 +215,8 @@ const ProductDetail = () => {
             } else {
                 showToast(data.error || 'Error al reservar', 'error');
             }
+        } catch {
+            showToast('Error de conexión al reservar el turno', 'error');
         } finally {
             setBookingProcessing(false);
         }
@@ -249,7 +251,7 @@ const ProductDetail = () => {
 
     if (loading) return <div className="min-h-screen bg-paper flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-earth"></div></div>;
 
-    if (!activeModules.includes('ecommerce') && user?.role !== 'super_admin') {
+    if (activeModules !== null && !activeModules.includes('ecommerce') && user?.role !== 'super_admin') {
         return (
             <div className="bg-paper min-h-screen">
                 <Header onSearch={() => { }} />

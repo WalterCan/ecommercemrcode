@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Review = require('../models/Review');
 const Product = require('../models/Product');
+const { protect, admin } = require('../middleware/authMiddleware');
 
 /**
  * GET /api/reviews/product/:productId
@@ -46,7 +47,7 @@ router.post('/', async (req, res) => {
  * GET /api/reviews/admin (solo admin)
  * Listar todas las reseñas para moderación
  */
-router.get('/admin', async (req, res) => {
+router.get('/admin', protect, admin, async (req, res) => {
     try {
         const reviews = await Review.findAll({
             include: [{ model: Product, as: 'product', attributes: ['name'] }],
@@ -62,7 +63,7 @@ router.get('/admin', async (req, res) => {
  * PUT /api/reviews/:id/approve
  * Aprobar una reseña
  */
-router.put('/:id/approve', async (req, res) => {
+router.put('/:id/approve', protect, admin, async (req, res) => {
     try {
         const review = await Review.findByPk(req.params.id);
         if (!review) return res.status(404).json({ error: 'Reseña no encontrada' });
@@ -79,7 +80,7 @@ router.put('/:id/approve', async (req, res) => {
  * DELETE /api/reviews/:id
  * Eliminar una reseña
  */
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', protect, admin, async (req, res) => {
     try {
         const review = await Review.findByPk(req.params.id);
         if (!review) return res.status(404).json({ error: 'Reseña no encontrada' });

@@ -374,8 +374,10 @@ const AdminSettings = () => {
             if (card2ImageFile) formData.append('card2_image', card2ImageFile);
             if (card3ImageFile) formData.append('card3_image', card3ImageFile);
 
+            const token = localStorage.getItem('token');
             const response = await fetch(`${baseUrl}/settings`, {
                 method: 'PUT',
+                headers: { 'Authorization': `Bearer ${token}` },
                 body: formData
             });
 

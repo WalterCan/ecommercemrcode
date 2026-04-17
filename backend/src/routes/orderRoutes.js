@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const crypto = require('crypto');
 const Order = require('../models/Order');
 const Product = require('../models/Product');
 const ProductVariant = require('../models/ProductVariant');
@@ -10,13 +11,14 @@ const { sendOrderMessage } = require('../services/whatsappService');
 const emailService = require('../services/emailService');
 const { validateOrder } = require('../middleware/validator');
 const { orderLimiter } = require('../middleware/rateLimiter');
+const { protect, admin } = require('../middleware/authMiddleware');
 const { Op } = require('sequelize');
 
 /**
  * GET /api/orders
  * Obtener todos los pedidos (para admin) con filtros opcionales de fecha
  */
-router.get('/', async (req, res) => {
+router.get('/', protect, admin, async (req, res) => {
     try {
         const { startDate, endDate } = req.query;
         const whereClause = {};
@@ -51,7 +53,7 @@ router.get('/', async (req, res) => {
  * GET /api/orders/:id
  * Obtener un pedido específico por ID
  */
-router.get('/:id', async (req, res) => {
+router.get('/:id', protect, admin, async (req, res) => {
     try {
         const order = await Order.findByPk(req.params.id);
         if (!order) {
@@ -119,11 +121,9 @@ router.post('/', orderLimiter, validateOrder, async (req, res) => {
         }
 
         // ============================================
-        // VALIDACIÓN Y ACTUALIZACIÓN DE STOCK
+        // VALIDACIÓN Y ACTUALIZACIÓN DE STOCK + RECÁLCULO DE TOTAL
         // ============================================
-        // ============================================
-        // VALIDACIÓN Y ACTUALIZACIÓN DE STOCK
-        // ============================================
+        let serverSubtotal = 0;
         for (const item of items) {
             const product = await Product.findByPk(item.id, { transaction: t });
 
@@ -170,6 +170,15 @@ router.post('/', orderLimiter, validateOrder, async (req, res) => {
                     stock: product.stock - item.quantity
                 }, { transaction: t });
             }
+
+            serverSubtotal += parseFloat(product.price) * item.quantity;
+        }
+
+        // Validar que el total enviado no sea menor al subtotal real (tolerancia de $1 por redondeos)
+        const serverTotal = serverSubtotal - parseFloat(discount_amount || 0) + parseFloat(shipping_cost || 0);
+        if (parseFloat(total) < serverTotal - 1) {
+            await t.rollback();
+            return res.status(400).json({ error: 'El total del pedido no coincide con los precios actuales' });
         }
 
         // ============================================
@@ -284,7 +293,7 @@ router.post('/', orderLimiter, validateOrder, async (req, res) => {
  * PUT /api/orders/:id
  * Actualizar estado de pedido (para administración)
  */
-router.put('/:id', async (req, res) => {
+router.put('/:id', protect, admin, async (req, res) => {
     const t = await sequelize.transaction();
     try {
         const order = await Order.findByPk(req.params.id, { transaction: t });
@@ -406,7 +415,7 @@ router.put('/:id', async (req, res) => {
  * DELETE /api/orders/:id
  * Eliminar pedido (admin)
  */
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', protect, admin, async (req, res) => {
     const t = await sequelize.transaction();
     try {
         const order = await Order.findByPk(req.params.id, { transaction: t });
@@ -444,11 +453,44 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
+function verifyMPSignature(req) {
+    const secret = process.env.MP_WEBHOOK_SECRET;
+    if (!secret) return true; // Si no está configurado, no bloquear
+
+    const signature = req.headers['x-signature'];
+    const requestId = req.headers['x-request-id'];
+    if (!signature) return false;
+
+    const parts = {};
+    signature.split(',').forEach(part => {
+        const [key, value] = part.split('=');
+        if (key && value) parts[key.trim()] = value.trim();
+    });
+
+    const { ts, v1 } = parts;
+    if (!ts || !v1) return false;
+
+    const dataId = req.query['data.id'] || req.body?.data?.id;
+    const manifest = `id:${dataId};request-id:${requestId};ts:${ts};`;
+    const expected = crypto.createHmac('sha256', secret).update(manifest).digest('hex');
+
+    try {
+        return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(v1));
+    } catch {
+        return false;
+    }
+}
+
 /**
  * POST /api/orders/webhook
  * Webhook de Mercado Pago
  */
 router.post('/webhook', async (req, res) => {
+    if (!verifyMPSignature(req)) {
+        console.warn('⚠️ Webhook MP con firma inválida rechazado');
+        return res.status(401).send('Unauthorized');
+    }
+
     try {
         const { type, data } = req.body;
         res.status(200).send('OK');
@@ -499,7 +541,7 @@ router.post('/webhook', async (req, res) => {
 /**
  * POST /api/orders/:id/resend-whatsapp
  */
-router.post('/:id/resend-whatsapp', async (req, res) => {
+router.post('/:id/resend-whatsapp', protect, admin, async (req, res) => {
     try {
         const order = await Order.findByPk(req.params.id);
         if (!order) return res.status(404).json({ error: 'Pedido no encontrado' });

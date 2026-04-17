@@ -18,9 +18,13 @@ const AdminCoupons = () => {
     const fetchCoupons = async () => {
         try {
             const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
-            const res = await fetch(`${baseUrl}/coupons`);
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${baseUrl}/coupons`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
             const data = await res.json();
-            setCoupons(data);
+            setCoupons(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error('Error fetching coupons:', error);
         } finally {
@@ -46,9 +50,13 @@ const AdminCoupons = () => {
                 discount_value: parseFloat(newCoupon.discount_value)
             };
 
+            const token = localStorage.getItem('token');
             const res = await fetch(`${baseUrl}/coupons`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
                 body: JSON.stringify(cleanedCoupon)
             });
             if (res.ok) {
@@ -67,7 +75,11 @@ const AdminCoupons = () => {
         if (!window.confirm('¿Estás seguro de eliminar este cupón?')) return;
         try {
             const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5176/api';
-            const res = await fetch(`${baseUrl}/coupons/${id}`, { method: 'DELETE' });
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${baseUrl}/coupons/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
             if (res.ok) {
                 showToast('Cupón eliminado', 'success');
                 fetchCoupons();

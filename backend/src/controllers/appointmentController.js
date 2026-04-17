@@ -199,6 +199,10 @@ const cancelClientAppointment = async (req, res) => {
 
         if (!appointment) return res.status(404).json({ error: 'Turno no encontrado' });
 
+        if (!appointment.patient) {
+            return res.status(403).json({ error: 'No tienes permiso para cancelar este turno' });
+        }
+
         // Verificar que el turno pertenezca al usuario logueado
         if (appointment.patient.user_id !== req.user.id) {
             return res.status(403).json({ error: 'No tienes permiso para cancelar este turno' });
@@ -239,6 +243,10 @@ const rescheduleAppointment = async (req, res) => {
 
         if (!currentAppointment) {
             return res.status(404).json({ error: 'Turno no encontrado' });
+        }
+
+        if (!currentAppointment.patient) {
+            return res.status(403).json({ error: 'No tienes permiso para reprogramar este turno' });
         }
 
         // Verificar que el turno pertenezca al usuario

@@ -37,15 +37,21 @@ const AdminStockAlerts = () => {
             const alertsResponse = await fetch(`${baseUrl}/products/stock-alerts`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
+            if (!alertsResponse.ok) {
+                throw new Error(`Error ${alertsResponse.status} al obtener alertas`);
+            }
             const alertsData = await alertsResponse.json();
 
             // Obtener estadísticas
             const statsResponse = await fetch(`${baseUrl}/products/stock-stats`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
+            if (!statsResponse.ok) {
+                throw new Error(`Error ${statsResponse.status} al obtener estadísticas`);
+            }
             const statsData = await statsResponse.json();
 
-            setProducts(alertsData);
+            setProducts(Array.isArray(alertsData) ? alertsData : []);
             setStats(statsData);
         } catch (error) {
             console.error('Error fetching stock data:', error);
@@ -55,10 +61,10 @@ const AdminStockAlerts = () => {
         }
     };
 
-    const filteredProducts = products.filter(product => {
+    const filteredProducts = Array.isArray(products) ? products.filter(product => {
         if (filter === 'all') return true;
         return product.stockStatus === filter;
-    });
+    }) : [];
 
     if (loading) {
         return (

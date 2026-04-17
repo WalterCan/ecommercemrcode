@@ -15,9 +15,13 @@ const AdminReviews = () => {
     const fetchReviews = async () => {
         try {
             const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
-            const res = await fetch(`${baseUrl}/reviews/admin`);
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${baseUrl}/reviews/admin`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
             const data = await res.json();
-            setReviews(data);
+            setReviews(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error('Error fetching reviews:', error);
         } finally {
@@ -32,7 +36,11 @@ const AdminReviews = () => {
     const handleApprove = async (id) => {
         try {
             const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
-            const res = await fetch(`${baseUrl}/reviews/${id}/approve`, { method: 'PUT' });
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${baseUrl}/reviews/${id}/approve`, {
+                method: 'PUT',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
             if (res.ok) {
                 showToast('Reseña aprobada', 'success');
                 fetchReviews();
@@ -46,7 +54,11 @@ const AdminReviews = () => {
         if (!window.confirm('¿Estás seguro de eliminar esta reseña?')) return;
         try {
             const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5176/api';
-            const res = await fetch(`${baseUrl}/reviews/${id}`, { method: 'DELETE' });
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${baseUrl}/reviews/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
             if (res.ok) {
                 showToast('Reseña eliminada', 'success');
                 fetchReviews();
@@ -57,7 +69,7 @@ const AdminReviews = () => {
     };
 
     // Filter Logic
-    const filteredReviews = reviews.filter(review => {
+    const filteredReviews = (Array.isArray(reviews) ? reviews : []).filter(review => {
         if (filterStatus === 'all') return true;
         if (filterStatus === 'approved') return review.is_approved;
         if (filterStatus === 'pending') return !review.is_approved;

@@ -2,12 +2,13 @@ const express = require('express');
 const router = express.Router();
 const Coupon = require('../models/Coupon');
 const { Op } = require('sequelize');
+const { protect, admin } = require('../middleware/authMiddleware');
 
 /**
  * GET /api/coupons
  * Listar todos los cupones (solo admin)
  */
-router.get('/', async (req, res) => {
+router.get('/', protect, admin, async (req, res) => {
     try {
         const coupons = await Coupon.findAll({
             order: [['created_at', 'DESC']]
@@ -23,7 +24,7 @@ router.get('/', async (req, res) => {
  * POST /api/coupons
  * Crear un nuevo cupón
  */
-router.post('/', async (req, res) => {
+router.post('/', protect, admin, async (req, res) => {
     try {
         const { code, discount_type, discount_value, expiry_date, usage_limit } = req.body;
 
@@ -90,7 +91,7 @@ router.post('/validate', async (req, res) => {
  * DELETE /api/coupons/:id
  * Eliminar (o desactivar) un cupón
  */
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', protect, admin, async (req, res) => {
     try {
         const coupon = await Coupon.findByPk(req.params.id);
         if (!coupon) return res.status(404).json({ error: 'Cupón no encontrado' });

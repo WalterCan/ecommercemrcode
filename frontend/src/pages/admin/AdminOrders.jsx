@@ -38,9 +38,13 @@ const AdminOrders = () => {
             if (dateRange.startDate) params.append('startDate', dateRange.startDate);
             if (dateRange.endDate) params.append('endDate', dateRange.endDate);
 
-            const response = await fetch(`${baseUrl}/orders?${params.toString()}`);
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${baseUrl}/orders?${params.toString()}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const data = await response.json();
-            setOrders(data);
+            setOrders(Array.isArray(data) ? data : []);
             setCurrentPage(1); // Reset to first page on new fetch
         } catch (error) {
             console.error('Error fetching orders:', error);
@@ -58,10 +62,12 @@ const AdminOrders = () => {
     const updateOrderStatus = async (orderId, field, value) => {
         try {
             const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002/api';
+            const token = localStorage.getItem('token');
             const response = await fetch(`${baseUrl}/orders/${orderId}`, {
                 method: 'PUT',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({ [field]: value })
             });
@@ -133,7 +139,7 @@ const AdminOrders = () => {
     };
 
     // Filtrar pedidos (Status & Payment Local Filter)
-    const filteredOrders = orders.filter(order => {
+    const filteredOrders = (Array.isArray(orders) ? orders : []).filter(order => {
         const matchStatus = filterStatus === 'all' || order.order_status === filterStatus;
         const matchPayment = filterPayment === 'all' || order.payment_status === filterPayment;
         return matchStatus && matchPayment;

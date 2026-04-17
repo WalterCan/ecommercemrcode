@@ -17,7 +17,12 @@ export const CartProvider = ({ children }) => {
     useEffect(() => {
         const savedCart = localStorage.getItem('cart');
         if (savedCart) {
-            setCartItems(JSON.parse(savedCart));
+            try {
+                const parsed = JSON.parse(savedCart);
+                setCartItems(Array.isArray(parsed) ? parsed : []);
+            } catch {
+                localStorage.removeItem('cart');
+            }
         }
     }, []);
 
