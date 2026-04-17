@@ -169,7 +169,7 @@ const AdminTherapyStats = () => {
                     <div className="bg-white p-8 rounded-3xl shadow-sm border border-beige-dark/10">
                         <h3 className="text-lg font-serif font-bold text-slate-800 mb-6">Tendencia de Ingresos</h3>
                         <div className="h-[300px]">
-                            <ResponsiveContainer width="100%" height="100%">
+                            <ResponsiveContainer width="100%" height={300}>
                                 <LineChart data={chartData}>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
                                     <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94A3B8' }} />
@@ -188,7 +188,7 @@ const AdminTherapyStats = () => {
                     <div className="bg-white p-8 rounded-3xl shadow-sm border border-beige-dark/10">
                         <h3 className="text-lg font-serif font-bold text-slate-800 mb-6">Distribución por Tipo de Terapia</h3>
                         <div className="h-[300px]">
-                            <ResponsiveContainer width="100%" height="100%">
+                            <ResponsiveContainer width="100%" height={300}>
                                 <PieChart>
                                     <Pie
                                         data={stats.byType}

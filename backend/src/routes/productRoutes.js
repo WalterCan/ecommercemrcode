@@ -56,24 +56,11 @@ router.get('/', cacheMiddleware(300), getAllProducts);
 // Obtener productos destacados - Cache 15 minutos
 router.get('/featured', cacheMiddleware(900), getFeaturedProducts);
 
-// Obtener un producto por ID - Cache 10 minutos
-router.get('/:id', cacheMiddleware(600), getProductById);
-
-
-// --- Rutas Admin (Protegidas, Todo el inventario) ---
-
-// Obtener todos los productos administrables (incluye inactivos)
-router.get('/admin/all', protect, admin, getAllProductsAdmin);
-
-// Obtener detalle de producto administrable
-router.get('/admin/detail/:id', protect, admin, getProductByIdAdmin);
-
-
-// --- Rutas de Stock / Reportes (Manteniendo lógica inline por ahora) ---
+// --- Rutas de Stock / Reportes ---
+// IMPORTANTE: deben ir ANTES de /:id para que Express no las capture como parámetro
 
 // Obtener alertas de stock (productos con stock bajo o crítico) - Cache 3 minutos
-// TODO: Mover a controlador y definir si debe ser público o privado.
-router.get('/stock-alerts', cacheMiddleware(180), async (req, res) => {
+router.get('/stock-alerts', protect, admin, cacheMiddleware(180), async (req, res) => {
     try {
         const { Op } = require('sequelize');
         const products = await Product.findAll({
@@ -87,7 +74,6 @@ router.get('/stock-alerts', cacheMiddleware(180), async (req, res) => {
             order: [['stock', 'ASC']]
         });
 
-        // Clasificar productos por estado
         const alerts = products.map(product => ({
             ...product.toJSON(),
             stockStatus: product.stock <= product.stock_critico ? 'critical' : 'low'
@@ -100,10 +86,8 @@ router.get('/stock-alerts', cacheMiddleware(180), async (req, res) => {
 });
 
 // Obtener estadísticas de stock - Cache 3 minutos
-router.get('/stock-stats', cacheMiddleware(180), async (req, res) => {
+router.get('/stock-stats', protect, admin, cacheMiddleware(180), async (req, res) => {
     try {
-        const { Op } = require('sequelize');
-
         const allProducts = await Product.findAll();
 
         const stats = {
@@ -118,6 +102,17 @@ router.get('/stock-stats', cacheMiddleware(180), async (req, res) => {
         res.status(500).json({ message: 'Error al obtener estadísticas de stock', error: error.message });
     }
 });
+
+// --- Rutas Admin (Protegidas, Todo el inventario) ---
+
+// Obtener todos los productos administrables (incluye inactivos)
+router.get('/admin/all', protect, admin, getAllProductsAdmin);
+
+// Obtener detalle de producto administrable
+router.get('/admin/detail/:id', protect, admin, getProductByIdAdmin);
+
+// Obtener un producto por ID - Cache 10 minutos
+router.get('/:id', cacheMiddleware(600), getProductById);
 
 
 // --- CRUD Admin ---

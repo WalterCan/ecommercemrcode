@@ -206,7 +206,7 @@ const AdminDashboard = () => {
                 <span className="text-xs font-bold text-moss bg-moss/10 px-3 py-1 rounded-full uppercase tracking-tighter">En Tiempo Real</span>
               </div>
               <div className="h-[300px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="100%" height={300}>
                   <LineChart data={salesData}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
                     <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 12 }} dy={10} />
@@ -225,7 +225,7 @@ const AdminDashboard = () => {
             <div className="bg-white p-8 rounded-3xl shadow-sm border border-beige-dark/10">
               <h3 className="text-lg font-serif text-slate-800 mb-8">Vibración por Categoría</h3>
               <div className="h-[300px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
+                <ResponsiveContainer width="100%" height={300}>
                   <PieChart>
                     <Pie
                       data={categoryData}

@@ -391,7 +391,7 @@ const WhatsAppConnect = () => {
                 </Typography>
                 <Grid container spacing={2}>
                     {isDisconnected && (
-                        <Grid item>
+                        <Grid>
                             <Button
                                 variant="contained"
                                 startIcon={<QrCodeScanner />}
@@ -415,7 +415,7 @@ const WhatsAppConnect = () => {
 
                     {isQrPending && (
                         <>
-                            <Grid item>
+                            <Grid>
                                 <Button
                                     variant="outlined"
                                     color="primary"
@@ -427,7 +427,7 @@ const WhatsAppConnect = () => {
                                     {actionLoading ? 'Regenerando...' : 'Regenerar QR'}
                                 </Button>
                             </Grid>
-                            <Grid item>
+                            <Grid>
                                 <Button
                                     variant="outlined"
                                     color="error"
@@ -443,7 +443,7 @@ const WhatsAppConnect = () => {
 
                     {isConnected && (
                         <>
-                            <Grid item>
+                            <Grid>
                                 <Button
                                     variant="outlined"
                                     color="success"
@@ -454,7 +454,7 @@ const WhatsAppConnect = () => {
                                     Enviar Prueba
                                 </Button>
                             </Grid>
-                            <Grid item>
+                            <Grid>
                                 <Button
                                     variant="outlined"
                                     color="error"
@@ -469,7 +469,7 @@ const WhatsAppConnect = () => {
                         </>
                     )}
 
-                    <Grid item>
+                    <Grid>
                         <Button
                             variant="text"
                             startIcon={<Refresh />}
