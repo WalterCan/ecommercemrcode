@@ -20,6 +20,8 @@ const Products = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [sortBy, setSortBy] = useState('relevance');
     const [loading, setLoading] = useState(true);
+    const [currentPage, setCurrentPage] = useState(1);
+    const ITEMS_PER_PAGE = 12;
     const [isModuleActive, setIsModuleActive] = useState(true);
 
     const [settings, setSettings] = useState({
@@ -99,6 +101,10 @@ const Products = () => {
         );
     }
 
+    const handleCategoryChange = (cat) => { setActiveCategory(cat); setCurrentPage(1); };
+    const handleSearch = (q) => { setSearchQuery(q); setCurrentPage(1); };
+    const handleSort = (val) => { setSortBy(val); setCurrentPage(1); };
+
     // Lógica de filtrado
     const filteredProducts = products
         .filter(product => {
@@ -120,10 +126,16 @@ const Products = () => {
             }
         });
 
+    const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
+    const paginatedProducts = filteredProducts.slice(
+        (currentPage - 1) * ITEMS_PER_PAGE,
+        currentPage * ITEMS_PER_PAGE
+    );
+
     return (
         <div className="bg-paper min-h-screen font-sans text-slate-800 selection:bg-rose-100 selection:text-rose-900">
             <SEO title="Catálogo" description="Explora nuestra colección de productos holísticos." />
-            <Header onSearch={setSearchQuery} />
+            <Header onSearch={handleSearch} />
             <CartDrawer />
 
             <main className="py-12 lg:py-20">
@@ -141,7 +153,7 @@ const Products = () => {
                         <CategoryFilter
                             categories={categories}
                             activeCategory={activeCategory}
-                            onCategoryChange={setActiveCategory}
+                            onCategoryChange={handleCategoryChange}
                         />
 
                         <div className="flex justify-between items-center border-b border-beige-dark/20 pb-4 mb-4">
@@ -150,7 +162,7 @@ const Products = () => {
                             </span>
                             <div className="flex items-center gap-2 text-xs text-slate-500">
                                 <span className="uppercase tracking-tighter">Ordenar por:</span>
-                                <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="bg-transparent border-none focus:ring-0 font-bold cursor-pointer text-earth">
+                                <select value={sortBy} onChange={(e) => handleSort(e.target.value)} className="bg-transparent border-none focus:ring-0 font-bold cursor-pointer text-earth">
                                     <option value="relevance">Relevancia</option>
                                     <option value="price-asc">Precio: Menor a Mayor</option>
                                     <option value="price-desc">Precio: Mayor a Menor</option>
@@ -159,11 +171,47 @@ const Products = () => {
                         </div>
 
                         {filteredProducts.length > 0 ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                                {filteredProducts.map((product) => (
-                                    <ProductCard key={product.id} product={product} />
-                                ))}
-                            </div>
+                            <>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                                    {paginatedProducts.map((product) => (
+                                        <ProductCard key={product.id} product={product} />
+                                    ))}
+                                </div>
+
+                                {totalPages > 1 && (
+                                    <div className="flex justify-center items-center gap-2 mt-12">
+                                        <button
+                                            onClick={() => { setCurrentPage(p => p - 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                                            disabled={currentPage === 1}
+                                            className="px-4 py-2 rounded-full border border-beige-dark/30 text-slate-600 hover:bg-beige disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+                                        >
+                                            ← Anterior
+                                        </button>
+
+                                        {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                                            <button
+                                                key={page}
+                                                onClick={() => { setCurrentPage(page); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                                                className={`w-9 h-9 rounded-full text-sm font-bold transition-colors ${
+                                                    currentPage === page
+                                                        ? 'bg-earth text-white'
+                                                        : 'text-slate-500 hover:bg-beige'
+                                                }`}
+                                            >
+                                                {page}
+                                            </button>
+                                        ))}
+
+                                        <button
+                                            onClick={() => { setCurrentPage(p => p + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                                            disabled={currentPage === totalPages}
+                                            className="px-4 py-2 rounded-full border border-beige-dark/30 text-slate-600 hover:bg-beige disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+                                        >
+                                            Siguiente →
+                                        </button>
+                                    </div>
+                                )}
+                            </>
                         ) : (
                             <div className="text-center py-40 bg-white/50 rounded-3xl border border-dashed border-beige-dark/30">
                                 <div className="h-20 mb-6 flex items-center justify-center">
@@ -176,7 +224,7 @@ const Products = () => {
                                 <p className="font-serif italic text-lg" style={{ color: settings.products_empty_text_color || '#94a3b8' }}>
                                     {settings.products_empty_text}
                                 </p>
-                                <button onClick={() => { setActiveCategory(null); setSearchQuery(''); }} className="mt-6 text-earth font-bold uppercase tracking-widest text-xs border-b border-earth pb-1">
+                                <button onClick={() => { setActiveCategory(null); setSearchQuery(''); setCurrentPage(1); }} className="mt-6 text-earth font-bold uppercase tracking-widest text-xs border-b border-earth pb-1">
                                     Restablecer Filtros
                                 </button>
                             </div>
