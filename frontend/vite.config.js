@@ -28,10 +28,10 @@ export default defineConfig({
             binaryInterval: 3000,
             ignored: ['**/node_modules/**', '**/dist/**', '**/.git/**', '**/public/**', '**/.DS_Store', '**/coverage/**']
         },
-        hmr: {
+        hmr: process.env.NODE_ENV === 'development' ? {
             host: 'localhost',
             clientPort: 5176
-        }
+        } : false
     },
     optimizeDeps: {
         force: false,

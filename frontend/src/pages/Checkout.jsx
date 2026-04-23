@@ -341,7 +341,7 @@ const Checkout = () => {
                             <h2 className="text-xl font-bold text-slate-700 mb-6 uppercase tracking-wide text-sm">Resumen</h2>
                             <div className="space-y-4 mb-6">
                                 {cart.map((item) => (
-                                    <div key={item.id} className="flex gap-4">
+                                    <div key={item.uid} className="flex gap-4">
                                         <div className="w-12 h-12 bg-beige rounded-lg overflow-hidden flex-shrink-0">
                                             <img src={formatImageUrl(item.image_url)} alt={item.name} className="w-full h-full object-cover" />
                                         </div>
