@@ -35,7 +35,7 @@ const Home = () => {
 
                 const [productsRes, categoriesRes, settingsRes, modulesRes] = await Promise.all([
                     fetch(`${baseUrl}/products`),
-                    fetch(`${baseUrl}/products/categories`),
+                    fetch(`${baseUrl}/categories`),
                     fetch(`${baseUrl}/settings`),
                     fetch(`${baseUrl}/modules/active`)
                 ]);

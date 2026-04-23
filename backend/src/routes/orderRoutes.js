@@ -51,9 +51,9 @@ router.get('/', protect, admin, async (req, res) => {
 
 /**
  * GET /api/orders/:id
- * Obtener un pedido específico por ID
+ * Obtener un pedido específico por ID (Público para confirmación)
  */
-router.get('/:id', protect, admin, async (req, res) => {
+router.get('/:id', async (req, res) => {
     try {
         const order = await Order.findByPk(req.params.id);
         if (!order) {
